@@ -1,1 +1,1 @@
-./configure --with-unixodbc-incs="-I /usr/local/unixODBC/include/" --with-unixodbc-libs="-L/usr/local/unixODBC/lib" --with-pg-incs="-I /usr/include/pgsql/iodbc"
+./configure --with-unixodbc-incs="-I /usr/local/unixODBC/include/" --with-unixodbc-libs="-L/usr/local/unixODBC/lib" --with-pg-incs="-I /usr/include/pgsql/iodbc" --with-oraclecfo-incs="-I /work/ODBCdrivers/include"
