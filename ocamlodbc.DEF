@@ -1,0 +1,12 @@
+LIBRARY dllocamlodbc.dll
+
+EXPORTS
+	value_HENV_c @1
+	value_HDBC_c @2
+	initDB_c @3
+	execDB_c @4
+	itere_execDB_c @5
+	free_execDB_c @6
+	get_infoDB_c @7
+	exitDB_c @8
+

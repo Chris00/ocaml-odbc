@@ -1,2 +1,5 @@
+2003-11-02: Maxence
+	- add: WIN32 support, thanks to Clément Capel
+
 2003-08-27: Maxence
 	- add: support for Oracle through the DataDirect "Connect for ODBC" driver
