@@ -1,5 +1,6 @@
 2004-10-01  Maxence Guesdon  <Maxence.Guesdon@inria.fr>
 
+	* rel: 2.9
 	* add: Ocamlodbc.execute_gen, from the patch by Leonid Timochouk
 	* add: Ocamldoc.version available in interface
 

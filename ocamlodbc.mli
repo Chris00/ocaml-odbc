@@ -24,6 +24,9 @@
 
 (** Interface to databases. *)
 
+(** Version of the library. *)
+val version : string
+
 (** To report errors. *)
 exception SQL_Error of string
 
@@ -51,20 +54,20 @@ type sql_column_type =
   | SQL_tinyint
   | SQL_bit
 
-      
+
 module SQL_column :
-    sig 
-      type t = sql_column_type 
-      val string : sql_column_type -> string 
+    sig
+      type t = sql_column_type
+      val string : sql_column_type -> string
     end
 
 (** Classic interface *)
 
 (** The type of connections to databases. *)
 type connection
-          
+
 (** [create base user passwd] creates a connection to data source
-   [base], as user [user], with password [passwd]. 
+   [base], as user [user], with password [passwd].
    @raise SQL_Error if we could not connect to the database.*)
 val connect : string -> string -> string -> connection
 
@@ -73,16 +76,16 @@ val connect : string -> string -> string -> connection
    @raise SQL_Error if an error occured while disconnecting.*)
 val disconnect : connection -> unit
 
-(** [execute c q] executes query [q] through connection [c] and 
-   returns the result as a pair [(error_code, recordlist)], 
+(** [execute c q] executes query [q] through connection [c] and
+   returns the result as a pair [(error_code, recordlist)],
    where a record is a [string list]. The [error_code] is 0
    if no error occured.*)
 val execute : connection -> string -> int * string list list
 
-(* [execute_with_info c q] executes query [q] through connection [c] and 
-   returns the result as a tuple [(error_code, type_list, record list)], 
+(* [execute_with_info c q] executes query [q] through connection [c] and
+   returns the result as a tuple [(error_code, type_list, record list)],
    where [type_list] indicates the SQL types of the returned columns,
-   and a record is a [string list]. 
+   and a record is a [string list].
    The [error_code is] 0 if no error occured.*)
 val execute_with_info :
     connection -> string -> int * (string * sql_column_type) list * string list list
@@ -97,7 +100,7 @@ val execute_gen :
 
 (** Object-oriented interface *)
 
-(* The class which represents a connection to a database. 
+(* The class which represents a connection to a database.
    The connection occurs when the object is created.
    @raise SQL_Error if an error occured during the connection to the database.*)
 class data_base :
@@ -112,16 +115,16 @@ class data_base :
        @raise SQL_Error if an error occurs while disconnecting.*)
     method disconnect : unit -> unit
 
-    (** [#execute q] executes query [q] and 
-       returns the result as a pair [(error_code, recordlist)], 
+    (** [#execute q] executes query [q] and
+       returns the result as a pair [(error_code, recordlist)],
        where a record is a [string list]. The [error_code] is 0
        if no error occured.*)
     method execute : string -> int * (string list list)
 
-    (* [#execute_with_info q] executes query [q] and 
-       returns the result as a tuple [(error_code, type_list, record list)], 
+    (* [#execute_with_info q] executes query [q] and
+       returns the result as a tuple [(error_code, type_list, record list)],
        where [type_list] indicates the SQL types of the returned columns,
-       and a record is a [string list]. 
+       and a record is a [string list].
        The [error_code] is 0 if no error occured.*)
     method execute_with_info : string -> int * ((string * sql_column_type) list) * (string list list)
 
@@ -132,5 +135,3 @@ class data_base :
        if no error occurred, [type_list] is empty if [get_info] is [false].*)
     method execute_gen : ?get_info:bool -> ?n_rec:int -> string -> (string list list -> unit) -> int * (string * sql_column_type) list
   end
-
-

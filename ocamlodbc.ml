@@ -30,7 +30,7 @@
 let logiciel = "OCamlODBC"
 
 (** The software version *)
-let version = "2.8"
+let version = "2.9"
 
 exception SQL_Error of string
 
@@ -61,14 +61,14 @@ type sql_column_type =
 module SQL_column =
   struct
     type t = sql_column_type
-    let string col_type = 
+    let string col_type =
       match col_type with
 	SQL_unknown -> "SQL_unknown"
       | SQL_char -> "SQL_char"
-      | SQL_numeric -> "SQL_numeric" 
+      | SQL_numeric -> "SQL_numeric"
       |	SQL_decimal -> "SQL_decimal"
       | SQL_integer -> "SQL_integer"
-      | SQL_smallint -> "SQL_smallint" 
+      | SQL_smallint -> "SQL_smallint"
       | SQL_float -> "SQL_float"
       | SQL_real -> "SQL_real"
       | SQL_double -> "SQL_double"
@@ -100,26 +100,26 @@ type connection =
       base : string ;
       user : string ;
       passwd : string ;
-    } 
+    }
 
 let connect base user passwd =
   let (iRC1,hEnv,pHDbc) = SQLInterface.initDB base user passwd in
-  if (iRC1 = 0) then 
+  if (iRC1 = 0) then
     {
       phEnv = hEnv;
       phDbc = pHDbc;
       base = base ;
       user = user ;
       passwd = passwd ;
-    } 
+    }
   else
     raise (SQL_Error (OCamlODBC_messages.connection base user passwd iRC1))
 
-let disconnect connection = 
+let disconnect connection =
   let iRC = (SQLInterface.exitDB connection.phEnv connection.phDbc) in
-  if (iRC > 0) then 
+  if (iRC > 0) then
     raise (SQL_Error OCamlODBC_messages.disconnect)
-  else 
+  else
     ()
 
 (** Cette fonction privée exécute une requête interrompue par des appels
@@ -127,7 +127,7 @@ let disconnect connection =
    liste de couples (nom, type) pour décrire les colonnes retournées,
    liste de liste de chaines représentant les enregistrements.
 *)
-let execute_gen connection ?(get_info=false) ?(n_rec=1) req callback = 
+let execute_gen connection ?(get_info=false) ?(n_rec=1) req callback =
   if req = "" then
     (-1, ([] : (string * sql_column_type) list))
   else
@@ -137,7 +137,7 @@ let execute_gen connection ?(get_info=false) ?(n_rec=1) req callback =
      let (ret, env) = SQLInterface.execDB phEnv phDbc req in
      match ret with
        0 ->
-	 let l_desc_col = 
+	 let l_desc_col =
 	   if get_info then
              (* récupérer les informations sur les champs retournés
 		(nom et type) par la dernière requête exécutée *)
@@ -147,7 +147,7 @@ let execute_gen connection ?(get_info=false) ?(n_rec=1) req callback =
 	 in
          (* récupérer les records en plusieurs fois *)
 	 (
-	  let rec iter () = 
+	  let rec iter () =
 	    let (n, ll_res) = SQLInterface.itereDB env n_rec in
 	    (*Gc.minor();*)
 
@@ -191,7 +191,7 @@ let execute_with_info connection req =
 
 (** Object-oriented interface. *)
 
-(** 
+(**
    @param base the database to connect to
    @param user the user to use when connecting
    @param passwd the password to use when connecting, can be [""]
@@ -206,13 +206,13 @@ class data_base base user passwd =
 
     method connect () = ()
 
-    method disconnect () = 
+    method disconnect () =
       if connected then
 	(
 	 connected <- false;
 	 disconnect connection
 	)
-    
+
     method execute req = execute connection req
 
     method execute_with_info req = execute_with_info connection req
