@@ -1,16 +1,27 @@
+#(***********************************************************************)
+#(*                          OCamlODBC                                  *)
+#(*                                                                     *)
+#(*            Maxence Guesdon, projet Cristal, INRIA Rocquencourt      *)
+#(*                                                                     *)
+#(*  Copyright 2001 Institut National de Recherche en Informatique et   *)
+#(*  en Automatique.  All rights reserved.  This file is distributed    *)
+#(*  under the terms of the Q Public License version 1.0.               *)
+#(*                                                                     *)
+#(***********************************************************************)
+
 
 # OCAML compilation tools
 OCAMLBIN= @OCAMLBIN@
-OCAMLC   = $(OCAMLBIN)/@OCAMLC@
-OCAMLOPT = $(OCAMLBIN)/@OCAMLOPT@
-OCAMLDEP = $(OCAMLBIN)/@OCAMLDEP@
-OCAMLLEX = $(OCAMLBIN)/@OCAMLLEX@
-OCAMLYACC= $(OCAMLBIN)/@OCAMLYACC@
+OCAMLC   = @OCAMLC@
+OCAMLOPT = @OCAMLOPT@
+OCAMLDEP = @OCAMLDEP@
+OCAMLLEX = @OCAMLLEX@
+OCAMLYACC= @OCAMLYACC@
 OCAMLLIB = @OCAMLLIB@
-OCAMLBEST= $(OCAMLBIN)/@OCAMLBEST@
+OCAMLBEST= @OCAMLBEST@
 OCAMLVERSION = @OCAMLVERSION@
 EXTRAC_CRC = $(OCAMLLIB)/extract_crc
-ODOC= @ODOC@
+OCAMLDOC= @OCAMLDOC@
 OCAMLPP=-pp 'grep -v DEBUG'
 
 # For installation 
@@ -80,7 +91,7 @@ MYSQL_OPTODBC= -D iODBC # -D DEBUG2
 POSTGRES_OPTODBC= -D iODBC
 OPENINGRES_OPTODBC= -D INTERSOLV
 DB2_OPTODBC= -D DB2 -D DEBUG2
-unixODBC_OPTODBC= -D unixODBC# -D DEBUG2
+unixODBC_OPTODBC= -D unixODBC
 
 OPTODBC=$($(BASE)_OPTODBC) #-D DEBUG2
 
