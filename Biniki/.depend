@@ -1,0 +1,10 @@
+biniki.cmo: biniki_context.cmo biniki_messages.cmo biniki_window.cmo 
+biniki.cmx: biniki_context.cmx biniki_messages.cmx biniki_window.cmx 
+biniki_context.cmo: biniki_messages.cmo biniki_misc.cmo 
+biniki_context.cmx: biniki_messages.cmx biniki_misc.cmx 
+biniki_misc.cmo: biniki_messages.cmo 
+biniki_misc.cmx: biniki_messages.cmx 
+biniki_query_box.cmo: biniki_misc.cmo 
+biniki_query_box.cmx: biniki_misc.cmx 
+biniki_window.cmo: biniki_messages.cmo biniki_misc.cmo biniki_query_box.cmo 
+biniki_window.cmx: biniki_messages.cmx biniki_misc.cmx biniki_query_box.cmx 

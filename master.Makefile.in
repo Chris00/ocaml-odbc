@@ -1,0 +1,141 @@
+
+# OCAML compilation tools
+OCAMLBIN= @OCAMLBIN@
+OCAMLC   = $(OCAMLBIN)/@OCAMLC@
+OCAMLOPT = $(OCAMLBIN)/@OCAMLOPT@
+OCAMLDEP = $(OCAMLBIN)/@OCAMLDEP@
+OCAMLLEX = $(OCAMLBIN)/@OCAMLLEX@
+OCAMLYACC= $(OCAMLBIN)/@OCAMLYACC@
+OCAMLLIB = @OCAMLLIB@
+OCAMLBEST= $(OCAMLBIN)/@OCAMLBEST@
+OCAMLVERSION = @OCAMLVERSION@
+EXTRAC_CRC = $(OCAMLLIB)/extract_crc
+ODOC= @ODOC@
+OCAMLPP=-pp 'grep -v DEBUG'
+
+# For installation 
+##############
+MKDIR=mkdir -p
+CP=cp -f
+LIB=ocamlodbc.cma
+LIB_OPT=$(LIB:.cma=.cmxa)
+LIB_A=ocamlodbc.a
+LIB_C=libocamlodbc.a
+LIB_CMI=$(LIB:.cma=.cmi)
+INSTALL_LIBDIR=$(OCAMLLIB)/ocamlodbc
+INSTALL_BINDIR=$(OCAMLBIN)
+RM=@rm -f
+MV=@mv -f
+#################################
+# For Biniki 
+LABLGTKDIR=$(OCAMLLIB)/lablgtk
+LIBSGTK=$(LABLGTKDIR)/lablgtk.cma $(LABLGTKDIR)/gtkInit.cmo #$(OCAMLLIB)/lablgl.cma 
+LIBSGTK_OPT=$(LABLGTKDIR)/lablgtk.cmxa $(LABLGTKDIR)/gtkInit.cmx #$(OCAMLLIB)/lablgl.cmxa
+LINKGTK=-ccopt "${GLIB_LIBS} $(shell gtk-config --libs) -L$(LABLGTKDIR) -llablgtk "
+INCLUDEGTK=  -I $(LABLGTKDIR)
+
+BINIKI=biniki
+BINIKI_OPT=biniki.opt
+# End of Biniki definitions
+##################################
+
+# The target database system
+BASE=MYSQL
+#BASE=POSTGRES
+#BASE=OPENINGRES
+#BASE=DB2
+#BASE=unixODBC
+
+MYSQL_SUB=mysql
+POSTGRES_SUB=postgres
+OPENINGRES_SUB=openingres
+DB2_SUB=db2
+unixODBC_SUB=unixodbc
+
+SUBDIR=$($(BASE)_SUB)
+
+# include options for each database
+MYSQL_ODBCINCLUDE=@MYSQL_INCS@
+POSTGRES_ODBCINCLUDE=@POSTGRES_INCS@
+OPENINGRES_ODBCINCLUDE=@OPENINGRES_INCS #/export/GNU/odbc/include
+DB2_ODBCINCLUDE=@DB2_INCS@ #/usr/IBMdb2/V7.1/include
+unixODBC_ODBCINCLUDE=@UNIXODBC_INCS@ #/gnu/unixODBC/include
+
+ODBCINCLUDE=$($(BASE)_ODBCINCLUDE)
+
+# the options for the directores with the libs
+MYSQL_ODBCLIB=@MYSQL_LIBDIRS@
+POSTGRES_ODBCLIB=@POSTGRES_LIBDIRS@
+OPENINGRES_ODBCLIB=@OPENINGRES_LIBDIRS@ #-L/export/GNU/odbc/lib
+DB2_ODBCLIB=@DB2_LIBDIRS@ #-L/usr/IBMdb2/V7.1/lib
+unixODBC_ODBCLIB=@UNIXODBC_LIBDIRS@ #-L/gnu/unixODBC/lib
+
+ODBCLIB=$($(BASE)_ODBCLIB)
+
+
+# the type of odbc driver 
+MYSQL_OPTODBC= -D iODBC # -D DEBUG2
+POSTGRES_OPTODBC= -D iODBC
+OPENINGRES_OPTODBC= -D INTERSOLV
+DB2_OPTODBC= -D DB2 -D DEBUG2
+unixODBC_OPTODBC= -D unixODBC# -D DEBUG2
+
+OPTODBC=$($(BASE)_OPTODBC) #-D DEBUG2
+
+
+# Options for compilation and link
+CC       = gcc
+C_COMPFLAGS= -pthread $(OPTODBC) $(ODBCINCLUDE) -I $(OCAMLLIB) -I $(OCAMLLIB)/caml
+
+#MYSQL_C_LINKFLAGS= -L$(ODBCLIB) -L$(ODBCLIB)/mysql
+#POSTGRES_C_LINKFLAGS=-L$(ODBCLIB)
+#OPENINGRES_C_LINKFLAGS= -L$(ODBCLIB)
+#DB2_C_LINKFLAGS= -L $(ODBCLIB)
+#unixODBC_C_LINKFLAGS= -L $(ODBCLIB)
+
+#C_LINKFLAGS=$($(BASE)_C_LINKFLAGS)
+
+
+C_DEBUGFLAGS=-g
+COMPFLAGS=
+
+
+MYSQL_LINKFLAGS=-ccopt "$(ODBCLIB) @MYSQL_LIBS@"
+POSTGRES_LINKFLAGS= -ccopt "$(ODBCLIB) @POSTGRES_LIBS@"
+OPENINGRES_LINKFLAGS= -ccopt "$(ODBCLIB) @OPENINGRES_LIBS@"
+DB2_LINKFLAGS= -ccopt "$(ODBCLIB) @DB2_LIBS@"
+unixODBC_LINKFLAGS= -ccopt "$(ODBCLIB) @UNIXODBC_LIBS@"
+
+LINKFLAGS= $($(BASE)_LINKFLAGS)
+
+DEBUGFLAGS=
+
+# Autres commandes
+AR = ar rc
+RANLIB = ranlib
+
+
+# generic rules :
+#################
+
+.SUFFIXES: .mli .ml .cmi .cmo .cmx .mll .mly
+
+%.cmi:%.mli
+	$(OCAMLC) $(OCAMLPP) $(COMPFLAGS) -c $<
+
+%.cmo:%.ml
+	$(OCAMLC) $(OCAMLPP) $(COMPFLAGS) -c $<
+
+%.cmi %.cmo:%.ml
+	$(OCAMLC) $(OCAMLPP) $(COMPFLAGS) -c $<
+
+%.cmx %.o:%.ml
+	$(OCAMLOPT) $(OCAMLPP) $(COMPFLAGS) -c $<
+
+%.ml:%.mll
+	$(OCAMLLEX) $<
+
+%.mli %.ml:%.mly
+	$(OCAMLYACC) -v $<
+
+
