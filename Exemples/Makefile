@@ -14,13 +14,15 @@ PROG2=ptest
 PROG2_OPT=ptest_opt
 PROG3=ptest_mt
 PROG3_OPT=ptest_mt_opt
+PROG4=ltest
+PROG4_OPT=ltest_opt
 
 ####
 COMPFLAGS=-I ../$(SUBDIR) -ccopt -L../$(SUBDIR)
 LINKFLAGS=-ccopt -L../$(SUBDIR) -I ../$(SUBDIR)
 
-all: $(PROG) $(PROG2) $(PROG3)
-opt: $(PROG_OPT) $(PROG2_OPT) $(PROG3_OPT)
+all: $(PROG) $(PROG2) $(PROG3) $(PROG4)
+opt: $(PROG_OPT) $(PROG2_OPT) $(PROG3_OPT) $(PROG4_OPT)
 
 
 $(PROG): $(CMOFILES)
@@ -47,9 +49,17 @@ $(PROG3_OPT): test_mt.ml
 	$(OCAMLOPT) $(COMPFLAGS) -thread -o $@ unix.cmxa threads.cmxa $(LIB_OPT) $<  \
 	-cclib -ldl -cclib -lunix $(LINKFLAGS)
 
+$(PROG4): large.ml
+	$(OCAMLC) -custom -o $@ $(LINKFLAGS) unix.cma $(LIB) \
+	-cclib -ldl -cclib -lunix $<
+
+$(PROG4_OPT): large.ml
+	$(OCAMLOPT) -o $@ $(LINKFLAGS) unix.cmxa $(LIB_OPT) \
+	-cclib -ldl -cclib -lunix $<
+
 clean_all: clean
 	$(RM) *.cmo *.cmx *.cmi *.o
-	$(RM) $(PROG) $(PROG_OPT) $(PROG2) $(PROG2_OPT) $(PROG3) $(PROG3_OPT)
+	$(RM) $(PROG) $(PROG_OPT) $(PROG2) $(PROG2_OPT) $(PROG3) $(PROG3_OPT) $(PROG4) $(PROG4_OPT)
 
 clean:
 	$(RM) *~ #*# *-
