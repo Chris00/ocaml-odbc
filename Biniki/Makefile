@@ -12,7 +12,7 @@ CMXFILES =  $(CMOFILES:.cmo=.cmx)
 
 # Overriden flags
 
-COMPFLAGS=-I ../$(SUBDIR) $(INCLUDEGTK)
+COMPFLAGS=-nolabels -I ../$(SUBDIR) $(INCLUDEGTK)
 LINKFLAGS=-ccopt -L../$(SUBDIR) -I ../$(SUBDIR) $(LINKGTK) 
 
 ####
