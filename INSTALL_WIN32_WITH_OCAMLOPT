@@ -1,0 +1,26 @@
+----------------------------------------------------------------------------
+Instructions for acquiring and installing the MASM assemble in order to use
+ocamlopt on Win32.
+by John Small ( jsmall@laser.net )
+----------------------------------------------------------------------------
+
+Go to
+
+    http://www.easystreet.com/~jkirwan/pctools.html
+
+and download
+
+    http://msdn.microsoft.com/vstudio/downloads/ppack/vcpp.exe
+
+If you now run vcpp.exe at the first error don't click okay.
+
+Instead go to a DOS window and type SET and see what
+TEMP is set to.  Then go to this directory in the Windows explorer
+and find  "ml.*" below this directory.
+
+Copy the ml.exe and ml.err files to your ocaml/bin directory.
+
+You can now type
+
+       ocamlopt -o myprog.exe  file1.ml  file2.ml
+       myprog.exe

@@ -17,18 +17,18 @@ PROG3_OPT=ptest_mt_opt
 
 ####
 COMPFLAGS=-I ../$(SUBDIR) -ccopt -L../$(SUBDIR)
-ALLLINKFLAGS=-ccopt -L../$(SUBDIR) -I ../$(SUBDIR) $(LINKFLAGS) 
+LINKFLAGS=-ccopt -L../$(SUBDIR) -I ../$(SUBDIR)
 
 all: $(PROG) $(PROG2) $(PROG3)
 opt: $(PROG_OPT) $(PROG2_OPT) $(PROG3_OPT)
 
 
 $(PROG): $(CMOFILES)
-	$(OCAMLC) -custom -o $@ $(ALLLINKFLAGS) $(LIB) $(CMOFILES)  \
+	$(OCAMLC) -custom -o $@ $(LINKFLAGS) $(LIB) $(CMOFILES)  \
 	-cclib -ldl -cclib -lunix 
 
 $(PROG_OPT): $(CMXFILES)
-	$(OCAMLOPT) -o $@ $(ALLLINKFLAGS) $(LIB_OPT) $(CMXFILES)  \
+	$(OCAMLOPT) -o $@ $(LINKFLAGS) $(LIB_OPT) $(CMXFILES)  \
 	-cclib -ldl -cclib -lunix 
 
 $(PROG2): $(CMOFILES2)

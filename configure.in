@@ -31,7 +31,7 @@
 define([AC_CACHE_LOAD], )dnl
 define([AC_CACHE_SAVE], )dnl
 
-AC_INIT(test.ml)
+AC_INIT(ocaml_odbc.ml)
 
 # Check for Ocaml compilers
 

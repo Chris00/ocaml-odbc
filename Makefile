@@ -13,38 +13,38 @@ OBJFILES = ocaml_odbc_c.o
 # For different target databases
 ################################
 mysql: dummy
+	make clean_all
 	make BASE=MYSQL all
 	mkdir -p $@
-	$(MV) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
-	make clean_all
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
 	@echo Libs are in $@/
 
 postgres: dummy
+	make clean_all
 	make BASE=POSTGRES all
 	mkdir -p $@
-	$(MV) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
-	make clean_all
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
 	@echo Libs are in $@/
 
 db2: dummy
+	make clean_all
 	make BASE=DB2 all
 	mkdir -p $@
-	$(MV) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
-	make clean_all
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
 	@echo Libs are in $@/
 
 openingres: dummy
+	make clean_all
 	make BASE=OPENINGRES all
 	mkdir -p $@
-	$(MV) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
-	make clean_all
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
 	@echo Libs are in $@/
 
 unixodbc: dummy
+	make clean_all
 	make BASE=unixODBC all
 	mkdir -p $@
-	$(MV) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
-	make clean_all
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
 	@echo Libs are in $@/
 
 # For all databases
@@ -58,9 +58,9 @@ $(LIB_C): $(OBJFILES)
 	$(RANLIB) $@
 
 $(LIB): $(OBJOCAML) $(LIBOBJ)
-	$(OCAMLC) -a -linkall -custom -o $@ -cclib -locamlodbc $(OBJOCAML) $(LIBOBJ)
+	$(OCAMLC) -a -linkall -custom -o $@ -cclib -locamlodbc $(LINKFLAGS) $(OBJOCAML) $(LIBOBJ)
 $(LIB_OPT): $(OBJOCAML_OPT) $(LIBOBJ_OPT) $(LIB_C)
-	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc $(OBJOCAML_OPT) $(LIBOBJ_OPT) 
+	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc $(LINKFLAGS) $(OBJOCAML_OPT) $(LIBOBJ_OPT) 
 
 #libocaml_odbc.cmo: $(OBJOCAML) $(LIBOBJ) 
 #	cp libocaml_odbc.cmo libocaml_odbc.cmo
@@ -76,6 +76,22 @@ clean_all: clean
 
 clean:
 	$(RM) *~ #*# *-
+
+# documentation :
+#################
+doc: dummy
+	$(MKDIR) doc
+	$(ODOC) $(OCAMLPP) $(COMPFLAGS) -d doc -html \
+	-dump doc/ocamlodbc.odoc ocamlodbc.mli 
+	@echo Documentation is in doc/index.html
+
+# installation :
+################
+install: dummy
+	if test -d $(INSTALL_BINDIR); then : ; else $(MKDIR) $(INSTALL_BINDIR); fi
+	if test -d $(INSTALL_LIBDIR); then : ; else $(MKDIR) $(INSTALL_LIBDIR); fi
+	for i in mysql postgres db2 unixodbc openingres ; \
+	do (if test -d $$i ; then ($(MKDIR) $(INSTALL_LIBDIR)/$$i ; $(CP) $$i/* $(INSTALL_LIBDIR)/$$i/) fi) ; done
 
 # common rules
 .depend depend::

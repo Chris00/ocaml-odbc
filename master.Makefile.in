@@ -26,6 +26,8 @@ INSTALL_LIBDIR=$(OCAMLLIB)/ocamlodbc
 INSTALL_BINDIR=$(OCAMLBIN)
 RM=@rm -f
 MV=@mv -f
+
+
 #################################
 # For Biniki 
 LABLGTKDIR=$(OCAMLLIB)/lablgtk
