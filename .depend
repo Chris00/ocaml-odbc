@@ -1,2 +1,0 @@
-libocaml_odbc.cmo: ocaml_odbc.cmo libocaml_odbc.cmi 
-libocaml_odbc.cmx: ocaml_odbc.cmx libocaml_odbc.cmi 
