@@ -31,6 +31,9 @@ db2:
 unixodbc:
 	make BASE=unixODBC all
 
+oraclecfo:
+	make BASE=ORACLECFO all
+
 all: exe opt
 exe: $(BINIKI)
 opt: $(BINIKI_OPT)

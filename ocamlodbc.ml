@@ -4,7 +4,7 @@
 let logiciel = "OCamlODBC"
 
 (** The software version *)
-let version = "2.5"
+let version = "2.6"
 
 exception SQL_Error of string
 

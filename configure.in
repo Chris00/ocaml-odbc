@@ -10,7 +10,6 @@
 #(***********************************************************************)#
 #
 # autoconf input based on sample by Jean-Christophe Filli<E2>tre
-#   from a first script by Georges Mariano 
 
 
 # check for one particular file of the sources 
@@ -284,6 +283,43 @@ fi
 
 CPP_FLAGS="$OLD_CPPFLAGS"
 
+############ ORACLE through DataDirect "Connect for ODBC" driver  ##################
+ORACLECFO=yes
+ORACLECFO_LIBS=no
+AC_MSG_RESULT(======== configure ORACLE through DataDirect "Connect for ODBC" driver ========)
+AC_ARG_WITH(oraclecfo_incs, [  --with-oraclecfo-incs=INCLUDES (-I options to find Connect for ODBC headers)],
+    if test "$withval" != "no" ; then  
+	ORACLECFO_INCS="$withval"
+    else
+        ORACLECFO_INCS=""
+    fi)
+AC_ARG_WITH(oraclecfo_libs, [  --with-oraclecfo-libs=DIRS (-L options to find Connect for ODBC libs)],
+    if test "$withval" != "no" ; then  
+	ORACLECFO_LIBDIRS="$withval"
+    else
+        ORACLECFO_LIBDIRS=""
+    fi)
+OLD_CPPFLAGS="$CPPFLAGS"
+CPPFLAGS="$CPPFLAGS $ORACLECFO_INCS $ORACLECFO_LIBDIRS"
+
+AC_CHECK_HEADERS(odbcinst.h,,[ORACLECFO=no])
+AC_CHECK_HEADERS(sql.h,,[ORACLECFO=no])
+AC_CHECK_HEADERS(sqlext.h,,[ORACLECFO=no])
+if test "ORACLECFO" = "no"; then
+  AC_MSG_RESULT(ORACLECFO headers not found)
+else
+  AC_MSG_RESULT(ORACLECFO headers found)
+  dnl Checking for ORACLECFO lib -lodbc
+  AC_CHECK_LIB(odbc,SQLAllocEnv,ORACLECFO_LIBS=-lodbc)
+fi
+if test "ORACLECFO_LIBS" = "no"; then
+  AC_MSG_RESULT(No Oracle through DataDirect "Connect for ODBC" driver support)
+else
+  AC_MSG_RESULT(Oracle through DataDirect "Connect for ODBC" driver support)
+fi
+
+CPP_FLAGS="$OLD_CPPFLAGS"
+
 
 
 # substitutions to perform
@@ -317,6 +353,10 @@ AC_SUBST(DB2_LIBS)
 AC_SUBST(OPENINGRES_INCS)
 AC_SUBST(OPENINGRES_LIBDIRS)
 AC_SUBST(OPENINGRES_LIBS)
+
+AC_SUBST(ORACLECFO_INCS)
+AC_SUBST(ORACLECFO_LIBDIRS)
+AC_SUBST(ORACLECFO_LIBS)
 
 # Finally create the master.Makefile from master.Makefile.in
 AC_OUTPUT(master.Makefile)

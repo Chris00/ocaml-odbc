@@ -47,6 +47,13 @@ unixodbc: dummy
 	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
 	@echo Libs are in $@/
 
+oraclecfo: dummy
+	make clean_all
+	make BASE=ORACLECFO all
+	mkdir -p $@
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
+	@echo Libs are in $@/
+
 # For all databases
 ###################
 all: lib opt
@@ -90,7 +97,7 @@ doc: dummy
 install: dummy
 	if test -d $(INSTALL_BINDIR); then : ; else $(MKDIR) $(INSTALL_BINDIR); fi
 	if test -d $(INSTALL_LIBDIR); then : ; else $(MKDIR) $(INSTALL_LIBDIR); fi
-	for i in mysql postgres db2 unixodbc openingres ; \
+	for i in mysql postgres db2 unixodbc openingres oraclecfo ; \
 	do (if test -d $$i ; then ($(MKDIR) $(INSTALL_LIBDIR)/$$i ; $(CP) $$i/* $(INSTALL_LIBDIR)/$$i/) fi) ; done
 
 # common rules

@@ -1,4 +1,4 @@
-	OCamlODBC 2.5 : Accessing databases from OCaml via ODBC
+	OCamlODBC 2.6 : Accessing databases from OCaml via ODBC
 
 *** What is OCamlODBC ***
 OCamlODBC is a library allowing to acces databases via an Open DataBase Connectivity (ODBC) driver from OCaml programs.
@@ -19,17 +19,18 @@ OCamlODBC is a library allowing to acces databases via an Open DataBase Connecti
 	- db2
 	- openingres
 	- unixodbc
+	- oraclecfo
 	depending on which ODBC drivers are available on your system.
 - make install
 	will install the compiled libraries in 
-	<ocamldir>/lib/ocaml/ocamlodbc/[mysql|postgres|db2|openingres|unixodbc]
+	<ocamldir>/lib/ocaml/ocamlodbc/[mysql|postgres|db2|openingres|unixodbc|oraclecfo]
 
 
 ** How to use ***
 The directory 'Exemples' contains some examples.
 - cd Exemples
 - make BASE=XX PROG to create monitor.x
-	where XX can be MYSQL, POSTGRES, DB2, OPENINGRES or unixODBC
+	where XX can be MYSQL, POSTGRES, DB2, OPENINGRES or unixODBC, ORACLECFO
 - monitor.x <a database> <a user name> [<a password>]' to connect to a database ; you can type in commands on the prompt (select * from ...)
 
 The directory Biniki contains a simple application to execute SQL queries and display the results in a window. It needs LablGTK 1.2.
