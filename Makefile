@@ -24,7 +24,7 @@
 
 include master.Makefile
 
-OBJOCAML  = ocaml_odbc.cmo 
+OBJOCAML  = ocaml_odbc.cmo
 OBJOCAML_OPT  = ocaml_odbc.cmx
 
 LIBOBJ    = ocamlodbc.cmo
@@ -91,11 +91,11 @@ $(LIB_C): $(OBJFILES)
 $(LIB): $(OBJOCAML) $(LIBOBJ)
 	$(OCAMLC) -a -linkall -custom -o $@ -cclib -locamlodbc $(LINKFLAGS) $(OBJOCAML) $(LIBOBJ)
 $(LIB_OPT): $(OBJOCAML_OPT) $(LIBOBJ_OPT) $(LIB_C)
-	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc $(LINKFLAGS) $(OBJOCAML_OPT) $(LIBOBJ_OPT) 
+	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc $(LINKFLAGS) $(OBJOCAML_OPT) $(LIBOBJ_OPT)
 
-#libocaml_odbc.cmo: $(OBJOCAML) $(LIBOBJ) 
+#libocaml_odbc.cmo: $(OBJOCAML) $(LIBOBJ)
 #	cp libocaml_odbc.cmo libocaml_odbc.cmo
-#libocaml_odbc.cmx: $(OBJOCAML_OPT) $(LIBOBJ_OPT) 
+#libocaml_odbc.cmx: $(OBJOCAML_OPT) $(LIBOBJ_OPT)
 #	cp libocaml_odbc.cmx libocaml_odbc.cmx
 
 
@@ -117,6 +117,12 @@ doc: dummy
 	-dump doc/ocamlodbc.odoc ocamlodbc.mli ocamlodbc.ml
 	@echo Documentation is in doc/index.html
 
+distribdoc:
+	$(MKDIR) $@
+	$(OCAMLDOC) $(OCAMLPP) $(COMPFLAGS) -d $@ -html \
+	-css-style "../style.css" ocamlodbc.mli ocamlodbc.ml
+	@echo Distrib documentation is in $@/
+
 # headers :
 ###########
 headers: dummy
@@ -124,7 +130,7 @@ headers: dummy
 	configure.in configure master.Makefile.in Makefile
 	headache -h gpl_header -c ~/.headache_config \
 	Biniki/*.ml \
-	Exemples/*.ml 
+	Exemples/*.ml
 
 noheaders: dummy
 	headache -r -c ~/.headache_config *.ml *.mli \
@@ -149,11 +155,9 @@ install: dummy
 
 .SUFFIXES: .c .o
 
-ocaml_odbc_c.o :ocaml_odbc_c.c 
+ocaml_odbc_c.o :ocaml_odbc_c.c
 	$(CC) -c $(C_COMPFLAGS) $<
 
 dummy:
 
 include .depend
-
-

@@ -61,7 +61,7 @@ module SQL_column :
       val string : sql_column_type -> string
     end
 
-(** Classic interface *)
+(** {2 Classic interface} *)
 
 (** The type of connections to databases. *)
 type connection
@@ -98,7 +98,7 @@ val execute_with_info :
 val execute_gen :
    connection -> ?get_info:bool -> ?n_rec:int -> string -> (string list list -> unit) -> int * (string * sql_column_type) list
 
-(** Object-oriented interface *)
+(** {2 Object-oriented interface} *)
 
 (* The class which represents a connection to a database.
    The connection occurs when the object is created.
