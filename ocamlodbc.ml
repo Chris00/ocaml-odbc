@@ -1,3 +1,5 @@
+(* vim:ts=8
+*)
 (*********************************************************************************)
 (*                OCamlODBC                                                         *)
 (*                                                                               *)
@@ -125,9 +127,9 @@ let disconnect connection =
    liste de couples (nom, type) pour décrire les colonnes retournées,
    liste de liste de chaines représentant les enregistrements.
 *)
-let pv_execute connection ?(get_info=false) req = 
+let execute_gen connection ?(get_info=false) ?(n_rec=1) req callback = 
   if req = "" then
-    (-1, ([] : (string * sql_column_type) list), [])
+    (-1, ([] : (string * sql_column_type) list))
   else
     (
      let phEnv = connection.phEnv in
@@ -145,37 +147,47 @@ let pv_execute connection ?(get_info=false) req =
 	 in
          (* récupérer les records en plusieurs fois *)
 	 (
-	  let cpt = ref 0 in
 	  let rec iter () = 
-	    let nb_rec = 40 in
-	    let (n, ll_res) = SQLInterface.itereDB env nb_rec in
-	    cpt := !cpt + n;
+	    let (n, ll_res) = SQLInterface.itereDB env n_rec in
 	    (*Gc.minor();*)
-	    if n < nb_rec then
-	      ll_res
-	    else
-	      ll_res@(iter ())
+
+	    let no_more = n < n_rec in
+	    (
+	      callback ll_res;
+	      if   no_more
+	      then ()
+	      else iter ()
+	    )
 	  in
-	  let l = iter () in
+	  let _ = iter () in
 	  let _ = SQLInterface.free_execDB env in
-	  (ret, l_desc_col, l)
+	  (ret, l_desc_col)
       	 )
 
      | 1 ->
 	 (* pas de colonne, donc pas d'enregistrements à récupérer *)
 	 let _ = SQLInterface.free_execDB env in
-	 (0, [], [])
+	 (0, [])
      | _ ->
 	 let _ = SQLInterface.free_execDB env in
-	 (ret, [], ([] : string list list))
+	 (ret, [])
     )
 
+let execute_fetchall connection get_info req =
+  let res  = ref [] in
+  let step = 40     in
+  let callback  ll = res := (!res) @ ll in
+  let (code, info) =
+      execute_gen connection ~get_info:get_info ~n_rec:step req callback
+  in
+  (code, info, !res)
+
 let execute connection req =
-  let (c, _, l) = pv_execute connection req in
+  let (c, _, l) = execute_fetchall connection false req in
   (c, l)
 
 let execute_with_info connection req =
-  pv_execute connection ~get_info: true req
+  execute_fetchall connection true req
 
 (** Object-oriented interface. *)
 
@@ -203,5 +215,8 @@ class data_base base user passwd =
     
     method execute req = execute connection req
 
-    method execute_with_info req = pv_execute connection ~get_info: true req
+    method execute_with_info req = execute_with_info connection req
+
+    method execute_gen ?(get_info=false) ?(n_rec=1) req (callback : string list list -> unit) =
+      execute_gen connection ~get_info:get_info ~n_rec:n_rec req callback
   end

@@ -1,3 +1,7 @@
+2004-10-01  Maxence Guesdon  <Maxence.Guesdon@inria.fr>
+
+	* add: Ocamlodbc.execute_gen, from the patch by Leonid Timochouk
+
 2004-03-13: Maxence
 	- Move to Gna!
 

@@ -87,6 +87,13 @@ val execute : connection -> string -> int * string list list
 val execute_with_info :
     connection -> string -> int * (string * sql_column_type) list * string list list
 
+(* [execute_gen c get_info n_rec q callback] executes query [q] over the
+   connection [c], and invokes [callback] on successful blocks of the results
+   (of [n_rec] records each). Each record is a [string list] of fields.
+   The result is a tuple [(error_code, type_list)]. The [error_code] is 0
+   if no error occurred, [type_list] is empty if [get_info] is [false] *)
+val execute_gen :
+   connection -> ?get_info:bool -> ?n_rec:int -> string -> (string list list -> unit) -> int * (string * sql_column_type) list
 
 (** Object-oriented interface *)
 
@@ -115,8 +122,15 @@ class data_base :
        returns the result as a tuple [(error_code, type_list, record list)], 
        where [type_list] indicates the SQL types of the returned columns,
        and a record is a [string list]. 
-       The [error_code is] 0 if no error occured.*)
+       The [error_code] is 0 if no error occured.*)
     method execute_with_info : string -> int * ((string * sql_column_type) list) * (string list list)
+
+    (* [#execute_gen get_info n_rec q callback] executes query [q] and
+       invokes [callback] on successful blocks of the results
+       (of [n_rec] records each). Each record is a [string list] of fields.
+       The result is a tuple [(error_code, type_list)]. The [error_code] is 0
+       if no error occurred, [type_list] is empty if [get_info] is [false].*)
+    method execute_gen : ?get_info:bool -> ?n_rec:int -> string -> (string list list -> unit) -> int * (string * sql_column_type) list
   end
 
 
