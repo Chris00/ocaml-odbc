@@ -82,7 +82,7 @@ val disconnect : connection -> unit
    if no error occured.*)
 val execute : connection -> string -> int * string list list
 
-(* [execute_with_info c q] executes query [q] through connection [c] and
+(** [execute_with_info c q] executes query [q] through connection [c] and
    returns the result as a tuple [(error_code, type_list, record list)],
    where [type_list] indicates the SQL types of the returned columns,
    and a record is a [string list].
@@ -90,7 +90,7 @@ val execute : connection -> string -> int * string list list
 val execute_with_info :
     connection -> string -> int * (string * sql_column_type) list * string list list
 
-(* [execute_gen c get_info n_rec q callback] executes query [q] over the
+(** [execute_gen c get_info n_rec q callback] executes query [q] over the
    connection [c], and invokes [callback] on successful blocks of the results
    (of [n_rec] records each). Each record is a [string list] of fields.
    The result is a tuple [(error_code, type_list)]. The [error_code] is 0
@@ -100,7 +100,7 @@ val execute_gen :
 
 (** {2 Object-oriented interface} *)
 
-(* The class which represents a connection to a database.
+(** The class which represents a connection to a database.
    The connection occurs when the object is created.
    @raise SQL_Error if an error occured during the connection to the database.*)
 class data_base :
@@ -121,14 +121,14 @@ class data_base :
        if no error occured.*)
     method execute : string -> int * (string list list)
 
-    (* [#execute_with_info q] executes query [q] and
+    (** [#execute_with_info q] executes query [q] and
        returns the result as a tuple [(error_code, type_list, record list)],
        where [type_list] indicates the SQL types of the returned columns,
        and a record is a [string list].
        The [error_code] is 0 if no error occured.*)
     method execute_with_info : string -> int * ((string * sql_column_type) list) * (string list list)
 
-    (* [#execute_gen get_info n_rec q callback] executes query [q] and
+    (** [#execute_gen get_info n_rec q callback] executes query [q] and
        invokes [callback] on successful blocks of the results
        (of [n_rec] records each). Each record is a [string list] of fields.
        The result is a tuple [(error_code, type_list)]. The [error_code] is 0
