@@ -1,4 +1,4 @@
-	OCamlODBC 2.6 : Accessing databases from OCaml via ODBC
+	OCamlODBC 2.7 : Accessing databases from OCaml via ODBC
 
 *** What is OCamlODBC ***
 OCamlODBC is a library allowing to acces databases via an Open DataBase Connectivity (ODBC) driver from OCaml programs.
