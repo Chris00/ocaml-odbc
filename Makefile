@@ -101,7 +101,7 @@ install: dummy
 
 .SUFFIXES: .c .o
 
-%.o :%.c 
+ocaml_odbc_c.o :ocaml_odbc_c.c 
 	$(CC) -c $(C_COMPFLAGS) $<
 
 dummy:
