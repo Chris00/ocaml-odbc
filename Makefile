@@ -82,7 +82,7 @@ clean:
 doc: dummy
 	$(MKDIR) doc
 	$(ODOC) $(OCAMLPP) $(COMPFLAGS) -d doc -html \
-	-dump doc/ocamlodbc.odoc ocamlodbc.mli 
+	-dump doc/ocamlodbc.odoc ocamlodbc.mli ocamlodbc.ml
 	@echo Documentation is in doc/index.html
 
 # installation :
