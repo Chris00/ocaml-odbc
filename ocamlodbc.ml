@@ -1,10 +1,10 @@
-(* *)
+(**  *)
 
-(* Nom du logiciel. *)
+(** The software name *)
 let logiciel = "OCamlODBC"
 
-(* Version du logiciel. *)
-let version = "2.4"
+(** The software version *)
+let version = "2.5"
 
 exception SQL_Error of string
 
@@ -31,7 +31,7 @@ type sql_column_type =
   | SQL_bit
 ;;
 
-(* Le module pour les types de colonne SQL *)
+(** The module for the column type and its conversion into a string. *)
 module SQL_column =
   struct
     type t = sql_column_type
@@ -59,18 +59,14 @@ module SQL_column =
       | SQL_bit -> "SQL_bit"
   end;;
 
-(* Le module d'interface utilisant notre définition de type de colonne SQL *)
 module SQLInterface = Ocaml_odbc.Interface (SQL_column);;
 
-(* [Mo] Ce module contient les messages utilisateurs [Mo] *)
-(* suceptible de devenir un fichier avec le nom du logiciel et la version *)
 module OCamlODBC_messages =
   struct
     let disconnect = "ODBC : problem while disconnecting"
     let connection nom_base nom_user pzPasswd iRC1 = "Error while connecting to database "^nom_base^" as "^nom_user^" with password <"^pzPasswd^"> : "^(string_of_int iRC1)
   end
 
-(** Classic interface. *)
 type connection =
     {
       phEnv : Ocaml_odbc.sQLHENV ;
@@ -80,8 +76,6 @@ type connection =
       passwd : string ;
     } 
 
-(* Create a connection with a database. 
-   @raise SQL_Error if we could not connect to the database.*)
 let connect base user passwd =
   let (iRC1,hEnv,pHDbc) = SQLInterface.initDB base user passwd in
   if (iRC1 = 0) then 
@@ -102,7 +96,7 @@ let disconnect connection =
   else 
     ()
 
-(* Cette fonction privée exécute une requête interrompue par des appels
+(** Cette fonction privée exécute une requête interrompue par des appels
    réguliers au GC. Elle retourne un triplet : code d'erreur (0 si ok),
    liste de couples (nom, type) pour décrire les colonnes retournées,
    liste de liste de chaines représentant les enregistrements.
@@ -152,32 +146,25 @@ let pv_execute connection ?(get_info=false) req =
 	 (ret, [], ([] : string list list))
     )
 
-(* Cette fonction prend une requête sous forme de chaine
-   de caractères, exécute la requête et retourne un couple
-   (code d'erreur (0 si ok), liste de liste de chaines).*)
 let execute connection req =
   let (c, _, l) = pv_execute connection req in
   (c, l)
 
-(* Cette fonction prend une requête sous forme de chaine
-   de caractères, exécute la requête et retourne un triplet
-   (code d'erreur (0 si ok), liste de couples (nom, type)
-   décrivant les colonnes, liste de liste de chaines).*)
 let execute_with_info connection req =
   pv_execute connection ~get_info: true req
 
 (** Object-oriented interface. *)
 
-(* 
+(** 
    @param base the database to connect to
    @param user the user to use when connecting
    @param passwd the password to use when connecting, can be [""]
 *)
 class data_base base user passwd =
   object (self)
-    (* The connection, initialized when the object is created. *)
+    (** The connection, initialized when the object is created. *)
     val connection = connect base user passwd
-    (* The flag to indicates whether we are connected or not,
+    (** The flag to indicates whether we are connected or not,
        used not to disconnect more than once.*)
     val mutable connected = true
 
@@ -189,9 +176,8 @@ class data_base base user passwd =
 	 connected <- false;
 	 disconnect connection
 	)
-	
+    
     method execute req = execute connection req
 
     method execute_with_info req = pv_execute connection ~get_info: true req
-
   end
