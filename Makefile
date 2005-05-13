@@ -38,50 +38,50 @@ OBJFILES = ocaml_odbc_c.o
 ################################
 mysql: dummy
 	make clean
-	make BASE=MYSQL all
+	make BASE=MYSQL LIB_DIR=$@ all
 	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
 	@echo Libs are in $@/
 
 postgres: dummy
 	make clean
-	make BASE=POSTGRES all
+	make BASE=POSTGRES LIB_DIR=$@ all
 	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
 	@echo Libs are in $@/
 
 db2: dummy
 	make clean
-	make BASE=DB2 all
+	make BASE=DB2 LIB_DIR=$@ all
 	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
 	@echo Libs are in $@/
 
 openingres: dummy
 	make clean
-	make BASE=OPENINGRES all
+	make BASE=OPENINGRES LIB_DIR=$@ all
 	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
 	@echo Libs are in $@/
 
 unixodbc: dummy
 	make clean
-	make BASE=unixODBC all
+	make BASE=unixODBC LIB_DIR=$@ all
 	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
 	@echo Libs are in $@/
 
 oraclecfo: dummy
 	make clean
-	make BASE=ORACLECFO all
+	make BASE=ORACLECFO LIB_DIR=$@ all
 	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $@/
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
 	@echo Libs are in $@/
 
 # For all databases
 ###################
 all: lib opt
-opt: lib_opt
+opt: lib_opt META
 
 $(LIB_C): $(OBJFILES)
 	$(RM) $@
@@ -93,18 +93,29 @@ $(LIB): $(OBJOCAML) $(LIBOBJ)
 $(LIB_OPT): $(OBJOCAML_OPT) $(LIBOBJ_OPT) $(LIB_C)
 	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc $(LINKFLAGS) $(OBJOCAML_OPT) $(LIBOBJ_OPT)
 
+META : DESTDIR=$(shell ocamlfind printconf destdir)
+META :
+	VERSION=
+	@echo 'name="ocamlodbc_$(LIB_DIR)"' > $@
+	@echo 'version="'`grep "let version =" ocamlodbc.ml | cut -d'"' -f 2`'"' >> $@
+	@echo 'requires=""' >> $@
+#	echo 'directory="+ocamlodbc/$(LIB_DIR)"' >> $@
+	@echo 'archive(byte)="$(LIB)"' >> $@
+	@echo 'archive(native)="$(LIB_OPT)"' >> $@
+	@echo 'linkopts="-ccopt -L$(DESTDIR)/ocamlodbc_$(LIB_DIR)"' >> $@
+
 #libocaml_odbc.cmo: $(OBJOCAML) $(LIBOBJ)
 #	cp libocaml_odbc.cmo libocaml_odbc.cmo
 #libocaml_odbc.cmx: $(OBJOCAML_OPT) $(LIBOBJ_OPT)
 #	cp libocaml_odbc.cmx libocaml_odbc.cmx
 
 
-lib: $(LIB_C) $(LIB_CMI) $(LIB)
-lib_opt: $(LIB_C) $(LIB_CMI) $(LIB_OPT)
+lib: $(LIB_CMI) $(LIB)
+lib_opt: $(LIB_CMI) $(LIB_OPT)
 
 clean:
 	$(RM) *~ #*# *-
-	$(RM) *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a
+	$(RM) *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a *.so META
 
 distclean: clean
 	$(RM) master.Makefile config.*
@@ -135,17 +146,31 @@ headers: dummy
 noheaders: dummy
 	headache -r -c ~/.headache_config *.ml *.mli \
 	configure.in configure master.Makefile.in \
-        Exemples/*.ml \
+	Exemples/*.ml \
 	Biniki/*.ml
 
 
 # installation :
 ################
-install: dummy
+.PHONY : install
+install:
+	@echo "Installation instructions:"
+	@echo '  To install $(RESULT) using findlib type: "make findlib_install"'
+	@echo '  To install $(RESULT) dirctly type : "make direct_install"'
+
+direct_install: dummy
 	if test -d $(INSTALL_BINDIR); then : ; else $(MKDIR) $(INSTALL_BINDIR); fi
 	if test -d $(INSTALL_LIBDIR); then : ; else $(MKDIR) $(INSTALL_LIBDIR); fi
 	for i in mysql postgres db2 unixodbc openingres oraclecfo ; \
 	do (if test -d $$i ; then ($(MKDIR) $(INSTALL_LIBDIR)/$$i ; $(CP) $$i/* $(INSTALL_LIBDIR)/$$i/) fi) ; done
+
+findlib_install: META dummy
+	for i in mysql postgres db2 unixodbc openingres oraclecfo ; do \
+	  if [ -d $$i ]; then \
+	    if (ocamlfind list | grep ocamlodbc_$$i >/dev/null); then ocamlfind remove ocamlodbc_$$i; fi; \
+	    ocamlfind install ocamlodbc_$$i $$i/META `find $$i -not -name META -type f`; \
+	  fi; \
+	done
 
 # common rules
 .depend depend::

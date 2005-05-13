@@ -1,5 +1,3 @@
-(* vim:ts=8
-*)
 (*********************************************************************************)
 (*                OCamlODBC                                                         *)
 (*                                                                               *)
@@ -30,7 +28,7 @@
 let logiciel = "OCamlODBC"
 
 (** The software version *)
-let version = "2.9"
+let version = "2.10"
 
 exception SQL_Error of string
 

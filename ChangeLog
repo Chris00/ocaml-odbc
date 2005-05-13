@@ -1,3 +1,8 @@
+2005-05-13  Maxence Guesdon  <Maxence.Guesdon@inria.fr>
+
+	* add: integrate patch from Alessandro Baretta
+	  to enable support for dynamic linking
+
 2004-10-01  Maxence Guesdon  <Maxence.Guesdon@inria.fr>
 
 	* rel: 2.9

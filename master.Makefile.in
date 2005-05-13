@@ -26,6 +26,7 @@
 OCAMLBIN= @OCAMLBIN@
 OCAMLC   = @OCAMLC@ -verbose
 OCAMLOPT = @OCAMLOPT@
+OCAMLMKLIB = @OCAMLMKLIB@
 OCAMLDEP = @OCAMLDEP@
 OCAMLLEX = @OCAMLLEX@
 OCAMLYACC= @OCAMLYACC@
@@ -36,7 +37,7 @@ EXTRAC_CRC = $(OCAMLLIB)/extract_crc
 OCAMLDOC= @OCAMLDOC@
 OCAMLPP=-pp 'grep -v DEBUG'
 
-# For installation 
+# For installation
 ##############
 MKDIR=mkdir -p
 CP=cp -f
@@ -52,9 +53,9 @@ MV=@mv -f
 
 
 #################################
-# For Biniki 
+# For Biniki
 LABLGTKDIR=$(OCAMLLIB)/lablgtk
-LIBSGTK=$(LABLGTKDIR)/lablgtk.cma $(LABLGTKDIR)/gtkInit.cmo #$(OCAMLLIB)/lablgl.cma 
+LIBSGTK=$(LABLGTKDIR)/lablgtk.cma $(LABLGTKDIR)/gtkInit.cmo #$(OCAMLLIB)/lablgl.cma
 LIBSGTK_OPT=$(LABLGTKDIR)/lablgtk.cmxa $(LABLGTKDIR)/gtkInit.cmx #$(OCAMLLIB)/lablgl.cmxa
 LINKGTK=-ccopt "${GLIB_LIBS} $(shell gtk-config --libs) -L$(LABLGTKDIR) -llablgtk "
 INCLUDEGTK=  -I $(LABLGTKDIR)
@@ -65,11 +66,11 @@ BINIKI_OPT=biniki.opt
 ##################################
 
 # The target database system
-BASE=MYSQL
+#BASE=MYSQL
 #BASE=POSTGRES
 #BASE=OPENINGRES
 #BASE=DB2
-#BASE=unixODBC
+BASE=unixODBC
 
 MYSQL_SUB=mysql
 POSTGRES_SUB=postgres
@@ -101,7 +102,7 @@ ORACLECFO_ODBCLIB=@ORACLECFO_LIBDIRS@ #-L/export/GNU/odbc/lib
 ODBCLIB=$($(BASE)_ODBCLIB)
 
 
-# the type of odbc driver 
+# the type of odbc driver
 MYSQL_OPTODBC= -D iODBC # -D DEBUG2
 POSTGRES_OPTODBC= -D iODBC
 OPENINGRES_OPTODBC= -D INTERSOLV
@@ -129,12 +130,12 @@ C_DEBUGFLAGS=-g
 COMPFLAGS=
 
 
-MYSQL_LINKFLAGS=-ccopt "$(ODBCLIB) @MYSQL_LIBS@"
-POSTGRES_LINKFLAGS= -ccopt "$(ODBCLIB) @POSTGRES_LIBS@"
-OPENINGRES_LINKFLAGS= -ccopt "$(ODBCLIB) @OPENINGRES_LIBS@"
-DB2_LINKFLAGS= -ccopt "$(ODBCLIB) @DB2_LIBS@"
-unixODBC_LINKFLAGS= -ccopt "$(ODBCLIB) @UNIXODBC_LIBS@"
-ORACLECFO_LINKFLAGS= -ccopt "$(ODBCLIB) @ORACLECFO_LIBS@"
+MYSQL_LINKFLAGS= -ccopt "$(ODBCLIB) @MYSQL_LIBS@ -ldopt $(ODBCLIB) @MYSQL_LIBS@"
+POSTGRES_LINKFLAGS= -ccopt "$(ODBCLIB) @POSTGRES_LIBS@ -ldopt $(ODBCLIB) @POSTGRES_LIBS@"
+OPENINGRES_LINKFLAGS= -ccopt "$(ODBCLIB) @OPENINGRES_LIBS@ -ldopt $(ODBCLIB) @OPENINGRES_LIBS@"
+DB2_LINKFLAGS= -ccopt "$(ODBCLIB) @DB2_LIBS@ -ldopt $(ODBCLIB) @DB2_LIBS@"
+unixODBC_LINKFLAGS= -ccopt "$(ODBCLIB) @UNIXODBC_LIBS@ -ldopt $(ODBCLIB) @UNIXODBC_LIBS@"
+ORACLECFO_LINKFLAGS= -ccopt "$(ODBCLIB) @ORACLECFO_LIBS@ -ldopt $(ODBCLIB) @ORACLECFO_LIBS@"
 
 LINKFLAGS= $($(BASE)_LINKFLAGS)
 
@@ -167,5 +168,3 @@ RANLIB = ranlib
 
 %.mli %.ml:%.mly
 	$(OCAMLYACC) -v $<
-
-
