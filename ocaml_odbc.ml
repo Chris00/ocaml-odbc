@@ -42,6 +42,7 @@ module Interface (Sql_col : Sql_column_type) =
 
     (*  Fonctions C utilisées *)
     external initDB : string -> string -> string -> (int*sQLHENV*sQLHDBC) = "initDB_c"
+    external initDB_driver : string -> bool -> (int*sQLHENV*sQLHDBC) = "initDB_driver_c"
     external execDB : sQLHENV -> sQLHDBC -> string -> int * env = "execDB_c"
     external itereDB : env -> int -> (int*string list list) = "itere_execDB_c"
     external free_execDB : env -> unit = "free_execDB_c"

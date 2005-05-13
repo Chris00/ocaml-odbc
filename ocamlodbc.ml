@@ -89,6 +89,7 @@ module OCamlODBC_messages =
   struct
     let disconnect = "ODBC : problem while disconnecting"
     let connection nom_base nom_user pzPasswd iRC1 = "Error while connecting to database "^nom_base^" as "^nom_user^" with password <"^pzPasswd^"> : "^(string_of_int iRC1)
+    let connection_driver connect_string iRC1 = "Error while connecting to database with connection string "^connect_string^"> : "^(string_of_int iRC1)
   end
 
 type connection =
@@ -112,6 +113,19 @@ let connect base user passwd =
     }
   else
     raise (SQL_Error (OCamlODBC_messages.connection base user passwd iRC1))
+
+let connect_driver ?(prompt=false) connect_string =
+  let (iRC1,hEnv,pHDbc) = SQLInterface.initDB_driver connect_string prompt in
+  if (iRC1 = 0) then 
+    {
+      phEnv = hEnv;
+      phDbc = pHDbc;
+      base = connect_string ;
+      user = "" ;
+      passwd = "" ;
+    } 
+  else
+    raise (SQL_Error (OCamlODBC_messages.connection_driver connect_string iRC1))
 
 let disconnect connection =
   let iRC = (SQLInterface.exitDB connection.phEnv connection.phDbc) in

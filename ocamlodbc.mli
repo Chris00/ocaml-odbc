@@ -70,6 +70,7 @@ type connection
    [base], as user [user], with password [passwd].
    @raise SQL_Error if we could not connect to the database.*)
 val connect : string -> string -> string -> connection
+val connect_driver : ?prompt:bool -> string -> connection
 
 (** Disconnect from a database. The given connection should not be used
    after this function was called.

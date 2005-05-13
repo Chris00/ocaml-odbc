@@ -22,6 +22,16 @@
 /*    Contact: Maxence.Guesdon@inria.fr                                          */
 /*********************************************************************************/
 
+//#define DEBUG2 1
+//#define DEBUG3 1
+
+//in makefile, or not: #define ODBC2 1
+
+#ifndef ODBC2
+#define OLD_POINTERS 1
+#endif
+
+
 /*---| includes (common) |---*/
 #include <stdlib.h>
 #include <stdio.h>
@@ -120,6 +130,8 @@ void      displayError( HENV   hEnv,
                         int       iLineNum
                       );
 
+void print_sql_info(SQLHDBC hdbc);
+
 /* Constructeurs des types abstraits ODBC */
 value value_HENV_c ()
 {
@@ -130,6 +142,8 @@ value value_HDBC_c ()
 {
   return(Val_int(SQL_NULL_HDBC));
 }
+
+
 
 /*-----------------------------------------------------------------------------
  * initDB_c
@@ -264,6 +278,122 @@ value initDB_c( value v_nom_base, value v_nom_user, value v_password)
 }
 
 
+#define MAXBUFLEN 1024
+
+/*-----------------------------------------------------------------------------
+ * initDB_driver_c
+ *-----------------------------------------------------------------------------
+ * function: initialisation of DB access
+ * input:    char *connect_string                               (not null)
+ *             pointer to ODBC driver connection string.  The string is driver
+ *             dependent.  It includes the username and password if applicable.
+ *           int prompt
+ *             != 0 if the driver should raise a dialog box to request username
+ *                  and password
+ *             == 0 if the driver should not prompt
+ * output:   int
+ *             != 0 - error
+ *             == 0 - no error
+ *           HENV *phEnv
+ *             pointer to DB environment
+ *           HDBC *phDbc
+ *             pointer to DB context
+ *-----------------------------------------------------------------------------
+ */
+value initDB_driver_c( value v_connect_string, value v_prompt)
+{
+  CAMLparam2 (v_connect_string,v_prompt);
+  CAMLlocal1 (res);
+  res =  alloc_tuple(3);
+
+  char *connect_string = String_val(v_connect_string);
+  int prompt = Bool_val(v_prompt);
+  RETCODE result;
+  //HENV *phEnv = SQL_NULL_HENV;
+  //HDBC *phDbc = SQL_NULL_HDBC;
+
+  SQLHENV      henv = SQL_NULL_HENV;
+  SQLHDBC      hdbc1 = SQL_NULL_HDBC;
+  SQLHSTMT      hstmt1 = SQL_NULL_HSTMT;
+
+  SQLCHAR      ConnStrIn[MAXBUFLEN] = "";
+
+  SQLCHAR      ConnStrOut[MAXBUFLEN];
+  SQLSMALLINT   cbConnStrOut = 0;
+
+  SQLRETURN cliRC = SQL_SUCCESS;
+
+  /* allocate an environment handle */
+  cliRC = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+  if (cliRC != SQL_SUCCESS)
+  {
+    printf("\n--ERROR while allocating the environment handle.\n");
+    printf("  cliRC = %d\n", cliRC);
+    printf("  line  = %d\n", __LINE__);
+    printf("  file  = %s\n", __FILE__);
+    fflush(stdout);
+
+    Field(res,0) = Val_int (-17);
+    Field(res,1) = Val_long ((long) henv);
+    Field(res,2) = Val_long ((long) hdbc1);
+    CAMLreturn(res);
+  }
+
+  /* set attribute to enable application to run as OCBC 3.0 application */
+#ifdef ODBC2
+  cliRC = SQLSetEnvAttr(henv,
+                     SQL_ATTR_ODBC_VERSION,
+                     (void *)SQL_OV_ODBC2,
+                     0);
+#endif
+
+  //ENV_HANDLE_CHECK(henv, cliRC);
+
+  cliRC = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc1);
+  if (cliRC != SQL_SUCCESS)
+  {
+    printf("\n--ERROR while allocating the environment handle.\n");
+    printf("  cliRC = %d\n", cliRC);
+    printf("  line  = %d\n", __LINE__);
+    printf("  file  = %s\n", __FILE__);
+    fflush(stdout);
+
+    Field(res,0) = Val_int (-18);
+    Field(res,1) = Val_long ((long) henv);
+    Field(res,2) = Val_long ((long) hdbc1);
+    CAMLreturn(res);
+  }
+
+  // Make connection without data source. Ask that driver
+  // prompt if insufficient information. Driver returns
+  // SQL_ERROR and application prompts user
+  // for missing information. Window handle not needed for
+  // SQL_DRIVER_NOPROMPT.
+  result = SQLDriverConnect(hdbc1,      // Connection handle
+                  NULL,         // Window handle
+                  connect_string,      // Input connect string
+                  SQL_NTS,         // Null-terminated string
+                  ConnStrOut,      // Address of output buffer
+                  MAXBUFLEN,      // Size of output buffer
+                  &cbConnStrOut,   // Address of output length
+                  (prompt ? SQL_DRIVER_PROMPT : SQL_DRIVER_NOPROMPT));
+
+  if(result==SQL_SUCCESS_WITH_INFO)
+    print_sql_info(hdbc1);
+
+  Field(res,0) = Val_int (result);
+  if(result==SQL_SUCCESS_WITH_INFO) {Field(res,0) = Val_int (0);}
+  if(result==SQL_NO_DATA) {Field(res,0) = Val_int (-11);}
+  if(result==SQL_ERROR) {Field(res,0) = Val_int (-12);}
+  if(result==SQL_INVALID_HANDLE) {Field(res,0) = Val_int (-13);}
+
+  Field(res,1) = Val_long ((long) henv);
+  Field(res,2) = Val_long ((long) hdbc1);
+  //printf("henv=%0x, hdbc=%0x\n",henv,hdbc1); fflush(stdout);
+  CAMLreturn(res);
+}
+
+
 /*-----------------------------------------------------------------------------
  * exitDB
  *-----------------------------------------------------------------------------
@@ -298,22 +428,37 @@ value exitDB_c( value v_phEnv, value v_phDbc)
 #endif
     CAMLreturn (Val_int ((int)-1));
   }
-   /*
+
+#ifdef DEBUG3
+  printf("<1>"); fflush(stdout);
+#endif
+  /*
   ** commit transactions
   */
+#ifdef OLD_POINTERS
   result = SQLTransact( *phEnv, *phDbc, SQL_COMMIT );
+#else
+  result = SQLTransact( phEnv, phDbc, SQL_COMMIT );
+#endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
     printf("Erreur SQLTransact\n");
     fflush(stdout);
     displayError( *phEnv, *phDbc, SQL_NULL_HENV, result, __LINE__ );
 #endif
-  }
+}
 
   /*
   ** disconnect from DB
   */
+#ifdef DEBUG3
+  printf("<2>"); fflush(stdout);
+#endif
+#ifdef OLD_POINTERS
   result = SQLDisconnect( *phDbc );
+#else
+  result = SQLDisconnect( phDbc );
+#endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
     printf("Erreur SQLDisconnect\n");
@@ -325,7 +470,14 @@ value exitDB_c( value v_phEnv, value v_phDbc)
   /*
   ** free connection to DB
   */
+#ifdef DEBUG3
+  printf("<3>"); fflush(stdout);
+#endif
+#ifdef OLD_POINTERS
   result = SQLFreeConnect( *phDbc );
+#else
+  result = SQLFreeConnect( phDbc );
+#endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
     printf("Erreur SQLFreeConnect\n");
@@ -339,7 +491,14 @@ value exitDB_c( value v_phEnv, value v_phDbc)
   /*
   ** free environment
   */
+#ifdef DEBUG3
+  printf("<4>"); fflush(stdout);
+#endif
+#ifdef OLD_POINTERS
   result = SQLFreeEnv( *phEnv );
+#else
+  result = SQLFreeEnv( phEnv );
+#endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
     printf("Erreur SQLFreeEnv\n");
@@ -349,6 +508,10 @@ value exitDB_c( value v_phEnv, value v_phDbc)
   }
   else
     *phEnv = SQL_NULL_HENV;
+
+#ifdef DEBUG3
+  printf("<5>"); fflush(stdout);
+#endif
 
   res = Val_int ((int) 0);
   CAMLreturn(res);
@@ -394,6 +557,8 @@ env * new_env (void) {
   return q_env ;
 }
 
+
+
 value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
 {
   CAMLparam3(v_phEnv, v_phDbc, v_cmd);
@@ -417,10 +582,15 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   */
   q_env->phEnv = (HENV *) (Unsigned_long_val(v_phEnv));
   q_env->phDbc = (HDBC *) (Unsigned_long_val(v_phDbc));
+  //printf("phEnv=%0x, phDbc=%0x\n",q_env->phEnv,q_env->phDbc); fflush(stdout);
 
 #ifdef DEBUG2
   printf("Appel de execDB cmd : %s\n", cmd);
   fflush(stdout);
+#endif
+
+#ifdef DEBUG3
+   printf("<1>"); fflush(stdout);
 #endif
 
   /*
@@ -440,11 +610,27 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
     Store_field (retour, 1, caml_q_env);
     CAMLreturn(retour);
   }
+#ifdef DEBUG3
+  printf("<2>"); fflush(stdout);
+#endif
 
   /*
   ** get statement handle
   */
+
+#ifdef ODBC2
+#ifdef DEBUG3
+  int x = (int)(*(q_env->phDbc));
+  printf("<2.5,%0x>",x); fflush(stdout);
+#endif
+  result = SQLAllocHandle( SQL_HANDLE_STMT,
+			   (q_env->phDbc), &(q_env->exec_hstmt) );
+#else
   result = SQLAllocStmt( *(q_env->phDbc), &(q_env->exec_hstmt) );
+#endif
+#ifdef DEBUG3
+  printf("<3>"); fflush(stdout);
+#endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
     printf("Erreur SQLAllocStmt\n");
@@ -486,7 +672,11 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   /*
   ** execute statement
   */
-  if( SQL_SUCCESS != (result=SQLExecute(q_env->exec_hstmt)) ) {
+  result=SQLExecute(q_env->exec_hstmt);
+  if( result==SQL_SUCCESS) {}
+  else if(result==SQL_SUCCESS_WITH_INFO)
+    print_sql_info(q_env->phDbc);
+  else {
 #ifdef DEBUG2
     printf("Erreur SQLExecute\n");
     fflush(stdout);
@@ -508,20 +698,20 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   q_env->exec_iRowCount = 0;
   result = SQLRowCount(q_env->exec_hstmt,
 		       (SQLINTEGER FAR *) &(q_env->exec_iRowCount) );
-#ifdef DEBUG2
+#ifdef DEBUG_LIGHT
   printf( "number of rows affected    : %d\n",
           (SQL_SUCCESS == result) ? q_env->exec_iRowCount
                                : -1
-        );
+	  );
 #endif
   q_env->exec_iResColumns = 0;
   result = SQLNumResultCols(q_env->exec_hstmt,
 			    (SWORD FAR *) &(q_env->exec_iResColumns) );
-#ifdef DEBUG2
+#ifdef DEBUG_LIGHT
   printf( "number of columns returned : %d\n",
           (SQL_SUCCESS == result) ? q_env->exec_iResColumns
                                : -1
-        );
+	  ); fflush(stdout);
 #endif
 
   /*
@@ -995,9 +1185,9 @@ void displayError( HENV hEnv, HDBC hDbc, HSTMT hStmt,
   ** display native error code
   */
   /* fprintf( stderr, "\a-----------------------\n" ); */
-  fprintf( stderr, "-----------------------\n" );
-  fprintf( stderr, "SQL error              : %d\n", iRC );
-  fprintf( stderr, "line number            : %d\n", iLineNum );
+  fprintf( stdout, "-----------------------\n" );
+  fprintf( stdout, "SQL error              : %d\n", iRC );
+  fprintf( stdout, "line number            : %d\n", iLineNum );
 
   /*
   ** display all error messages corresponding to this code
@@ -1008,12 +1198,36 @@ void displayError( HENV hEnv, HDBC hDbc, HSTMT hStmt,
                                 )
        )
   {
-    fprintf( stderr, "SQL state              : %s\n", szSqlState );
-    fprintf( stderr, "native error code      : %ld\n", iSqlCode );
-    fprintf( stderr, "%s\n", szBuffer );
+    fprintf( stdout, "SQL state              : %s\n", szSqlState );
+    fprintf( stdout, "native error code      : %ld\n", iSqlCode );
+    fprintf( stdout, "%s\n", szBuffer );
   } /* while */
 
   fprintf( stderr, "-----------------------\n" );
   /* fprintf( stderr, "\a-----------------------\n" ); */
-
+  fflush(stderr);
+  fflush(stdout);
 } /* displayError */
+
+
+void print_sql_info(SQLHDBC hdbc)
+{
+  SQLRETURN res2;
+  SQLCHAR state = 0;
+  SQLINTEGER nativeState = 0;
+  SQLCHAR msg[MAXBUFLEN+1];
+  SQLSMALLINT msgLength = 0;
+  do {
+    res2 = SQLGetDiagRec(SQL_HANDLE_DBC,
+			 hdbc,
+			 1, //SQLSMALLINT     RecNumber,
+			 &state, //SQLCHAR *     Sqlstate,
+			 &nativeState, //SQLINTEGER *     NativeErrorPtr,
+			 msg, // SQLCHAR *     MessageText,
+			 MAXBUFLEN, // SQLSMALLINT     BufferLength,
+			 &msgLength //SQLSMALLINT *     TextLengthPtr
+			 );
+    printf("state=%0xh, nativeState=%0xh, msg=%s\n", state, nativeState, msg);
+  } while(res2==SQL_SUCCESS_WITH_INFO);;
+  fflush(stdout);
+}

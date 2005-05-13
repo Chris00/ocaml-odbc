@@ -1,5 +1,7 @@
 2005-05-13  Maxence Guesdon  <Maxence.Guesdon@inria.fr>
 
+	* rel: 2.10
+	* add: mingw support, thanks to Jeff Henrikson
 	* fix: use Unsigned_long_val instead of Long_val macros
 	  in some C functions, thanls to chrisre@cs.washington.edu
 	  for pointing this
