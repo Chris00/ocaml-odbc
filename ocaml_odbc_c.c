@@ -121,7 +121,7 @@ void      displayError( HENV   hEnv,
                       );
 
 /* Constructeurs des types abstraits ODBC */
-value value_HENV_c () 
+value value_HENV_c ()
 {
   return(Val_int(SQL_NULL_HENV));
 }
@@ -151,7 +151,7 @@ value value_HDBC_c ()
  *-----------------------------------------------------------------------------
  */
 value initDB_c( value v_nom_base, value v_nom_user, value v_password)
-{ 
+{
   CAMLparam3 (v_nom_base, v_nom_user, v_password);
   CAMLlocal1 (res);
 
@@ -210,7 +210,7 @@ value initDB_c( value v_nom_base, value v_nom_user, value v_password)
     Field(res,0) = Val_int ((int) result);
     Field(res,1) = Val_long ((long) SQL_NULL_HENV);
     Field(res,2) = Val_long ((long) SQL_NULL_HDBC);
-    CAMLreturn(res);  
+    CAMLreturn(res);
   }
 
   /*
@@ -227,7 +227,7 @@ value initDB_c( value v_nom_base, value v_nom_user, value v_password)
     Field(res,0) = Val_int ((int) result);
     Field(res,1) = Val_long ((long) SQL_NULL_HENV);
     Field(res,2) = Val_long ((long) SQL_NULL_HDBC);
-    CAMLreturn(res);  
+    CAMLreturn(res);
   }
 
   /*
@@ -254,7 +254,7 @@ value initDB_c( value v_nom_base, value v_nom_user, value v_password)
     Field(res,0) = Val_int ((int) result);
     Field(res,1) = Val_long ((long) SQL_NULL_HENV);
     Field(res,2) = Val_long ((long) SQL_NULL_HDBC);
-    CAMLreturn(res);  
+    CAMLreturn(res);
   }
 
   Field(res,0) = Val_int ((int) 0);
@@ -278,11 +278,11 @@ value initDB_c( value v_nom_base, value v_nom_user, value v_password)
  *-----------------------------------------------------------------------------
  */
 value exitDB_c( value v_phEnv, value v_phDbc)
-{ 
+{
   CAMLparam2 (v_phEnv, v_phDbc);
   CAMLlocal1 (res);
-  HENV *phEnv = (HENV *) (Long_val(v_phEnv));
-  HDBC *phDbc = (HDBC *) (Long_val(v_phDbc));
+  HENV *phEnv = (HENV *) (Unsigned_long_val(v_phEnv));
+  HDBC *phDbc = (HDBC *) (Unsigned_long_val(v_phDbc));
   RETCODE result;
 
 #ifdef DEBUG2
@@ -349,7 +349,7 @@ value exitDB_c( value v_phEnv, value v_phDbc)
   }
   else
     *phEnv = SQL_NULL_HENV;
- 
+
   res = Val_int ((int) 0);
   CAMLreturn(res);
 }
@@ -390,12 +390,12 @@ env * new_env (void) {
   q_env->exec_pData[0] = NULL;
   q_env->phEnv = NULL;
   q_env->phDbc = NULL;
-  
-  return q_env ;  
+
+  return q_env ;
 }
 
 value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
-{ 
+{
   CAMLparam3(v_phEnv, v_phDbc, v_cmd);
   CAMLlocal1 (exec_res);
   CAMLlocal1 (caml_q_env) ;
@@ -415,8 +415,8 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   /*  caml_q_env = alloc (sizeof(env*), Abstract_tag);
   Store_field (caml_q_env, 0, (value) q_env);
   */
-  q_env->phEnv = (HENV *) (Long_val(v_phEnv));
-  q_env->phDbc = (HDBC *) (Long_val(v_phDbc));
+  q_env->phEnv = (HENV *) (Unsigned_long_val(v_phEnv));
+  q_env->phDbc = (HDBC *) (Unsigned_long_val(v_phDbc));
 
 #ifdef DEBUG2
   printf("Appel de execDB cmd : %s\n", cmd);
@@ -426,8 +426,8 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   /*
   ** check parameter list
   */
-  if( '\0' == cmd[0] 
-      || q_env->phEnv == SQL_NULL_HENV 
+  if( '\0' == cmd[0]
+      || q_env->phEnv == SQL_NULL_HENV
       || q_env->phDbc == SQL_NULL_HDBC ) {
 #ifdef DEBUG2
     printf("Erreur parametres\n");
@@ -438,7 +438,7 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
     retour = alloc_tuple (2) ;
     Store_field (retour, 0, exec_res);
     Store_field (retour, 1, caml_q_env);
-    CAMLreturn(retour);  
+    CAMLreturn(retour);
   }
 
   /*
@@ -449,9 +449,9 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
 #ifdef DEBUG2
     printf("Erreur SQLAllocStmt\n");
     fflush(stdout);
-    displayError( *(q_env->phEnv), 
-		  *(q_env->phDbc), 
-		  q_env->exec_hstmt, 
+    displayError( *(q_env->phEnv),
+		  *(q_env->phDbc),
+		  q_env->exec_hstmt,
 		  result, __LINE__ );
 #endif
     /* Allocation de la structure de retour */
@@ -470,9 +470,9 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
     printf("Erreur SQLPrepare\n");
     printf("%s\n", cmd);
     fflush(stdout);
-    displayError( *(q_env->phEnv), 
-		  *(q_env->phDbc), 
-		  q_env->exec_hstmt, 
+    displayError( *(q_env->phEnv),
+		  *(q_env->phDbc),
+		  q_env->exec_hstmt,
 		  result, __LINE__ );
 #endif
     /* Allocation de la structure de retour */
@@ -490,9 +490,9 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
 #ifdef DEBUG2
     printf("Erreur SQLExecute\n");
     fflush(stdout);
-    displayError( *(q_env->phEnv), 
-		  *(q_env->phDbc), 
-		  q_env->exec_hstmt, 
+    displayError( *(q_env->phEnv),
+		  *(q_env->phDbc),
+		  q_env->exec_hstmt,
 		  result, __LINE__ );
 #endif
     /* Allocation de la structure de retour */
@@ -506,7 +506,7 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   ** get number of rows affected / columns returned
   */
   q_env->exec_iRowCount = 0;
-  result = SQLRowCount(q_env->exec_hstmt, 
+  result = SQLRowCount(q_env->exec_hstmt,
 		       (SQLINTEGER FAR *) &(q_env->exec_iRowCount) );
 #ifdef DEBUG2
   printf( "number of rows affected    : %d\n",
@@ -528,33 +528,33 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   ** get table description and create list with pointers
   */
   if( 0 < q_env->exec_iResColumns )
-  { 
+  {
 #ifdef DEBUG2
     printf( "result columns:\n" );
 #endif
-    for( exec_ci = q_env->exec_iResColumns; 
-	 exec_ci >=1; 
+    for( exec_ci = q_env->exec_iResColumns;
+	 exec_ci >=1;
 	 exec_ci-- )
-      { 
-	if( SQL_SUCCESS != (result=SQLDescribeCol( q_env->exec_hstmt, 
-						   exec_ci, 
+      {
+	if( SQL_SUCCESS != (result=SQLDescribeCol( q_env->exec_hstmt,
+						   exec_ci,
 						   &(exec_szColName[0]),
 						   sizeof(exec_szColName) - 1,
-						   &(exec_cbColName), 
+						   &(exec_cbColName),
 						   &(exec_fColType),
 						   (UDWORD FAR *) &(exec_uiColPrecision),
-						   &(exec_iColScaling), 
+						   &(exec_iColScaling),
 						   &(exec_fColNullable)
 						   )
 			    )
 	    )
-	  { 
+	  {
 #ifdef DEBUG2
 	    printf("Erreur SQLDescribeCol\n");
 	    fflush(stdout);
-	    displayError( *(q_env->phEnv), 
-			  *(q_env->phDbc), 
-			  q_env->exec_hstmt, 
+	    displayError( *(q_env->phEnv),
+			  *(q_env->phDbc),
+			  q_env->exec_hstmt,
 			  result, __LINE__ );
 #endif
 	    exec_res = Val_int(result);
@@ -575,11 +575,11 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
 	else
 	  {
 	    memset( (q_env->exec_pData)[exec_ci], 0, (exec_uiColPrecision) +1 );
-	    result = SQLBindCol( q_env->exec_hstmt, 
-				 exec_ci, 
-				 SQL_C_CHAR, 
+	    result = SQLBindCol( q_env->exec_hstmt,
+				 exec_ci,
+				 SQL_C_CHAR,
 				 (q_env->exec_pData)[exec_ci],
-				 (exec_uiColPrecision)+1, 
+				 (exec_uiColPrecision)+1,
 				 &(q_env->exec_indicator[exec_ci])
 				 );
 	  }
@@ -596,7 +596,7 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
       CAMLreturn(retour);
     }
   else
-    { 
+    {
       exec_res = Val_int(1);
       retour = alloc_tuple (2) ;
       Store_field (retour, 0, exec_res);
@@ -626,7 +626,7 @@ value itere_execDB_c (value caml_q_env, value nb_records_ml) {
 
 #ifdef DEBUG2
   printf( "itere_execDB_c start\n");
-#endif     
+#endif
 
   exec_l_head2 = Val_int(0);
   exec_string_list_list = exec_l_head2;
@@ -634,13 +634,13 @@ value itere_execDB_c (value caml_q_env, value nb_records_ml) {
 
 #ifdef DEBUG2
   printf( "nb_records = %d\n", nb_records );
-#endif     
+#endif
 
   if (0 < q_env->exec_iResColumns )
     {
 #ifdef DEBUG2
       printf( " 0 < q_env->exec_iResColumns \n" );
-#endif      
+#endif
       while (i < nb_records) {
 	if (! ( SQL_SUCCESS           == (result=SQLFetch(q_env->exec_hstmt)) ||
 		SQL_SUCCESS_WITH_INFO == result ))
@@ -669,12 +669,12 @@ value itere_execDB_c (value caml_q_env, value nb_records_ml) {
 		}
 		else {
 #ifdef DEBUG2
-		  printf( "'%s' ", (NULL == q_env->exec_pData[exec_ci]) ? 
+		  printf( "'%s' ", (NULL == q_env->exec_pData[exec_ci]) ?
 			  "<ERROR>" : q_env->exec_pData[exec_ci] );
 		  fflush( stdout );
 #endif
-		  Store_field(exec_temp, 0, 
-			      copy_string((NULL == q_env->exec_pData[exec_ci]) ? 
+		  Store_field(exec_temp, 0,
+			      copy_string((NULL == q_env->exec_pData[exec_ci]) ?
 					  "<ERROR>" : q_env->exec_pData[exec_ci]));
 		}
 	      } /* for */
@@ -683,7 +683,7 @@ value itere_execDB_c (value caml_q_env, value nb_records_ml) {
 #endif
 	    exec_string_list = exec_l_head;
 
-	    exec_l_head2 = alloc_tuple (2);	    
+	    exec_l_head2 = alloc_tuple (2);
 	    Store_field (exec_l_head2, 0, exec_string_list);
 	    Store_field (exec_l_head2, 1, Val_int(0));
 
@@ -704,7 +704,7 @@ value itere_execDB_c (value caml_q_env, value nb_records_ml) {
     } /* if */
   else
     {}
-  
+
   /*
   ** display last return code
   */
@@ -727,7 +727,7 @@ value itere_execDB_c (value caml_q_env, value nb_records_ml) {
   exec_res = alloc_tuple(2);
   Store_field(exec_res,0,Val_int (i));
 #ifdef DEBUG2
-  printf("avant retour de itere_2bis\n"); 
+  printf("avant retour de itere_2bis\n");
 #endif
   Store_field(exec_res,1, exec_string_list_list);
 #ifdef DEBUG2
@@ -767,7 +767,7 @@ int get_OCaml_SQL_type_code (int code)
 pour chaque champ retourné par la dernière requête exécutée
 et non encore libérée. */
 value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
-{ 
+{
   CAMLparam2 (v_phEnv, v_phDbc);
   CAMLlocal2 (info_temp, info_l_head);
   CAMLlocal1 (info_cpl);
@@ -798,20 +798,20 @@ value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
 #endif
     /* On retourne une liste vide */
     info_l_head = Val_int (0);
-    CAMLreturn(info_l_head);  
+    CAMLreturn(info_l_head);
   }
 
   /*
   ** get table description and create list with pointers
   */
   if( 0 < q_env->exec_iResColumns )
-  { 
+  {
 #ifdef DEBUG2
     printf( "result columns:\n" );
 #endif
     /* Initialisation de la liste des descriptions de colonnes */
     info_l_head = Val_int(0);
-    
+
     for( exec_ci = q_env->exec_iResColumns; exec_ci >=1; exec_ci-- )
     { /*
       ** display table info
@@ -819,29 +819,29 @@ value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
 #ifdef DEBUG2
       printf( "  [%03u] ", exec_ci ); fflush( stdout );
 #endif
-      if( SQL_SUCCESS != (result=SQLDescribeCol(q_env->exec_hstmt, 
-						exec_ci, 
+      if( SQL_SUCCESS != (result=SQLDescribeCol(q_env->exec_hstmt,
+						exec_ci,
 						&(exec_szColName[0]),
 						sizeof(exec_szColName) - 1,
-						&(exec_cbColName), 
+						&(exec_cbColName),
 						&(exec_fColType),
 						(UDWORD FAR *) &(exec_uiColPrecision),
-						&(exec_iColScaling), 
+						&(exec_iColScaling),
 						&(exec_fColNullable)
                                             )
                           )
-         ) { 
+         ) {
 #ifdef DEBUG2
 	printf("Erreur SQLDescribeCol\n");
 	fflush(stdout);
-	displayError( *(q_env->phEnv), 
-		      *(q_env->phDbc), 
-		      q_env->exec_hstmt, 
+	displayError( *(q_env->phEnv),
+		      *(q_env->phDbc),
+		      q_env->exec_hstmt,
 		      result, __LINE__ );
 #endif
         /* Allocation de la structure de retour */
 	info_l_head = Val_int(0);
-	CAMLreturn(info_l_head);  
+	CAMLreturn(info_l_head);
       }
 
 #ifdef DEBUG2
@@ -900,7 +900,7 @@ value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
 }
 
 
-/* free_ExecDB_c : fonction de désallocation des structures allouées par 
+/* free_ExecDB_c : fonction de désallocation des structures allouées par
    execDB_c */
 void free_execDB_c (value caml_q_env) {
   int result;
@@ -909,14 +909,14 @@ void free_execDB_c (value caml_q_env) {
   env* q_env = (env*) caml_q_env ;
 #ifdef DEBUG2
   printf( "free_execDB_c start\n");
-#endif   
+#endif
     /*
     ** free allocated memory
     */
   for( exec_ci = 1 ;
-	 exec_ci <= q_env->exec_iResColumns; 
+	 exec_ci <= q_env->exec_iResColumns;
 	 exec_ci++ )
-    { 
+    {
 #ifdef DEBUG2
       fprintf(stderr, "free for exe_ci = %d\n", exec_ci);
       fflush(stderr);
@@ -951,10 +951,10 @@ void free_execDB_c (value caml_q_env) {
     printf("Erreur SQLFreeStmt\n");
     fflush(stdout);
     displayError( *(q_env->phEnv),
-		  *(q_env->phDbc), 
-		  q_env->exec_hstmt, 
+		  *(q_env->phDbc),
+		  q_env->exec_hstmt,
 		  result, __LINE__ );
-    
+
 #endif
   }
   free(q_env);
