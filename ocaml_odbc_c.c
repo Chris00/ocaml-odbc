@@ -304,7 +304,6 @@ value initDB_driver_c( value v_connect_string, value v_prompt)
 {
   CAMLparam2 (v_connect_string,v_prompt);
   CAMLlocal1 (res);
-  res =  alloc_tuple(3);
 
   char *connect_string = String_val(v_connect_string);
   int prompt = Bool_val(v_prompt);
@@ -325,6 +324,7 @@ value initDB_driver_c( value v_connect_string, value v_prompt)
 
   /* allocate an environment handle */
   cliRC = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
+  res =  alloc_tuple(3);
   if (cliRC != SQL_SUCCESS)
   {
     printf("\n--ERROR while allocating the environment handle.\n");
