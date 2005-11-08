@@ -1,34 +1,34 @@
-(*********************************************************************************)
-(*                OCamlODBC                                                         *)
-(*                                                                               *)
-(*    Copyright (C) 2004 Institut National de Recherche en Informatique et       *)
-(*    en Automatique. All rights reserved.                                       *)
-(*                                                                               *)
-(*    This program is free software; you can redistribute it and/or modify       *)
-(*    it under the terms of the GNU Lesser General Public License as published   *)
-(*    by the Free Software Foundation; either version 2.1 of the License, or     *)
-(*    any later version.                                                         *)
-(*                                                                               *)
-(*    This program is distributed in the hope that it will be useful,            *)
-(*    but WITHOUT ANY WARRANTY; without even the implied warranty of             *)
-(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              *)
-(*    GNU Lesser General Public License for more details.                        *)
-(*                                                                               *)
-(*    You should have received a copy of the GNU Lesser General Public License   *)
-(*    along with this program; if not, write to the Free Software                *)
-(*    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                   *)
-(*    02111-1307  USA                                                            *)
-(*                                                                               *)
-(*    Contact: Maxence.Guesdon@inria.fr                                          *)
-(*********************************************************************************)
+(*****************************************************************************)
+(*              OCamlODBC                                                    *)
+(*                                                                           *)
+(*  Copyright (C) 2004 Institut National de Recherche en Informatique et     *)
+(*  en Automatique. All rights reserved.                                     *)
+(*                                                                           *)
+(*  This program is free software; you can redistribute it and/or modify     *)
+(*  it under the terms of the GNU Lesser General Public License as published *)
+(*  by the Free Software Foundation; either version 2.1 of the License, or   *)
+(*  any later version.                                                       *)
+(*                                                                           *)
+(*  This program is distributed in the hope that it will be useful,          *)
+(*  but WITHOUT ANY WARRANTY; without even the implied warranty of           *)
+(*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *)
+(*  GNU Lesser General Public License for more details.                      *)
+(*                                                                           *)
+(*  You should have received a copy of the GNU Lesser General Public License *)
+(*  along with this program; if not, write to the Free Software              *)
+(*  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                 *)
+(*  02111-1307  USA                                                          *)
+(*                                                                           *)
+(*  Contact: Maxence.Guesdon@inria.fr                                        *)
+(*****************************************************************************)
 
-(**  *)
+(* $Id: ocamlodbc.ml,v 1.10 2005-11-08 19:06:51 chris Exp $ *)
 
 (** The software name *)
 let logiciel = "OCamlODBC"
 
 (** The software version *)
-let version = "2.10"
+let version = "2.20"
 
 exception SQL_Error of string
 
@@ -53,7 +53,7 @@ type sql_column_type =
   | SQL_bigint
   | SQL_tinyint
   | SQL_bit
-;;
+
 
 (** The module for the column type and its conversion into a string. *)
 module SQL_column =
@@ -61,7 +61,7 @@ module SQL_column =
     type t = sql_column_type
     let string col_type =
       match col_type with
-	SQL_unknown -> "SQL_unknown"
+      | SQL_unknown -> "SQL_unknown"
       | SQL_char -> "SQL_char"
       | SQL_numeric -> "SQL_numeric"
       |	SQL_decimal -> "SQL_decimal"
@@ -83,23 +83,27 @@ module SQL_column =
       | SQL_bit -> "SQL_bit"
   end;;
 
-module SQLInterface = Ocaml_odbc.Interface (SQL_column);;
+module SQLInterface = Ocaml_odbc.Interface(SQL_column)
 
 module OCamlODBC_messages =
-  struct
-    let disconnect = "ODBC : problem while disconnecting"
-    let connection nom_base nom_user pzPasswd iRC1 = "Error while connecting to database "^nom_base^" as "^nom_user^" with password <"^pzPasswd^"> : "^(string_of_int iRC1)
-    let connection_driver connect_string iRC1 = "Error while connecting to database with connection string "^connect_string^"> : "^(string_of_int iRC1)
-  end
+struct
+  let disconnect = "ODBC : problem while disconnecting"
+  let connection nom_base nom_user pzPasswd iRC1 =
+    "Error while connecting to database " ^ nom_base ^ " as "
+    ^ nom_user ^ " with password <" ^ pzPasswd ^ "> : "
+    ^ (string_of_int iRC1)
+  let connection_driver connect_string iRC1 =
+    "Error while connecting to database with connection string "
+    ^ connect_string ^ "> : " ^ (string_of_int iRC1)
+end
 
-type connection =
-    {
-      phEnv : Ocaml_odbc.sQLHENV ;
-      phDbc : Ocaml_odbc.sQLHDBC ;
-      base : string ;
-      user : string ;
-      passwd : string ;
-    }
+type connection = {
+  phEnv : Ocaml_odbc.sQLHENV ;
+  phDbc : Ocaml_odbc.sQLHDBC ;
+  base : string ;
+  user : string ;
+  passwd : string ;
+}
 
 let connect base user passwd =
   let (iRC1,hEnv,pHDbc) = SQLInterface.initDB base user passwd in
@@ -116,14 +120,14 @@ let connect base user passwd =
 
 let connect_driver ?(prompt=false) connect_string =
   let (iRC1,hEnv,pHDbc) = SQLInterface.initDB_driver connect_string prompt in
-  if (iRC1 = 0) then 
+  if (iRC1 = 0) then
     {
       phEnv = hEnv;
       phDbc = pHDbc;
       base = connect_string ;
       user = "" ;
       passwd = "" ;
-    } 
+    }
   else
     raise (SQL_Error (OCamlODBC_messages.connection_driver connect_string iRC1))
 
@@ -209,26 +213,26 @@ let execute_with_info connection req =
    @param passwd the password to use when connecting, can be [""]
 *)
 class data_base base user passwd =
-  object (self)
-    (** The connection, initialized when the object is created. *)
-    val connection = connect base user passwd
+object (self)
+  (** The connection, initialized when the object is created. *)
+  val connection = connect base user passwd
     (** The flag to indicates whether we are connected or not,
-       used not to disconnect more than once.*)
-    val mutable connected = true
+	used not to disconnect more than once.*)
+  val mutable connected = true
 
-    method connect () = ()
+  method connect () = ()
 
-    method disconnect () =
-      if connected then
-	(
-	 connected <- false;
-	 disconnect connection
-	)
+  method disconnect () =
+    if connected then (
+      connected <- false;
+      disconnect connection
+    )
 
-    method execute req = execute connection req
+  method execute req = execute connection req
 
-    method execute_with_info req = execute_with_info connection req
+  method execute_with_info req = execute_with_info connection req
 
-    method execute_gen ?(get_info=false) ?(n_rec=1) req (callback : string list list -> unit) =
-      execute_gen connection ~get_info:get_info ~n_rec:n_rec req callback
-  end
+  method execute_gen ?(get_info=false) ?(n_rec=1) req
+    (callback : string list list -> unit) =
+    execute_gen connection ~get_info:get_info ~n_rec:n_rec req callback
+end
