@@ -1,26 +1,26 @@
-/*********************************************************************************/
-/*                OCamlODBC                                                         */
-/*                                                                               */
-/*    Copyright (C) 2004 Institut National de Recherche en Informatique et       */
-/*    en Automatique. All rights reserved.                                       */
-/*                                                                               */
-/*    This program is free software; you can redistribute it and/or modify       */
-/*    it under the terms of the GNU Lesser General Public License as published   */
-/*    by the Free Software Foundation; either version 2.1 of the License, or     */
-/*    any later version.                                                         */
-/*                                                                               */
-/*    This program is distributed in the hope that it will be useful,            */
-/*    but WITHOUT ANY WARRANTY; without even the implied warranty of             */
-/*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              */
-/*    GNU Lesser General Public License for more details.                        */
-/*                                                                               */
-/*    You should have received a copy of the GNU Lesser General Public License   */
-/*    along with this program; if not, write to the Free Software                */
-/*    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                   */
-/*    02111-1307  USA                                                            */
-/*                                                                               */
-/*    Contact: Maxence.Guesdon@inria.fr                                          */
-/*********************************************************************************/
+/*****************************************************************************/
+/*              OCamlODBC                                                    */
+/*                                                                           */
+/*  Copyright (C) 2004 Institut National de Recherche en Informatique et     */
+/*  en Automatique. All rights reserved.                                     */
+/*                                                                           */
+/*  This program is free software; you can redistribute it and/or modify     */
+/*  it under the terms of the GNU Lesser General Public License as published */
+/*  by the Free Software Foundation; either version 2.1 of the License, or   */
+/*  any later version.                                                       */
+/*                                                                           */
+/*  This program is distributed in the hope that it will be useful,          */
+/*  but WITHOUT ANY WARRANTY; without even the implied warranty of           */
+/*  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            */
+/*  GNU Lesser General Public License for more details.                      */
+/*                                                                           */
+/*  You should have received a copy of the GNU Lesser General Public License */
+/*  along with this program; if not, write to the Free Software              */
+/*  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                 */
+/*  02111-1307  USA                                                          */
+/*                                                                           */
+/*  Contact: Maxence.Guesdon@inria.fr                                        */
+/*****************************************************************************/
 
 //#define DEBUG2 1
 //#define DEBUG3 1
@@ -43,7 +43,7 @@
 #include <alloc.h>
 #include <memory.h>
 
-/*---| includes (unixODBC/DB2/iODBC/mSQL/Oracle/Intersolv/WIN32) |-----------------------------*/
+/*---| includes (unixODBC/DB2/iODBC/mSQL/Oracle/Intersolv/WIN32) |----------*/
 #ifdef iODBC
 #  include <iodbc.h>
 #  include <isql.h>
@@ -85,9 +85,9 @@
 #define COLUMN_SIZE     8000
 
 
-/* The constants used to represent the OCaml constructors for Column types.
- In the OCaml type (Libocaml_odbc.sql_column_type), the constructors must
- appear in the same order.*/
+/* The constants used to represent the OCaml constructors for Column
+   types.  In the OCaml type (Libocaml_odbc.sql_column_type), the
+   constructors must appear in the same order.  */
 
 /* unknown type */
 #define OCAML_SQL_UNKNOWN 0
@@ -123,22 +123,22 @@
 
 
 /* Prototype */
-void      displayError( HENV   hEnv,
-                        HDBC   hDbc,
-                        HSTMT  hStmt,
-                        int       iRC,
-                        int       iLineNum
-                      );
+void displayError( HENV   hEnv,
+                   HDBC   hDbc,
+                   HSTMT  hStmt,
+                   int       iRC,
+                   int       iLineNum
+                 );
 
 void print_sql_info(SQLHDBC hdbc);
 
 /* Constructeurs des types abstraits ODBC */
-value value_HENV_c ()
+value ocamlodbc_HENV_c ()
 {
   return(Val_int(SQL_NULL_HENV));
 }
 
-value value_HDBC_c ()
+value ocamlodbc_HDBC_c ()
 {
   return(Val_int(SQL_NULL_HDBC));
 }
@@ -164,7 +164,8 @@ value value_HDBC_c ()
  *             pointer to DB context
  *-----------------------------------------------------------------------------
  */
-value initDB_c( value v_nom_base, value v_nom_user, value v_password)
+CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
+                                  value v_password)
 {
   CAMLparam3 (v_nom_base, v_nom_user, v_password);
   CAMLlocal1 (res);
@@ -177,12 +178,13 @@ value initDB_c( value v_nom_base, value v_nom_user, value v_password)
   HDBC *phDbc = SQL_NULL_HDBC;
 
 #ifdef DEBUG2
-  printf("Appel de initDB nombase : %s, nom_user : %s, Password : %s\n", nom_base, nom_user, password);
+  printf("Appel de initDB nombase : %s, nom_user : %s, Password : %s\n",
+         nom_base, nom_user, password);
   fflush(stdout);
 #endif
 
   /* Allocation de la structure de retour */
-  res =  alloc_tuple(3);
+  res = alloc_tuple(3);
 
   /* Test des parametres */
   if( NULL == nom_base || NULL == nom_user ) {
@@ -254,10 +256,10 @@ value initDB_c( value v_nom_base, value v_nom_user, value v_password)
            (NULL != password) ? password : "<no password set>"
          );
 #endif
-  result = SQLConnect( *phDbc, nom_base,       SQL_NTS,
-                            nom_user,     SQL_NTS,
-                            password, SQL_NTS
-                  );
+  result = SQLConnect(*phDbc, nom_base,       SQL_NTS,
+                      nom_user,     SQL_NTS,
+                      password, SQL_NTS
+                      );
   if( SQL_SUCCESS != result && SQL_SUCCESS_WITH_INFO != result )
   {
 #ifdef DEBUG2
@@ -300,7 +302,7 @@ value initDB_c( value v_nom_base, value v_nom_user, value v_password)
  *             pointer to DB context
  *-----------------------------------------------------------------------------
  */
-value initDB_driver_c( value v_connect_string, value v_prompt)
+CAMLprim value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
 {
   CAMLparam2 (v_connect_string,v_prompt);
   CAMLlocal1 (res);
@@ -313,18 +315,18 @@ value initDB_driver_c( value v_connect_string, value v_prompt)
 
   SQLHENV      henv = SQL_NULL_HENV;
   SQLHDBC      hdbc1 = SQL_NULL_HDBC;
-  SQLHSTMT      hstmt1 = SQL_NULL_HSTMT;
+  SQLHSTMT     hstmt1 = SQL_NULL_HSTMT;
 
   SQLCHAR      ConnStrIn[MAXBUFLEN] = "";
 
   SQLCHAR      ConnStrOut[MAXBUFLEN];
-  SQLSMALLINT   cbConnStrOut = 0;
+  SQLSMALLINT  cbConnStrOut = 0;
 
-  SQLRETURN cliRC = SQL_SUCCESS;
+  SQLRETURN    cliRC = SQL_SUCCESS;
 
   /* allocate an environment handle */
   cliRC = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
-  res =  alloc_tuple(3);
+  res = alloc_tuple(3);
   if (cliRC != SQL_SUCCESS)
   {
     printf("\n--ERROR while allocating the environment handle.\n");
@@ -342,9 +344,9 @@ value initDB_driver_c( value v_connect_string, value v_prompt)
   /* set attribute to enable application to run as OCBC 3.0 application */
 #ifdef ODBC2
   cliRC = SQLSetEnvAttr(henv,
-                     SQL_ATTR_ODBC_VERSION,
-                     (void *)SQL_OV_ODBC2,
-                     0);
+                        SQL_ATTR_ODBC_VERSION,
+                        (void *)SQL_OV_ODBC2,
+                        0);
 #endif
 
   //ENV_HANDLE_CHECK(henv, cliRC);
@@ -370,22 +372,22 @@ value initDB_driver_c( value v_connect_string, value v_prompt)
   // for missing information. Window handle not needed for
   // SQL_DRIVER_NOPROMPT.
   result = SQLDriverConnect(hdbc1,      // Connection handle
-                  NULL,         // Window handle
-                  connect_string,      // Input connect string
-                  SQL_NTS,         // Null-terminated string
-                  ConnStrOut,      // Address of output buffer
-                  MAXBUFLEN,      // Size of output buffer
-                  &cbConnStrOut,   // Address of output length
-                  (prompt ? SQL_DRIVER_PROMPT : SQL_DRIVER_NOPROMPT));
+                            NULL,         // Window handle
+                            connect_string,      // Input connect string
+                            SQL_NTS,         // Null-terminated string
+                            ConnStrOut,      // Address of output buffer
+                            MAXBUFLEN,      // Size of output buffer
+                            &cbConnStrOut,   // Address of output length
+                            (prompt ? SQL_DRIVER_PROMPT : SQL_DRIVER_NOPROMPT));
 
-  if(result==SQL_SUCCESS_WITH_INFO)
+  if(result == SQL_SUCCESS_WITH_INFO)
     print_sql_info(hdbc1);
 
   Field(res,0) = Val_int (result);
-  if(result==SQL_SUCCESS_WITH_INFO) {Field(res,0) = Val_int (0);}
-  if(result==SQL_NO_DATA) {Field(res,0) = Val_int (-11);}
-  if(result==SQL_ERROR) {Field(res,0) = Val_int (-12);}
-  if(result==SQL_INVALID_HANDLE) {Field(res,0) = Val_int (-13);}
+  if(result == SQL_SUCCESS_WITH_INFO) {Field(res,0) = Val_int (0);}
+  if(result == SQL_NO_DATA) {Field(res,0) = Val_int (-11);}
+  if(result == SQL_ERROR) {Field(res,0) = Val_int (-12);}
+  if(result == SQL_INVALID_HANDLE) {Field(res,0) = Val_int (-13);}
 
   Field(res,1) = Val_long ((long) henv);
   Field(res,2) = Val_long ((long) hdbc1);
@@ -407,7 +409,7 @@ value initDB_driver_c( value v_connect_string, value v_prompt)
  *             == 0 - no error
  *-----------------------------------------------------------------------------
  */
-value exitDB_c( value v_phEnv, value v_phDbc)
+CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
 {
   CAMLparam2 (v_phEnv, v_phDbc);
   CAMLlocal1 (res);
@@ -536,10 +538,11 @@ value exitDB_c( value v_phEnv, value v_phDbc)
  */
 
 typedef struct {
-  HSTMT       exec_hstmt;                       /* handle for statement     */
-  SWORD       exec_iResColumns;                 /* number of result cols    */
-  int         exec_iRowCount;                   /* number of rows affected  */
-  void        *exec_pData[MAX_COLUMNS+1];       /* pointer to results (column 0 is not used) */
+  HSTMT       exec_hstmt;                    /* handle for statement     */
+  SWORD       exec_iResColumns;              /* number of result cols    */
+  int         exec_iRowCount;                /* number of rows affected  */
+  void        *exec_pData[MAX_COLUMNS+1];    /* pointer to results
+                                                (column 0 is not used) */
   SQLINTEGER  exec_indicator[MAX_COLUMNS+1];
   HENV *phEnv;
   HDBC *phDbc;
@@ -559,20 +562,20 @@ env * new_env (void) {
 
 
 
-value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
+CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
 {
   CAMLparam3(v_phEnv, v_phDbc, v_cmd);
-  CAMLlocal1 (exec_res);
-  CAMLlocal1 (caml_q_env) ;
-  CAMLlocal1 (retour) ;
+  CAMLlocal1(exec_res);
+  CAMLlocal1(caml_q_env) ;
+  CAMLlocal1(retour) ;
   char *cmd = String_val(v_cmd);
   int exec_ci = 0;
-  SQLCHAR     exec_szColName[COLUMN_SIZE];          /* name of column          */
-  SQLSMALLINT exec_cbColName;                       /* length of column name   */
-  SQLSMALLINT exec_fColType;                        /* type of column          */
-  SQLUINTEGER exec_uiColPrecision;                  /* precision of column     */
-  SQLSMALLINT exec_iColScaling;                     /* scaling of column       */
-  SQLSMALLINT exec_fColNullable;                    /* is column nullable?     */
+  SQLCHAR     exec_szColName[COLUMN_SIZE];     /* name of column          */
+  SQLSMALLINT exec_cbColName;                  /* length of column name   */
+  SQLSMALLINT exec_fColType;                   /* type of column          */
+  SQLUINTEGER exec_uiColPrecision;             /* precision of column     */
+  SQLSMALLINT exec_iColScaling;                /* scaling of column       */
+  SQLSMALLINT exec_fColNullable;               /* is column nullable?     */
   RETCODE result = 0;
   env* q_env = new_env ();
   caml_q_env = (value) q_env;
@@ -617,14 +620,13 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   /*
   ** get statement handle
   */
-
 #ifdef ODBC2
 #ifdef DEBUG3
   int x = (int)(*(q_env->phDbc));
   printf("<2.5,%0x>",x); fflush(stdout);
 #endif
   result = SQLAllocHandle( SQL_HANDLE_STMT,
-			   (q_env->phDbc), &(q_env->exec_hstmt) );
+                           (q_env->phDbc), &(q_env->exec_hstmt) );
 #else
   result = SQLAllocStmt( *(q_env->phDbc), &(q_env->exec_hstmt) );
 #endif
@@ -636,9 +638,9 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
     printf("Erreur SQLAllocStmt\n");
     fflush(stdout);
     displayError( *(q_env->phEnv),
-		  *(q_env->phDbc),
-		  q_env->exec_hstmt,
-		  result, __LINE__ );
+                  *(q_env->phDbc),
+                  q_env->exec_hstmt,
+                  result, __LINE__ );
 #endif
     /* Allocation de la structure de retour */
     exec_res = Val_int ((int) result);
@@ -657,9 +659,9 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
     printf("%s\n", cmd);
     fflush(stdout);
     displayError( *(q_env->phEnv),
-		  *(q_env->phDbc),
-		  q_env->exec_hstmt,
-		  result, __LINE__ );
+                  *(q_env->phDbc),
+                  q_env->exec_hstmt,
+                  result, __LINE__ );
 #endif
     /* Allocation de la structure de retour */
     exec_res = Val_int ((int) result);
@@ -672,18 +674,18 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   /*
   ** execute statement
   */
-  result=SQLExecute(q_env->exec_hstmt);
-  if( result==SQL_SUCCESS) {}
-  else if(result==SQL_SUCCESS_WITH_INFO)
+  result = SQLExecute(q_env->exec_hstmt);
+  if( result == SQL_SUCCESS) {}
+  else if(result == SQL_SUCCESS_WITH_INFO)
     print_sql_info(q_env->phDbc);
   else {
 #ifdef DEBUG2
     printf("Erreur SQLExecute\n");
     fflush(stdout);
     displayError( *(q_env->phEnv),
-		  *(q_env->phDbc),
-		  q_env->exec_hstmt,
-		  result, __LINE__ );
+                  *(q_env->phDbc),
+                  q_env->exec_hstmt,
+                  result, __LINE__ );
 #endif
     /* Allocation de la structure de retour */
     exec_res = Val_int ((int) result);
@@ -697,21 +699,21 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
   */
   q_env->exec_iRowCount = 0;
   result = SQLRowCount(q_env->exec_hstmt,
-		       (SQLINTEGER FAR *) &(q_env->exec_iRowCount) );
+                       (SQLINTEGER FAR *) &(q_env->exec_iRowCount) );
 #ifdef DEBUG_LIGHT
   printf( "number of rows affected    : %d\n",
           (SQL_SUCCESS == result) ? q_env->exec_iRowCount
                                : -1
-	  );
+          );
 #endif
   q_env->exec_iResColumns = 0;
   result = SQLNumResultCols(q_env->exec_hstmt,
-			    (SWORD FAR *) &(q_env->exec_iResColumns) );
+                            (SWORD FAR *) &(q_env->exec_iResColumns) );
 #ifdef DEBUG_LIGHT
   printf( "number of columns returned : %d\n",
           (SQL_SUCCESS == result) ? q_env->exec_iResColumns
                                : -1
-	  ); fflush(stdout);
+          ); fflush(stdout);
 #endif
 
   /*
@@ -722,57 +724,57 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
 #ifdef DEBUG2
     printf( "result columns:\n" );
 #endif
-    for( exec_ci = q_env->exec_iResColumns;
-	 exec_ci >=1;
-	 exec_ci-- )
+    for( exec_ci = q_env->exec_iResColumns;  exec_ci >=1;  exec_ci-- )
       {
-	if( SQL_SUCCESS != (result=SQLDescribeCol( q_env->exec_hstmt,
-						   exec_ci,
-						   &(exec_szColName[0]),
-						   sizeof(exec_szColName) - 1,
-						   &(exec_cbColName),
-						   &(exec_fColType),
-						   (UDWORD FAR *) &(exec_uiColPrecision),
-						   &(exec_iColScaling),
-						   &(exec_fColNullable)
-						   )
-			    )
-	    )
-	  {
+        if( SQL_SUCCESS !=
+            (result = SQLDescribeCol(q_env->exec_hstmt,
+                                     exec_ci,
+                                     &(exec_szColName[0]),
+                                     sizeof(exec_szColName) - 1,
+                                     &(exec_cbColName),
+                                     &(exec_fColType),
+                                     (UDWORD FAR *) &(exec_uiColPrecision),
+                                     &(exec_iColScaling),
+                                     &(exec_fColNullable)
+                                     )
+             )
+            )
+          {
 #ifdef DEBUG2
-	    printf("Erreur SQLDescribeCol\n");
-	    fflush(stdout);
-	    displayError( *(q_env->phEnv),
-			  *(q_env->phDbc),
-			  q_env->exec_hstmt,
-			  result, __LINE__ );
+            printf("Erreur SQLDescribeCol\n");
+            fflush(stdout);
+            displayError( *(q_env->phEnv),
+                          *(q_env->phDbc),
+                          q_env->exec_hstmt,
+                          result, __LINE__ );
 #endif
-	    exec_res = Val_int(result);
-	    retour = alloc_tuple (2) ;
-	    Store_field (retour, 0, exec_res);
-	    Store_field (retour, 1, caml_q_env);
-	    CAMLreturn(retour);
-	  }
-	/*
-	** create list with data entries
-	*/
-	(q_env->exec_pData)[exec_ci] = NULL;
-	(q_env->exec_indicator)[exec_ci]=0;
-	if( NULL == ((q_env->exec_pData)[exec_ci]=malloc((exec_uiColPrecision) +1)) )
-	  {
-	    result = -1;
-	  }
-	else
-	  {
-	    memset( (q_env->exec_pData)[exec_ci], 0, (exec_uiColPrecision) +1 );
-	    result = SQLBindCol( q_env->exec_hstmt,
-				 exec_ci,
-				 SQL_C_CHAR,
-				 (q_env->exec_pData)[exec_ci],
-				 (exec_uiColPrecision)+1,
-				 &(q_env->exec_indicator[exec_ci])
-				 );
-	  }
+            exec_res = Val_int(result);
+            retour = alloc_tuple (2) ;
+            Store_field (retour, 0, exec_res);
+            Store_field (retour, 1, caml_q_env);
+            CAMLreturn(retour);
+          }
+        /*
+        ** create list with data entries
+        */
+        (q_env->exec_pData)[exec_ci] = NULL;
+        (q_env->exec_indicator)[exec_ci]=0;
+        if( NULL == ((q_env->exec_pData)[exec_ci]
+                     = malloc((exec_uiColPrecision) +1)) )
+          {
+            result = -1;
+          }
+        else
+          {
+            memset( (q_env->exec_pData)[exec_ci], 0, (exec_uiColPrecision) +1 );
+            result = SQLBindCol( q_env->exec_hstmt,
+                                 exec_ci,
+                                 SQL_C_CHAR,
+                                 (q_env->exec_pData)[exec_ci],
+                                 (exec_uiColPrecision)+1,
+                                 &(q_env->exec_indicator[exec_ci])
+                                 );
+          }
       }
   }
 
@@ -796,138 +798,75 @@ value execDB_c( value v_phEnv, value v_phDbc, value v_cmd)
 }
 
 
-/* itere_execDB_c : fonction récupérant un certain nombre
-   d'enregistrements, pour la requête exécutée par la fonction
-   execDB.
-*/
-value itere_execDB_c (value caml_q_env, value nb_records_ml) {
-  CAMLparam2 (caml_q_env, nb_records_ml);
-  CAMLlocal1 (exec_res);
-  CAMLlocal1 (exec_string_list_list);
-  CAMLlocal5 (exec_temp, exec_temp2, exec_l_head, exec_l_head2, exec_string_list);
-
-  RETCODE result = 0;
-  int i = 0;
+/* free_ExecDB_c : fonction de désallocation des structures allouées par
+   execDB_c */
+CAMLprim value ocamlodbc_free_execDB_c(value caml_q_env)
+{
+  CAMLparam1(caml_q_env);
+  int result;
   int exec_ci = 0;
-  int at_least_one_row = 0; /* there is at least one row to return */
-  int nb_records = Int_val (nb_records_ml);
   /*env* q_env = (env*) Field (caml_q_env, 0);*/
-  env* q_env = (env*) caml_q_env;
-
+  env* q_env = (env*) caml_q_env ;
 #ifdef DEBUG2
-  printf( "itere_execDB_c start\n");
+  printf( "free_execDB_c start\n");
 #endif
-
-  exec_l_head2 = Val_int(0);
-  exec_string_list_list = exec_l_head2;
-  exec_temp2 = Val_int(0);
-
-#ifdef DEBUG2
-  printf( "nb_records = %d\n", nb_records );
-#endif
-
-  if (0 < q_env->exec_iResColumns )
+    /*
+    ** free allocated memory
+    */
+  for( exec_ci = 1;  exec_ci <= q_env->exec_iResColumns;  exec_ci++ )
     {
 #ifdef DEBUG2
-      printf( " 0 < q_env->exec_iResColumns \n" );
+      fprintf(stderr, "free for exe_ci = %d\n", exec_ci);
+      fflush(stderr);
+      if (q_env->exec_pData[0] == NULL) {
+        fprintf(stderr, "(q_env->exec_pData[0] == NULL)\n");
+        fflush(stderr);
+      }
+      else {
+        fprintf(stderr, "(q_env->exec_pData[0] != NULL)\n");
+        fflush(stderr);
+      }
 #endif
-      while (i < nb_records) {
-	if (! ( SQL_SUCCESS           == (result=SQLFetch(q_env->exec_hstmt)) ||
-		SQL_SUCCESS_WITH_INFO == result ))
-	  {
-	    break;
-	  }
-	else
-	  {
-	    at_least_one_row = 1;
+
+      free( q_env->exec_pData[exec_ci] );
 #ifdef DEBUG2
-	    printf( "  --> " );
+      fprintf(stderr, "free( q_env->exec_pData[%d] ) Ok\n", exec_ci);
+      fflush(stderr);
 #endif
-	    exec_l_head = Val_int(0);
-
-	    for( exec_ci = q_env->exec_iResColumns; exec_ci >= 1; exec_ci-- )
-	      {
-		exec_temp = alloc_tuple (2);
-		Store_field (exec_temp, 1, exec_l_head);
-		exec_l_head = exec_temp;
-
-		if (q_env->exec_indicator[exec_ci] == SQL_NULL_DATA) {
+      q_env->exec_pData[exec_ci] = NULL;
+    } /* for */
 #ifdef DEBUG2
-		  printf ("NULL");
+  fprintf(stderr, "free\n");
+  fflush(stderr);
 #endif
-		  Store_field(exec_temp,0, copy_string("NULL"));
-		}
-		else {
-#ifdef DEBUG2
-		  printf( "'%s' ", (NULL == q_env->exec_pData[exec_ci]) ?
-			  "<ERROR>" : q_env->exec_pData[exec_ci] );
-		  fflush( stdout );
-#endif
-		  Store_field(exec_temp, 0,
-			      copy_string((NULL == q_env->exec_pData[exec_ci]) ?
-					  "<ERROR>" : q_env->exec_pData[exec_ci]));
-		}
-	      } /* for */
-#ifdef DEBUG2
-	    printf( " <--\n" );
-#endif
-	    exec_string_list = exec_l_head;
-
-	    exec_l_head2 = alloc_tuple (2);
-	    Store_field (exec_l_head2, 0, exec_string_list);
-	    Store_field (exec_l_head2, 1, Val_int(0));
-
-	    if (exec_temp2 != Val_int(0) ) {
-	      Store_field (exec_temp2, 1, exec_l_head2);
-	    }
-	    exec_temp2 = exec_l_head2;
-
-	    if (exec_string_list_list == Val_int(0)) {
-#ifdef DEBUG2
-	      printf("on crée la tête\n");
-#endif
-	      exec_string_list_list = exec_temp2;
-	    }
-	    i++;
-	  }
-      } /* while */
-    } /* if */
-  else
-    {}
-
   /*
-  ** display last return code
+  ** free statement handle
   */
+  result = SQLFreeStmt(q_env->exec_hstmt, SQL_DROP );
+  if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
-  switch( result )
-    {
-    case SQL_SUCCESS:           printf( "SQL_SUCCESS\n" );           break;
-    case SQL_SUCCESS_WITH_INFO: printf( "SQL_SUCCESS_WITH_INFO\n" ); break;
-    case SQL_ERROR:             printf( "SQL_ERROR\n" );
-      displayError( *(q_env->phEnv), *(q_env->phDbc), q_env->exec_hstmt, result, __LINE__ );
-      break;
-    case SQL_INVALID_HANDLE:    printf( "SQL_INVALID_HANDLE\n" );     break;
-    case SQL_NO_DATA_FOUND:     printf( "SQL_NO_DATA_FOUND\n" );      break;
-    default:                    printf( "unknown result = %d\n", result );
-    } /* switch */
-  printf("avant retour de itere_2\n");
-#endif
+    printf("Erreur SQLFreeStmt\n");
+    fflush(stdout);
+    displayError( *(q_env->phEnv),
+                  *(q_env->phDbc),
+                  q_env->exec_hstmt,
+                  result, __LINE__ );
 
-  /* on renvoie le nombre de records retournés */
-  exec_res = alloc_tuple(2);
-  Store_field(exec_res,0,Val_int (i));
-#ifdef DEBUG2
-  printf("avant retour de itere_2bis\n");
 #endif
-  Store_field(exec_res,1, exec_string_list_list);
+  }
+  free(q_env);
 #ifdef DEBUG2
-  printf("avant retour de itere_2ter\n");
+  fprintf(stderr, "fin free_execDB_c\n");
+  fflush(stderr);
 #endif
-  CAMLreturn(exec_res);
+  CAMLreturn(Val_unit);
 }
+
+
 
 /* Fonction prenant un code de type SQL et retournant la constante
    correspondant au bon constructeur OCaml. */
+static
 int get_OCaml_SQL_type_code (int code)
 {
   switch (code)
@@ -953,21 +892,21 @@ int get_OCaml_SQL_type_code (int code)
 
 }
 
-/* Fonction retournant la liste des couples (nom, type)
-pour chaque champ retourné par la dernière requête exécutée
-et non encore libérée. */
-value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
+/* Fonction retournant la liste des couples (nom, type) pour chaque
+   champ retourné par la dernière requête exécutée et non encore
+   libérée. */
+CAMLprim value ocamlodbc_get_infoDB_c(value caml_q_env)
 {
-  CAMLparam2 (v_phEnv, v_phDbc);
-  CAMLlocal2 (info_temp, info_l_head);
-  CAMLlocal1 (info_cpl);
+  CAMLparam1(caml_q_env);
+  CAMLlocal2(info_temp, info_l_head);
+  CAMLlocal1(info_cpl);
   int exec_ci = 0;
-  SQLCHAR     exec_szColName[COLUMN_SIZE];          /* name of column          */
-  SQLSMALLINT exec_cbColName;                       /* length of column name   */
-  SQLSMALLINT exec_fColType;                        /* type of column          */
-  SQLUINTEGER exec_uiColPrecision;                  /* precision of column     */
-  SQLSMALLINT exec_iColScaling;                     /* scaling of column       */
-  SQLSMALLINT exec_fColNullable;                    /* is column nullable?     */
+  SQLCHAR     exec_szColName[COLUMN_SIZE];    /* name of column          */
+  SQLSMALLINT exec_cbColName;                 /* length of column name   */
+  SQLSMALLINT exec_fColType;                  /* type of column          */
+  SQLUINTEGER exec_uiColPrecision;            /* precision of column     */
+  SQLSMALLINT exec_iColScaling;               /* scaling of column       */
+  SQLSMALLINT exec_fColNullable;              /* is column nullable?     */
   RETCODE result = 0;
 
   /*env* q_env = (env*) Field (caml_q_env, 0);*/
@@ -1009,53 +948,54 @@ value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
 #ifdef DEBUG2
       printf( "  [%03u] ", exec_ci ); fflush( stdout );
 #endif
-      if( SQL_SUCCESS != (result=SQLDescribeCol(q_env->exec_hstmt,
-						exec_ci,
-						&(exec_szColName[0]),
-						sizeof(exec_szColName) - 1,
-						&(exec_cbColName),
-						&(exec_fColType),
-						(UDWORD FAR *) &(exec_uiColPrecision),
-						&(exec_iColScaling),
-						&(exec_fColNullable)
-                                            )
-                          )
-         ) {
+      if( SQL_SUCCESS !=
+          (result=SQLDescribeCol(q_env->exec_hstmt,
+                                 exec_ci,
+                                 &(exec_szColName[0]),
+                                 sizeof(exec_szColName) - 1,
+                                 &(exec_cbColName),
+                                 &(exec_fColType),
+                                 (UDWORD FAR *) &(exec_uiColPrecision),
+                                 &(exec_iColScaling),
+                                 &(exec_fColNullable)
+                                 )
+           )
+          ) {
 #ifdef DEBUG2
-	printf("Erreur SQLDescribeCol\n");
-	fflush(stdout);
-	displayError( *(q_env->phEnv),
-		      *(q_env->phDbc),
-		      q_env->exec_hstmt,
-		      result, __LINE__ );
+        printf("Erreur SQLDescribeCol\n");
+        fflush(stdout);
+        displayError( *(q_env->phEnv),
+                      *(q_env->phDbc),
+                      q_env->exec_hstmt,
+                      result, __LINE__ );
 #endif
         /* Allocation de la structure de retour */
-	info_l_head = Val_int(0);
-	CAMLreturn(info_l_head);
+        info_l_head = Val_int(0);
+        CAMLreturn(info_l_head);
       }
 
 #ifdef DEBUG2
       printf( "%s type=", exec_szColName );
       switch( exec_fColType )
-	{
+        {
 #ifndef INTERSOLV
-	  /*        case SQL_BLOB:               printf( "BLOB" );           break;
-		    case SQL_BLOB_LOCATOR:       printf( "BLOB_LOCATOR" );   break;*/
+  /*        case SQL_BLOB:               printf( "BLOB" );           break;
+            case SQL_BLOB_LOCATOR:       printf( "BLOB_LOCATOR" );   break;*/
         case SQL_CHAR:               printf( "CHAR" );           break;
         case SQL_BINARY:             printf( "BINARY" );         break;
-	  /*        case SQL_CLOB:               printf( "CLOB" );           break;
-		    case SQL_CLOB_LOCATOR:       printf( "CLOB_LOCATOR" );   break;*/
+  /*        case SQL_CLOB:               printf( "CLOB" );           break;
+            case SQL_CLOB_LOCATOR:       printf( "CLOB_LOCATOR" );   break;*/
         case SQL_DATE:               printf( "DATE" );           break;
-	  /*        case SQL_DBCLOB:             printf( "DBCLOB" );         break;
-		    case SQL_DBCLOB_LOCATOR:     printf( "DBCLOB_LOCATOR" ); break;*/
+  /*        case SQL_DBCLOB:             printf( "DBCLOB" );         break;
+            case SQL_DBCLOB_LOCATOR:     printf( "DBCLOB_LOCATOR" ); break;*/
         case SQL_DECIMAL:            printf( "DECIMAL" );        break;
         case SQL_DOUBLE:             printf( "DOUBLE" );         break;
         case SQL_FLOAT:              printf( "FLOAT" );          break;
-	  /*        case SQL_GRAPHIC:            printf( "GRAPHIC" );        break;*/
+  /*        case SQL_GRAPHIC:            printf( "GRAPHIC" );        break;*/
         case SQL_INTEGER:            printf( "INTEGER" );        break;
         case SQL_LONGVARCHAR:        printf( "LONGVARCHAR" );    break;
         case SQL_LONGVARBINARY:      printf( "LONGVARBINARY" );  break;
-	  /*        case SQL_LONGVARGRAPHIC:     printf( "LONGVARGRAPHIC" ); break;*/
+  /*        case SQL_LONGVARGRAPHIC:     printf( "LONGVARGRAPHIC" ); break;*/
         case SQL_NUMERIC:            printf( "NUMERIC" );        break;
         case SQL_REAL:               printf( "REAL" );           break;
         case SQL_SMALLINT:           printf( "SMALLINT" );       break;
@@ -1063,7 +1003,7 @@ value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
         case SQL_TIMESTAMP:          printf( "TIMESTAMP" );      break;
         case SQL_VARCHAR:            printf( "VARCHAR" );        break;
         case SQL_VARBINARY:          printf( "VARBINARY" );      break;
-	  /*        case SQL_VARGRAPHIC:         printf( "VARGRAPHIC" );     break;*/
+  /*        case SQL_VARGRAPHIC:         printf( "VARGRAPHIC" );     break;*/
         default:                     printf( "unknown" );
 #endif
       } /* switch */
@@ -1076,7 +1016,8 @@ value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
       info_temp = alloc_tuple (2);
       info_cpl = alloc_tuple (2);
       Store_field (info_cpl, 0, copy_string (exec_szColName));
-      Store_field (info_cpl, 1, Val_int(get_OCaml_SQL_type_code ((int)exec_fColType)));
+      Store_field (info_cpl, 1,
+                   Val_int(get_OCaml_SQL_type_code ((int)exec_fColType)));
       Store_field (info_temp, 0, info_cpl);
       Store_field (info_temp, 1, info_l_head);
       info_l_head = info_temp;
@@ -1090,69 +1031,142 @@ value get_infoDB_c(value caml_q_env, value v_phEnv, value v_phDbc)
 }
 
 
-/* free_ExecDB_c : fonction de désallocation des structures allouées par
-   execDB_c */
-void free_execDB_c (value caml_q_env) {
-  int result;
+
+
+
+/* itere_execDB_c : fonction récupérant un certain nombre
+   d'enregistrements, pour la requête exécutée par la fonction execDB.
+*/
+value ocamlodbc_itere_execDB_c (value caml_q_env, value nb_records_ml) {
+  CAMLparam2 (caml_q_env, nb_records_ml);
+  CAMLlocal1 (exec_res);
+  CAMLlocal1 (exec_string_list_list);
+  CAMLlocal5 (exec_temp, exec_temp2, exec_l_head, exec_l_head2,
+              exec_string_list);
+
+  RETCODE result = 0;
+  int i = 0;
   int exec_ci = 0;
+  int at_least_one_row = 0; /* there is at least one row to return */
+  int nb_records = Int_val (nb_records_ml);
   /*env* q_env = (env*) Field (caml_q_env, 0);*/
-  env* q_env = (env*) caml_q_env ;
+  env* q_env = (env*) caml_q_env;
+
 #ifdef DEBUG2
-  printf( "free_execDB_c start\n");
+  printf( "itere_execDB_c start\n");
 #endif
-    /*
-    ** free allocated memory
-    */
-  for( exec_ci = 1 ;
-	 exec_ci <= q_env->exec_iResColumns;
-	 exec_ci++ )
+
+  exec_l_head2 = Val_int(0);
+  exec_string_list_list = exec_l_head2;
+  exec_temp2 = Val_int(0);
+
+#ifdef DEBUG2
+  printf( "nb_records = %d\n", nb_records );
+#endif
+
+  if (0 < q_env->exec_iResColumns )
     {
 #ifdef DEBUG2
-      fprintf(stderr, "free for exe_ci = %d\n", exec_ci);
-      fflush(stderr);
-      if (q_env->exec_pData[0] == NULL) {
-	fprintf(stderr, "(q_env->exec_pData[0] == NULL)\n");
-	fflush(stderr);
-      }
-      else
-	{
-	fprintf(stderr, "(q_env->exec_pData[0] != NULL)\n");
-	fflush(stderr);
-	}
+      printf( " 0 < q_env->exec_iResColumns \n" );
 #endif
+      while (i < nb_records) {
+        if (!(SQL_SUCCESS           == (result=SQLFetch(q_env->exec_hstmt)) ||
+              SQL_SUCCESS_WITH_INFO == result ))
+          {
+            break;
+          }
+        else
+          {
+            at_least_one_row = 1;
+#ifdef DEBUG2
+            printf( "  --> " );
+#endif
+            exec_l_head = Val_int(0);
 
-      free( q_env->exec_pData[exec_ci] );
+            for( exec_ci = q_env->exec_iResColumns; exec_ci >= 1; exec_ci-- )
+              {
+                exec_temp = alloc_tuple (2);
+                Store_field (exec_temp, 1, exec_l_head);
+                exec_l_head = exec_temp;
+
+                if (q_env->exec_indicator[exec_ci] == SQL_NULL_DATA) {
 #ifdef DEBUG2
-      fprintf(stderr, "free( q_env->exec_pData[%d] ) Ok\n", exec_ci);
-      fflush(stderr);
+                  printf ("NULL");
 #endif
-      q_env->exec_pData[exec_ci] = NULL;
-    } /* for */
+                  Store_field(exec_temp,0, copy_string("NULL"));
+                }
+                else {
 #ifdef DEBUG2
-  fprintf(stderr, "free\n");
-  fflush(stderr);
+                  printf( "'%s' ", (NULL == q_env->exec_pData[exec_ci]) ?
+                          "<ERROR>" : q_env->exec_pData[exec_ci] );
+                  fflush( stdout );
 #endif
+                  Store_field(exec_temp, 0,
+                              copy_string((NULL == q_env->exec_pData[exec_ci]) ?
+                                          "<ERROR>" :
+                                          q_env->exec_pData[exec_ci]));
+                }
+              } /* for */
+#ifdef DEBUG2
+            printf( " <--\n" );
+#endif
+            exec_string_list = exec_l_head;
+
+            exec_l_head2 = alloc_tuple (2);
+            Store_field (exec_l_head2, 0, exec_string_list);
+            Store_field (exec_l_head2, 1, Val_int(0));
+
+            if (exec_temp2 != Val_int(0) ) {
+              Store_field (exec_temp2, 1, exec_l_head2);
+            }
+            exec_temp2 = exec_l_head2;
+
+            if (exec_string_list_list == Val_int(0)) {
+#ifdef DEBUG2
+              printf("on crée la tête\n");
+#endif
+              exec_string_list_list = exec_temp2;
+            }
+            i++;
+          }
+      } /* while */
+    } /* if */
+  else
+    {}
+
   /*
-  ** free statement handle
+  ** display last return code
   */
-  result = SQLFreeStmt(q_env->exec_hstmt, SQL_DROP );
-  if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
-    printf("Erreur SQLFreeStmt\n");
-    fflush(stdout);
-    displayError( *(q_env->phEnv),
-		  *(q_env->phDbc),
-		  q_env->exec_hstmt,
-		  result, __LINE__ );
+  switch( result )
+    {
+    case SQL_SUCCESS:           printf( "SQL_SUCCESS\n" );           break;
+    case SQL_SUCCESS_WITH_INFO: printf( "SQL_SUCCESS_WITH_INFO\n" ); break;
+    case SQL_ERROR:             printf( "SQL_ERROR\n" );
+      displayError(*(q_env->phEnv), *(q_env->phDbc), q_env->exec_hstmt,
+                   result, __LINE__ );
+      break;
+    case SQL_INVALID_HANDLE:    printf( "SQL_INVALID_HANDLE\n" );     break;
+    case SQL_NO_DATA_FOUND:     printf( "SQL_NO_DATA_FOUND\n" );      break;
+    default:                    printf( "unknown result = %d\n", result );
+    } /* switch */
+  printf("avant retour de itere_2\n");
+#endif
 
-#endif
-  }
-  free(q_env);
+  /* on renvoie le nombre de records retournés */
+  exec_res = alloc_tuple(2);
+  Store_field(exec_res,0,Val_int (i));
 #ifdef DEBUG2
-  fprintf(stderr, "fin free_execDB_c\n");
-  fflush(stderr);
+  printf("avant retour de itere_2bis\n");
 #endif
+  Store_field(exec_res,1, exec_string_list_list);
+#ifdef DEBUG2
+  printf("avant retour de itere_2ter\n");
+#endif
+  CAMLreturn(exec_res);
 }
+
+
 
 /*-----------------------------------------------------------------------------
  * displayError
@@ -1176,7 +1190,7 @@ void displayError( HENV hEnv, HDBC hDbc, HSTMT hStmt,
                  )
 { /*---| variables |---*/
   SQLCHAR           szBuffer[ SQL_MAX_MESSAGE_LENGTH ];    /* msg. buffer    */
-  SQLCHAR           szSqlState[ 8 /*SQL_SQLSTATE_SIZE*/ ];       /* statement buf. */
+  SQLCHAR           szSqlState[ 8 /*SQL_SQLSTATE_SIZE*/ ]; /* statement buf. */
   SQLINTEGER        iSqlCode;                              /* return code    */
   SQLSMALLINT       iLength;                               /* return length  */
 
@@ -1219,14 +1233,14 @@ void print_sql_info(SQLHDBC hdbc)
   SQLSMALLINT msgLength = 0;
   do {
     res2 = SQLGetDiagRec(SQL_HANDLE_DBC,
-			 hdbc,
-			 1, //SQLSMALLINT     RecNumber,
-			 &state, //SQLCHAR *     Sqlstate,
-			 &nativeState, //SQLINTEGER *     NativeErrorPtr,
-			 msg, // SQLCHAR *     MessageText,
-			 MAXBUFLEN, // SQLSMALLINT     BufferLength,
-			 &msgLength //SQLSMALLINT *     TextLengthPtr
-			 );
+                         hdbc,
+                         1, //SQLSMALLINT     RecNumber,
+                         &state, //SQLCHAR *     Sqlstate,
+                         &nativeState, //SQLINTEGER *     NativeErrorPtr,
+                         msg, // SQLCHAR *     MessageText,
+                         MAXBUFLEN, // SQLSMALLINT     BufferLength,
+                         &msgLength //SQLSMALLINT *     TextLengthPtr
+                         );
     printf("state=%0xh, nativeState=%0xh, msg=%s\n", state, nativeState, msg);
   } while(res2==SQL_SUCCESS_WITH_INFO);;
   fflush(stdout);
