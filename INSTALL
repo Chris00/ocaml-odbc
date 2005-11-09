@@ -1,15 +1,20 @@
-	OCamlODBC 2.8 : Accessing databases from OCaml via ODBC
+	OCamlODBC : Accessing databases from OCaml via ODBC
 
 *** What is OCamlODBC ***
-OCamlODBC is a library allowing to acces databases via an Open DataBase Connectivity (ODBC) driver from OCaml programs.
+
+OCamlODBC is a library allowing to acces databases via an Open
+DataBase Connectivity (ODBC) driver from OCaml programs.
 
 *** What you need ***
+
 - OCaml 3.0x installed (3.01 or 3.02 for the Biniki example)
-- ODBC driver installed (headers and libs), for example iODBC for MySQL or the PostgreSQL-ODBC package for PostgreSQL
+- ODBC driver installed (headers and libs), for example iODBC for
+  MySQL or the PostgreSQL-ODBC package for PostgreSQL
 - LablGtk 1.2 installed for the Biniki example
 - make ;-)
 
 *** How to compile ***
+
 - ./configure <options> 
 	(./configure --help to see options, or myconf for an example)
 - make <db> 
@@ -25,21 +30,32 @@ OCamlODBC is a library allowing to acces databases via an Open DataBase Connecti
 	will install the compiled libraries in 
 	<ocamldir>/lib/ocaml/ocamlodbc/[mysql|postgres|db2|openingres|unixodbc|oraclecfo]
 
+*** How to use ****
 
-** How to use ***
 The directory 'Exemples' contains some examples.
 - cd Exemples
 - make BASE=XX PROG to create monitor.x
 	where XX can be MYSQL, POSTGRES, DB2, OPENINGRES or unixODBC, ORACLECFO
-- monitor.x <a database> <a user name> [<a password>]' to connect to a database ; you can type in commands on the prompt (select * from ...)
+- monitor.x <a database> <a user name> [<a password>]' to connect to a
+  database ; you can type in commands on the prompt (select * from ...)
 
-The directory Biniki contains a simple application to execute SQL queries and display the results in a window. It needs LablGTK 1.2.
+The directory Biniki contains a simple application to execute SQL
+queries and display the results in a window. It needs LablGTK 1.2.
 - cd Biniki
 - make fr or make en to create a link to the messages file you want
 - make <db> to create biniki and biniki.opt
 	where <db> can be mysql, postgres, db2, openingres or unixodbc
 - biniki[.opt] <base> to connect to a database you're allowed to, and enjoy !
 
+
 *** Author ***
-Maxence Guesdon <maxence.guesdon@inria.fr>
-Let me know if you use OCamlODBC with another database system, so i can add it to the distrib.
+
+Maxence Guesdon <maxence.guesdon@inria.fr>.  Let me know if you use
+OCamlODBC with another database system, so i can add it to the
+distrib.
+
+
+---
+Local Variables: 
+mode: outline
+End: 
