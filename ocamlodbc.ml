@@ -22,7 +22,7 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.ml,v 1.11 2005-11-12 16:36:30 chris Exp $ *)
+(* $Id: ocamlodbc.ml,v 1.12 2005-11-12 21:08:22 chris Exp $ *)
 
 (** The software name *)
 let logiciel = "OCamlODBC"
@@ -134,78 +134,60 @@ let connect_driver ?(prompt=false) connect_string =
     raise (SQL_Error (OCamlODBC_messages.connection_driver connect_string iRC1))
 
 let disconnect connection =
-  let iRC = (SQLInterface.exitDB connection.phEnv connection.phDbc) in
-  if (iRC > 0) then
-    raise (SQL_Error OCamlODBC_messages.disconnect)
-  else
-    ()
+  let iRC = SQLInterface.exitDB connection.phEnv connection.phDbc in
+  if iRC <> 0 then raise(SQL_Error OCamlODBC_messages.disconnect)
 
-(** Cette fonction privée exécute une requête interrompue par des appels
-   réguliers au GC. Elle retourne un triplet : code d'erreur (0 si ok),
-   liste de couples (nom, type) pour décrire les colonnes retournées,
-   liste de liste de chaines représentant les enregistrements.
+(** Cette fonction privée exécute une requête interrompue par des
+    appels réguliers au GC. Elle retourne un triplet : code d'erreur (0
+    si ok), liste de couples (nom, type) pour décrire les colonnes
+    retournées, liste de liste de chaines représentant les
+    enregistrements.
 *)
-let execute_gen connection ?(get_info=false) ?(n_rec=1) req callback =
+let execute_gen conn ?(get_info=false) ?(n_rec=40) req callback =
   if req = "" then
     (-1, ([] : (string * sql_column_type) list))
-  else
-    (
-     let phEnv = connection.phEnv in
-     let phDbc = connection.phDbc in
-     let (ret, env) = SQLInterface.execDB phEnv phDbc req in
-     match ret with
-       0 ->
-	 let l_desc_col =
-	   if get_info then
-             (* récupérer les informations sur les champs retournés
-		(nom et type) par la dernière requête exécutée *)
-	     SQLInterface.get_infoDB env
-	   else
-	     []
-	 in
-         (* récupérer les records en plusieurs fois *)
-	 (
-	  let rec iter () =
-	    let (n, ll_res) = SQLInterface.itereDB env n_rec in
-	    (*Gc.minor();*)
-
-	    let no_more = n < n_rec in
-	    (
-	      callback ll_res;
-	      if   no_more
-	      then ()
-	      else iter ()
-	    )
-	  in
-	  let _ = iter () in
-	  let _ = SQLInterface.free_execDB env in
-	  (ret, l_desc_col)
-      	 )
+  else (
+    let (ret, env) = SQLInterface.execDB conn.phEnv conn.phDbc req in
+    match ret with
+    | 0 ->
+	let l_desc_col =
+	  if get_info then SQLInterface.get_infoDB env
+            (* récupérer les informations sur les champs retournés
+	       (nom et type) par la dernière requête exécutée *)
+	  else [] in
+        (* récupérer les records en plusieurs fois *)
+	let rec iter () =
+	  let (n, ll_res) = SQLInterface.itereDB env n_rec in
+	  (*Gc.minor();*)
+	  callback ll_res;
+	  if n >= n_rec (* maybe more rows *) then iter() in
+	iter();
+	SQLInterface.free_execDB env;
+	(ret, l_desc_col)
 
      | 1 ->
 	 (* pas de colonne, donc pas d'enregistrements à récupérer *)
-	 let _ = SQLInterface.free_execDB env in
+	  SQLInterface.free_execDB env;
 	 (0, [])
      | _ ->
-	 let _ = SQLInterface.free_execDB env in
+	 SQLInterface.free_execDB env;
 	 (ret, [])
-    )
+  )
 
-let execute_fetchall connection get_info req =
+let execute_fetchall conn get_info req =
   let res  = ref [] in
-  let step = 40     in
-  let callback  ll = res := (!res) @ ll in
-  let (code, info) =
-      execute_gen connection ~get_info:get_info ~n_rec:step req callback
-  in
+  let callback  ll = res := !res @ ll in
+  let (code, info) = execute_gen conn ~get_info:get_info req callback in
   (code, info, !res)
 
-let execute connection req =
-  let (c, _, l) = execute_fetchall connection false req in
+let execute conn req =
+  let (c, _, l) = execute_fetchall conn false req in
   (c, l)
 
-let execute_with_info connection req =
-  execute_fetchall connection true req
+let execute_with_info conn req =
+  execute_fetchall conn true req
+
+
 
 (** Object-oriented interface. *)
 
