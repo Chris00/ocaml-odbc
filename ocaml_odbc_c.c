@@ -22,6 +22,11 @@
 /*  Contact: Maxence.Guesdon@inria.fr                                        */
 /*****************************************************************************/
 
+#ifndef lint
+static char vcid[] = "$Id: ocaml_odbc_c.c,v 1.9 2005-11-12 17:31:11 chris Exp $";
+#endif /* lint */
+
+
 #define DEBUG2 1
 //#define DEBUG3 1
 
@@ -189,7 +194,7 @@ CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
   /* Test des parametres */
   if( NULL == nom_base || NULL == nom_user ) {
 #ifdef DEBUG2
-    printf("Erreur de parametre\n");
+    printf("  Erreur de parametre\n");
     fflush(stdout);
 #endif
     Field(res,0) = Val_int ((int) -1);
@@ -203,7 +208,7 @@ CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
   phEnv = (HENV *) malloc(sizeof(HENV));
   if( phDbc ==  (HDBC *)NULL || phEnv == (HENV *) NULL) {
 #ifdef DEBUG2
-    printf("Erreur allocation memoire \n");
+    printf("  Erreur allocation memoire \n");
     fflush(stdout);
 #endif
     Field(res,0) = Val_int ((int) -2);
@@ -219,7 +224,7 @@ CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
   if( SQL_SUCCESS != result )
   {
 #ifdef DEBUG2
-    printf("Erreur SQLAlloctEnv\n");
+    printf("  Erreur SQLAlloctEnv\n");
     fflush(stdout);
     displayError( *phEnv, SQL_NULL_HDBC, SQL_NULL_HENV, result, __LINE__ );
 #endif
@@ -236,7 +241,7 @@ CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
   if( SQL_SUCCESS != result )
   {
 #ifdef DEBUG2
-    printf("Erreur SQLAllocConnect\n");
+    printf("  Erreur SQLAllocConnect\n");
     fflush(stdout);
     displayError( *phEnv, *phDbc, SQL_NULL_HENV, result, __LINE__ );
 #endif
@@ -263,7 +268,7 @@ CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
   if( SQL_SUCCESS != result && SQL_SUCCESS_WITH_INFO != result )
   {
 #ifdef DEBUG2
-    printf("Erreur SQLConnect\n");
+    printf("  Erreur SQLConnect\n");
     fflush(stdout);
     displayError( *phEnv, *phDbc, SQL_NULL_HENV, result, __LINE__ );
 #endif
@@ -412,7 +417,6 @@ CAMLprim value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
 CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
 {
   CAMLparam2 (v_phEnv, v_phDbc);
-  CAMLlocal1 (res);
   HENV *phEnv = (HENV *) (Unsigned_long_val(v_phEnv));
   HDBC *phDbc = (HDBC *) (Unsigned_long_val(v_phDbc));
   RETCODE result;
@@ -425,7 +429,7 @@ CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
   /* Test des parametres */
   if( SQL_NULL_HENV == phEnv || SQL_NULL_HDBC == phDbc ) {
 #ifdef DEBUG2
-    printf("Erreur parametres\n");
+    printf("  Erreur parametres\n");
     fflush(stdout);
 #endif
     CAMLreturn (Val_int ((int)-1));
@@ -444,7 +448,7 @@ CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
 #endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
-    printf("Erreur SQLTransact\n");
+    printf("  Erreur SQLTransact\n");
     fflush(stdout);
     displayError( *phEnv, *phDbc, SQL_NULL_HENV, result, __LINE__ );
 #endif
@@ -463,7 +467,7 @@ CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
 #endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
-    printf("Erreur SQLDisconnect\n");
+    printf("  Erreur SQLDisconnect\n");
     fflush(stdout);
     displayError( *phEnv, *phDbc, SQL_NULL_HENV, result, __LINE__ );
 #endif
@@ -482,7 +486,7 @@ CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
 #endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
-    printf("Erreur SQLFreeConnect\n");
+    printf("  Erreur SQLFreeConnect\n");
     fflush(stdout);
     displayError( *phEnv, *phDbc, SQL_NULL_HENV, result, __LINE__ );
 #endif
@@ -503,7 +507,7 @@ CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
 #endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
-    printf("Erreur SQLFreeEnv\n");
+    printf("  Erreur SQLFreeEnv\n");
     fflush(stdout);
     displayError( *phEnv, SQL_NULL_HDBC, SQL_NULL_HENV, result, __LINE__ );
 #endif
@@ -515,8 +519,7 @@ CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
   printf("<5>"); fflush(stdout);
 #endif
 
-  res = Val_int ((int) 0);
-  CAMLreturn(res);
+  CAMLreturn(Val_unit);
 }
 
 
@@ -562,7 +565,7 @@ env * new_env (void) {
 
 
 /* Allocate the result pair (in case of error) and return it.  */
-#define execDB_return_error (result)            \
+#define execDB_return_error(result)             \
   exec_res = Val_int ((int) result);            \
   retour = alloc_tuple (2) ;                    \
   Store_field (retour, 0, exec_res);            \
