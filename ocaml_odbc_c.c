@@ -256,8 +256,8 @@ CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
            (NULL != password) ? password : "<no password set>"
          );
 #endif
-  result = SQLConnect(*phDbc, nom_base,       SQL_NTS,
-                      nom_user,     SQL_NTS,
+  result = SQLConnect(*phDbc, nom_base, SQL_NTS,
+                      nom_user, SQL_NTS,
                       password, SQL_NTS
                       );
   if( SQL_SUCCESS != result && SQL_SUCCESS_WITH_INFO != result )
