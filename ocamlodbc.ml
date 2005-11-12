@@ -22,7 +22,7 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.ml,v 1.10 2005-11-08 19:06:51 chris Exp $ *)
+(* $Id: ocamlodbc.ml,v 1.11 2005-11-12 16:36:30 chris Exp $ *)
 
 (** The software name *)
 let logiciel = "OCamlODBC"
@@ -32,6 +32,8 @@ let version = "2.20"
 
 exception SQL_Error of string
 
+(* BEWARE: Keep constructor in the right order w.r.t. OCAML_SQL_*
+   constants in ocaml_odbc_c.c *)
 type sql_column_type =
   | SQL_unknown
   | SQL_char
@@ -57,31 +59,31 @@ type sql_column_type =
 
 (** The module for the column type and its conversion into a string. *)
 module SQL_column =
-  struct
-    type t = sql_column_type
-    let string col_type =
-      match col_type with
-      | SQL_unknown -> "SQL_unknown"
-      | SQL_char -> "SQL_char"
-      | SQL_numeric -> "SQL_numeric"
-      |	SQL_decimal -> "SQL_decimal"
-      | SQL_integer -> "SQL_integer"
-      | SQL_smallint -> "SQL_smallint"
-      | SQL_float -> "SQL_float"
-      | SQL_real -> "SQL_real"
-      | SQL_double -> "SQL_double"
-      | SQL_varchar -> "SQL_varchar"
-      | SQL_date -> "SQL_date"
-      | SQL_time -> "SQL_time"
-      | SQL_timestamp -> "SQL_timestamp"
-      | SQL_longvarchar -> "SQL_longvarchar"
-      | SQL_binary -> "SQL_binary"
-      | SQL_varbinary -> "SQL_varbinary"
-      | SQL_longvarbinary -> "SQL_longvarbinary"
-      | SQL_bigint -> "SQL_bigint"
-      | SQL_tinyint -> "SQL_tinyint"
-      | SQL_bit -> "SQL_bit"
-  end;;
+struct
+  type t = sql_column_type
+  let string col_type =
+    match col_type with
+    | SQL_unknown -> "SQL_unknown"
+    | SQL_char -> "SQL_char"
+    | SQL_numeric -> "SQL_numeric"
+    |	SQL_decimal -> "SQL_decimal"
+    | SQL_integer -> "SQL_integer"
+    | SQL_smallint -> "SQL_smallint"
+    | SQL_float -> "SQL_float"
+    | SQL_real -> "SQL_real"
+    | SQL_double -> "SQL_double"
+    | SQL_varchar -> "SQL_varchar"
+    | SQL_date -> "SQL_date"
+    | SQL_time -> "SQL_time"
+    | SQL_timestamp -> "SQL_timestamp"
+    | SQL_longvarchar -> "SQL_longvarchar"
+    | SQL_binary -> "SQL_binary"
+    | SQL_varbinary -> "SQL_varbinary"
+    | SQL_longvarbinary -> "SQL_longvarbinary"
+    | SQL_bigint -> "SQL_bigint"
+    | SQL_tinyint -> "SQL_tinyint"
+    | SQL_bit -> "SQL_bit"
+end
 
 module SQLInterface = Ocaml_odbc.Interface(SQL_column)
 
@@ -157,7 +159,7 @@ let execute_gen connection ?(get_info=false) ?(n_rec=1) req callback =
 	   if get_info then
              (* récupérer les informations sur les champs retournés
 		(nom et type) par la dernière requête exécutée *)
-	     SQLInterface.get_infoDB env phEnv phDbc
+	     SQLInterface.get_infoDB env
 	   else
 	     []
 	 in
