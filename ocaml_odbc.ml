@@ -59,7 +59,8 @@ struct
 	and password.  The return value is the same as [initDB].  *)
   external exitDB : sQLHENV -> sQLHDBC -> int
     = "ocamlodbc_exitDB_c"
-    (** [exitDB phEnv phDbc] closes the DB access. *)
+    (** [exitDB phEnv phDbc] closes the DB access.  Return [0] in case
+	of success and a non-null number otherwise.  *)
 
   external execDB : sQLHENV -> sQLHDBC -> string -> int * env
     = "ocamlodbc_execDB_c"
@@ -77,7 +78,9 @@ struct
 	and its SQL type is [t]. *)
   external itereDB : env -> int -> (int * string list list)
     = "ocamlodbc_itere_execDB_c"
-    (** [itereDB r n] returns a pair [(err, l)] where *)
+    (** [itereDB r nmax] returns a pair [(n, l)] where [n] is the
+	number of returned rows and [l] is the list of rows (of length
+	[n <= nmax]).  *)
 end
 
 
