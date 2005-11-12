@@ -63,6 +63,9 @@ clean_all: clean
 
 clean:
 	$(RM) *~ #*# *-
+	$(RM) *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a
+	$(RM) $(PROG) $(PROG2) $(PROG3) $(PROG4)
+	$(RM) $(PROG_OPT) $(PROG2_OPT) $(PROG3_OPT) $(PROG4_OPT)
 
 # common rules
 
