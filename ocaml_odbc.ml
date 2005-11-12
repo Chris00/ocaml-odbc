@@ -65,22 +65,28 @@ struct
   external execDB : sQLHENV -> sQLHDBC -> string -> int * env
     = "ocamlodbc_execDB_c"
     (** [execDB phEnv phDbc sql] retruns [(err, r)] where [r] is a
-	handle to the results of the [sql] statement and [err = 0] if
-	there was no error (in which case only [r] can be used).  *)
+	handle to the results of the [sql] statement and
+	- [err = 1] if there are no columns;
+	- [err = 0] if theare are columns and the statement was
+        executes properly;
+	- other values of [err] indicate an error (in which case only
+        [r] can be used).  *)
   external free_execDB : env -> unit
     = "ocamlodbc_free_execDB_c"
-    (** [free_execDB r] free the resources associated to the request
+    (** [free_execDB r] free the resources associated with the request
 	handle [r].  *)
   external get_infoDB : env -> (string * Sql_col.t) list
     = "ocamlodbc_get_infoDB_c"
     (** [get_infoDB r] returns a list of pairs for each column in [r],
 	where the pair [(cn, t)] means that the column name is [cn]
 	and its SQL type is [t]. *)
-  external itereDB : env -> int -> (int * string list list)
+  external itereDB : env -> int -> int * string list list
     = "ocamlodbc_itere_execDB_c"
     (** [itereDB r nmax] returns a pair [(n, l)] where [n] is the
 	number of returned rows and [l] is the list of rows (of length
-	[n <= nmax]).  *)
+	[n <= nmax]).  If [n < n_max], you must NOT call again
+	[itereDB] on [r] -- this may result in a Segmentation
+	fault.  *)
 end
 
 
