@@ -1,0 +1,87 @@
+# ################################################################################################ #
+# MetaStack Solutions Ltd.                                                                         #
+# ################################################################################################ #
+# OCamlODBC Win32/MinGW Examples Makefile                                                          #
+# ################################################################################################ #
+# Copyright (c) 2006 MetaStack Solutions Ltd.                                                      #
+#                                                                                                  #
+# This program is free software; you can redistribute it and/or modify it under the terms of the   #
+# GNU Lesser General Public License as published by the Free Software Foundation; either version   #
+# 2.1 of the License, or any later version.                                                        #
+#                                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;        #
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See    #
+# the GNU Lesser General Public License for more details.                                          #
+#                                                                                                  #
+# You should have received a copy of the GNU Lesser General Public License along with this         #
+# program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,        #
+# Boston, MA 02111-1307 USA                                                                        #
+# ################################################################################################ #
+# Author: David Allsopp                                                                            #
+# 5-Jun-2006                                                                                       #
+# ################################################################################################ #
+
+OCAMLC=ocamlc
+OCAMLOPT=ocamlopt
+OCAMLDEP=ocamldep
+
+OCAMLCFLAGS=-I ..
+OCAMLOPTFLAGS=-I ..
+
+LIB=ocamlodbc.cma
+OPT_LIB=ocamlodbc.cmxa
+
+RM=@rm -f
+
+all: byte opt
+
+byte: monitor.exe test.exe large.exe test_mt.exe
+
+opt: monitor.opt.exe test.opt.exe large.opt.exe test_mt.opt.exe
+
+clean:
+	$(RM) *.o *.cmx *.cmo *.cmi *.exe .depend
+
+monitor.exe: monitor.cmo
+	$(OCAMLC) $(OCAMLCFLAGS) -o $@ $(LIB) $+
+
+monitor.opt.exe: monitor.cmx
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -o $@ $(OPT_LIB) $+
+
+large.exe: large.cmo
+	$(OCAMLC) $(OCAMLCFLAGS) -o $@ $(LIB) unix.cma $+
+
+large.opt.exe: large.cmx
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -o $@ $(OPT_LIB) unix.cmxa $+
+
+test.exe: test.cmo
+	$(OCAMLC) $(OCAMLCFLAGS) -o $@ $(LIB) unix.cma $+
+
+test.opt.exe: test.cmx
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -o $@ $(OPT_LIB) unix.cmxa $+
+
+test_mt.cmo: test_mt.ml
+	$(OCAMLC) $(OCAMLCFLAGS) -thread -c $+
+
+test_mt.cmx: test_mt.ml
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -thread -c $+
+
+test_mt.exe: test_mt.cmo
+	$(OCAMLC) $(OCAMLCFLAGS) -thread -o $@ $(LIB) unix.cma threads.cma $+
+
+test_mt.opt.exe: test_mt.cmx
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -thread -o $@ $(OPT_LIB) unix.cmxa threads.cmxa $+
+
+.depend: *.ml
+	$(OCAMLDEP) *.ml > .depend
+
+include .depend
+
+.PHONY: all clean byte opt
+
+%.cmo: %.ml
+	$(OCAMLC) $(OCAMLCFLAGS) -c $<
+
+%.cmx: %.ml
+	$(OCAMLOPT) $(OCAMLOPTFLAGS) -c $<
+

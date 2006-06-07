@@ -1,0 +1,116 @@
+# ################################################################################################ #
+# MetaStack Solutions Ltd.                                                                         #
+# ################################################################################################ #
+# OCamlODBC Win32/MinGW Makefile                                                                   #
+# ################################################################################################ #
+# Copyright (c) 2006 MetaStack Solutions Ltd.                                                      #
+#                                                                                                  #
+# This program is free software; you can redistribute it and/or modify it under the terms of the   #
+# GNU Lesser General Public License as published by the Free Software Foundation; either version   #
+# 2.1 of the License, or any later version.                                                        #
+#                                                                                                  #
+# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;        #
+# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See    #
+# the GNU Lesser General Public License for more details.                                          #
+#                                                                                                  #
+# You should have received a copy of the GNU Lesser General Public License along with this         #
+# program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,        #
+# Boston, MA 02111-1307 USA                                                                        #
+# ################################################################################################ #
+# Author: David Allsopp                                                                            #
+# 4-Jun-2006                                                                                       #
+# ################################################################################################ #
+
+OCAMLC=ocamlc
+OCAMLOPT=ocamlopt
+OCAMLDEP=ocamldep
+OCAMLDOC=ocamldoc
+OCAMLFIND=ocamlfind
+GCC=gcc -mno-cygwin
+AR=ar
+
+LIB=ocamlodbc
+BYTE_LIB=$(LIB).cma
+BYTE_LIB_DLL=dll$(LIB).dll
+OPT_LIB=$(LIB).cmxa
+OPT_LIB_A=lib$(LIB).a
+
+MKDIR=mkdir -p
+CP=cp -f
+RM=@rm -f
+
+include Makefile.config
+
+all: lib lib_opt META
+
+lib: ocamlodbc.cma dllocamlodbc.dll
+
+lib_opt: ocamlodbc.cmxa libocamlodbc.a
+
+$(BYTE_LIB): ocaml_odbc.cmi ocaml_odbc.cmo ocamlodbc.cmi ocamlodbc.cmo
+	$(OCAMLC) -a -o $@ ocaml_odbc.cmo ocamlodbc.cmo -dllib -locamlodbc
+
+$(OPT_LIB): ocaml_odbc.cmi ocaml_odbc.cmx ocamlodbc.cmi ocamlodbc.cmx
+	$(OCAMLOPT) -a -o $@ ocaml_odbc.cmx ocamlodbc.cmx -cclib -locamlodbc -cclib -lodbc32
+
+$(BYTE_LIB_DLL): ocaml_odbc_c.c
+	$(GCC) -c -DODBC2 -DWIN32 -DCAML_DLL -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
+	$(GCC) -shared -L `cygpath $(OCAMLLIBDIR)` -L `which ocamlrun.dll | sed -e 's/\/ocamlrun.dll$$//'` -o $@ ocaml_odbc_c.o -lodbc32 -locamlrun 
+
+$(OPT_LIB_A): ocaml_odbc_c.c
+	$(GCC) -c -DODBC2 -DWIN32 -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
+	$(AR) rsc $(OPT_LIB_A) ocaml_odbc_c.o
+	
+META:
+	@echo 'name="$(LIB)"' > $@
+	@echo 'version="'`grep "let version =" ocamlodbc.ml | cut -d'"' -f 2`'"' >> $@
+	@echo 'requires=""' >> $@
+	@echo 'archive(byte)="$(BYTE_LIB)"' >> $@
+	@echo 'archive(native)="$(OPT_LIB)"' >> $@
+
+doc: doc/index.html
+
+doc/index.html: ocamlodbc.mli ocamlodbc.ml
+	$(MKDIR) doc
+	$(OCAMLDOC) -d doc -html -dump doc/ocamlodbc.odoc ocamlodbc.mli ocamlodbc.ml
+	@echo Documentation is in doc/index.html
+
+install: all
+	@echo "Installation instructions:"
+	@echo '  To install OCamlODBC using findlib type: "make -f Makefile.nt findlib_install"'
+	@echo '  To install OCamlODBC directly type: "make -f Makefile.nt direct_install"'
+
+direct_install: lib lib_opt
+	$(CP) ocamlodbc.cmi $(BYTE_LIB) $(OPT_LIB) $(OPT_LIB_A) $(LIB).a `cygpath $(OCAMLLIBDIR)`
+	$(CP) $(BYTE_LIB_DLL) `cygpath $(OCAMLLIBDIR)/stublibs`
+
+findlib_install: lib lib_opt META
+	$(OCAMLFIND) install $(LIB) META ocamlodbc.cmi $(BYTE_LIB) $(OPT_LIB) $(LIB).a $(OPT_LIB_A) $(BYTE_LIB_DLL)
+
+.depend: *.ml *.mli
+	$(OCAMLDEP) *.ml *.mli > .depend
+
+Makefile.config:
+	./configure.nt
+
+include .depend
+
+clean:
+	$(RM) .depend Makefile.config $(BYTE_LIB) $(BYTE_LIB_DLL) $(OPT_LIB) $(OPT_LIB_A) $(LIB).a ocamlodbc.{o,cmi,cmx,cmo,cmi} ocaml_odbc.{o,cmi,cmx,cmo,cmi} ocaml_odbc_c.o
+
+.PHONY: all clean install direct_install findlib_install
+
+%.cmi: %.mli
+	$(OCAMLC) -c $<
+
+%.cmo: %.ml
+	$(OCAMLC) -c $<
+
+%.cmo %.cmi: %.ml
+	$(OCAMLC) -c $<
+
+%.cmx: %.ml
+	$(OCAMLOPT) -c $<
+
+%.cmx %.cmi: %.ml
+	$(OCAMLOPT) -c $<

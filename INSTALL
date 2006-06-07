@@ -15,10 +15,10 @@ DataBase Connectivity (ODBC) driver from OCaml programs.
 
 *** How to compile ***
 
-- ./configure <options> 
+- ./configure <options>
 	(./configure --help to see options, or myconf for an example)
-- make <db> 
-	where <db> can be one or several of the following : 
+- make <db>
+	where <db> can be one or several of the following :
 	- mysql
 	- postgres
 	- db2
@@ -26,8 +26,27 @@ DataBase Connectivity (ODBC) driver from OCaml programs.
 	- unixodbc
 	- oraclecfo
 	depending on which ODBC drivers are available on your system.
+
+You may need to make some changes to compile successfully:
+  - in master.Makefile the -ldopt should be replaced by -Xlinker
+
+You may have a look at the Makefile.nt, configure.nt and Exemples/Makefile.nt files
+to compile under Windows with MinGW, thanks to David Allsopp which gave these
+files with this comment:
+>> I have produced a Makefile.nt with accompanying configure.nt scripts which
+>> attempt to replicate the behaviour of Makefile. To build and install the
+>> entire system under Windows, from a Cygwin bash prompt, execute
+>>     make -f Makefile.nt findlib_install
+>> or
+>>     make -f Makefile.nt direct_install
+>> depending on which installation method you wish to use. This builds the
+>> bytecode library ocamlodbc.cma and native code library ocamlodbc.cmxa linked
+>> with the Windows ODBC Interface.
+>> Exemples/Makefile.nt compiles the four example programs using the library.
+
+
 - make install
-	will install the compiled libraries in 
+	will install the compiled libraries in
 	<ocamldir>/lib/ocaml/ocamlodbc/[mysql|postgres|db2|openingres|unixodbc|oraclecfo]
 
 *** How to use ****
@@ -53,9 +72,3 @@ queries and display the results in a window. It needs LablGTK 1.2.
 Maxence Guesdon <maxence.guesdon@inria.fr>.  Let me know if you use
 OCamlODBC with another database system, so i can add it to the
 distrib.
-
-
----
-Local Variables: 
-mode: outline
-End: 
