@@ -53,11 +53,13 @@ $(BYTE_LIB): ocaml_odbc.cmi ocaml_odbc.cmo ocamlodbc.cmi ocamlodbc.cmo
 $(OPT_LIB): ocaml_odbc.cmi ocaml_odbc.cmx ocamlodbc.cmi ocamlodbc.cmx
 	$(OCAMLOPT) -a -o $@ ocaml_odbc.cmx ocamlodbc.cmx -cclib -locamlodbc -cclib -lodbc32
 
-$(BYTE_LIB_DLL): ocaml_odbc_c.c
-	$(GCC) -c -DODBC2 -DWIN32 -DCAML_DLL -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
+ocaml_odbc_c.o: ocaml_odbc_c.c
+	$(GCC) -c -DODBC2 -DWIN32 -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
+
+$(BYTE_LIB_DLL): ocaml_odbc_c.o
 	$(GCC) -shared -L `cygpath $(OCAMLLIBDIR)` -L `which ocamlrun.dll | sed -e 's/\/ocamlrun.dll$$//'` -o $@ ocaml_odbc_c.o -lodbc32 -locamlrun 
 
-$(OPT_LIB_A): ocaml_odbc_c.c
+$(OPT_LIB_A): ocaml_odbc_c.o
 	$(GCC) -c -DODBC2 -DWIN32 -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
 	$(AR) rsc $(OPT_LIB_A) ocaml_odbc_c.o
 	
