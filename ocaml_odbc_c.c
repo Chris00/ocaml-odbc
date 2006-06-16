@@ -23,11 +23,11 @@
 /*****************************************************************************/
 
 #ifndef lint
-static char vcid[]="$Id: ocaml_odbc_c.c,v 1.10 2005-11-12 21:11:05 chris Exp $";
+static char vcid[]="$Id: ocaml_odbc_c.c,v 1.11 2006-06-16 13:34:14 zoggy Exp $";
 #endif /* lint */
 
 #define DEBUG_LIGHT 1
-#define DEBUG2 1
+//#define DEBUG2 1
 //#define DEBUG3 1
 
 //in makefile, or not: #define ODBC2 1
@@ -83,8 +83,6 @@ static char vcid[]="$Id: ocaml_odbc_c.c,v 1.10 2005-11-12 21:11:05 chris Exp $";
 #include <sqlext.h>
 #endif
 
-/* #undef DEBUG2 */
-/*#define DEBUG2      */
 
 #define MAX_COLUMNS     128
 #define COLUMN_SIZE     8000
