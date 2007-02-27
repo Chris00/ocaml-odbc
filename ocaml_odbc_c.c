@@ -23,7 +23,7 @@
 /*****************************************************************************/
 
 #ifndef lint
-static char vcid[]="$Id: ocaml_odbc_c.c,v 1.12 2007-02-27 16:14:47 chris Exp $";
+static char vcid[]="$Id: ocaml_odbc_c.c,v 1.13 2007-02-27 22:37:43 chris Exp $";
 #endif /* lint */
 
 //#define DEBUG_LIGHT 1
@@ -566,6 +566,7 @@ CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
   SQLUINTEGER exec_uiColPrecision;           /* precision of column     */
   SQLSMALLINT exec_iColScaling;              /* scaling of column       */
   SQLSMALLINT exec_fColNullable;             /* is column nullable?     */
+  SQLINTEGER  collen;
   RETCODE result = 0;
   env* q_env = (env*) malloc(sizeof(env));
   caml_q_env = (value) q_env;
@@ -704,8 +705,8 @@ CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
               sizeof(exec_szColName) - 1, /* BufferLength */
               &(exec_cbColName), /* NameLengthPtr */
               &(exec_fColType), /* DataTypePtr */
-              (SQLUINTEGER *) &(exec_uiColPrecision), /* ColumnSizePtr */
-              &(exec_iColScaling), /* DecimalDigitsPtr */
+              (SQLUINTEGER*) &exec_uiColPrecision, /* ColumnSizePtr (length) */
+              &(exec_iColScaling), /* DecimalDigitsPtr (scale) */
               &(exec_fColNullable) /* NullablePtr */
               ))
           )
@@ -721,40 +722,16 @@ CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
             execDB_return_error(result);
           }
         /*
-        ** Some drivers do not return the correct precision for the type
-        ** (I got the problem with unixODBC -> freeTDS -> M$SQL for the
-        ** SMALLINT type)
+        ** Bind the columns
+        **
+        ** See: http://publib.boulder.ibm.com/infocenter/iseries/v5r3/index.jsp?topic=/cli/rzadpfndecol.htm
         */
-#ifdef DEBUG2
-#define EXPECTED_PRECISION(n)                           \
-        if(exec_uiColPrecision != n) {                  \
-          fprintf(stderr, "    WARNING: precision = %i, changed to %i\n",  \
-            exec_uiColPrecision, n); fflush(stderr);    \
-          exec_uiColPrecision = n;                      \
-        }
-#else
-#define EXPECTED_PRECISION(n) exec_uiColPrecision = n
-#endif
-        switch(exec_fColType)
-          {
-            /* Ref: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/odbccolumn_size.asp */
-          case SQL_BIT:      EXPECTED_PRECISION(1);	break;
-          case SQL_TINYINT:  EXPECTED_PRECISION(3);	break;
-          case SQL_SMALLINT: EXPECTED_PRECISION(5);	break;
-          case SQL_INTEGER:  EXPECTED_PRECISION(10);	break;
-          case SQL_REAL:     EXPECTED_PRECISION(7);	break;
-          case SQL_FLOAT:
-          case SQL_DOUBLE:   EXPECTED_PRECISION(15);	break;
-          /* FIXME: Need to add more ?? */
-          }
-#undef EXPECTED_PRECISION
-        /*
-        ** create list with data entries
-        */
+        SQLColAttributes(q_env->exec_hstmt, exec_ci, SQL_COLUMN_DISPLAY_SIZE,
+                         NULL, 0, NULL, &collen);
+        collen++; /* Final \0 */
         (q_env->exec_pData)[exec_ci] = NULL;
         (q_env->exec_indicator)[exec_ci] = 0;
-        if( NULL == ((q_env->exec_pData)[exec_ci]
-                     = malloc(exec_uiColPrecision + 1)) )
+        if( NULL == ((q_env->exec_pData)[exec_ci] = malloc(collen)) )
           {
             caml_raise_out_of_memory();
           }
@@ -764,13 +741,12 @@ CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
           exec_ci,
           SQL_C_CHAR, /* TargetType */
           (q_env->exec_pData)[exec_ci], /* TargetValuePtr */
-          exec_uiColPrecision + 1, /* BufferLength */
+          collen, /* BufferLength */
           &(q_env->exec_indicator[exec_ci]) /* StrLen_or_IndPtr */
           );
 #ifdef DEBUG2
-        printf("  q_env->exec_pData[%i] = %p\t(precision=%i, result=%i)\n",
-               exec_ci, (q_env->exec_pData)[exec_ci], exec_uiColPrecision,
-               result);
+        printf("  q_env->exec_pData[%i] = %p\t(collen=%i, result=%i)\n",
+               exec_ci, (q_env->exec_pData)[exec_ci], collen, result);
 #endif
       }
   }
@@ -845,7 +821,7 @@ CAMLprim value ocamlodbc_free_execDB_c(value caml_q_env)
   }
   free(q_env);
 #ifdef DEBUG2
-  fprintf(stderr, "fin free_execDB_c\n");
+  fprintf(stderr, "end free_execDB_c\n");
   fflush(stderr);
 #endif
   CAMLreturn(Val_unit);
@@ -1031,12 +1007,12 @@ value ocamlodbc_itere_execDB_c (value caml_q_env, value vnb_records)
 {
   CAMLparam2(caml_q_env, vnb_records);
   CAMLlocal1(exec_res);
-  CAMLlocal1(exec_string_list_list);
+  CAMLlocal2(exec_string_list_list, some);
   CAMLlocal5(exec_temp, exec_temp2, exec_l_head, exec_l_head2,
              exec_string_list);
 
   RETCODE result = 0;
-  int i = 0;
+  int i;
   int exec_ci = 0;
   int nb_records = Int_val(vnb_records);
   /*env* q_env = (env*) Field (caml_q_env, 0);*/
@@ -1059,7 +1035,7 @@ value ocamlodbc_itere_execDB_c (value caml_q_env, value vnb_records)
 #ifdef DEBUG2
       printf("  0 < q_env->exec_iResColumns = %i\n", q_env->exec_iResColumns);
 #endif
-      for (; i < nb_records; i++)
+      for(i = 0; i < nb_records; i++)
         {
           result = SQLFetch(q_env->exec_hstmt);
           if (SQL_SUCCESS != result && SQL_SUCCESS_WITH_INFO != result)
@@ -1082,19 +1058,21 @@ value ocamlodbc_itere_execDB_c (value caml_q_env, value vnb_records)
                 printf ("NULL");
 #endif
                 /* Return [None] */
-                Store_field(exec_temp,0, copy_string("NULL"));
-/* XXX How do we detect real nulls then?  */
+                Store_field(exec_temp,0, Val_int(0));
               }
               else {
 #ifdef DEBUG2
                 printf("'%s' ", (NULL == q_env->exec_pData[exec_ci]) ?
                        "<ERROR>" : q_env->exec_pData[exec_ci] );
-                fflush( stdout );
+                fflush(stdout);
 #endif
-                Store_field(exec_temp, 0,
+                /* Return [Some(data)] */
+                some = caml_alloc(1, 0);
+                Store_field(some, 0,
                             copy_string((NULL == q_env->exec_pData[exec_ci]) ?
                                         "<ERROR>" :
                                         q_env->exec_pData[exec_ci]));
+                Store_field(exec_temp, 0, some);
               }
             } /* for */
 #ifdef DEBUG2
@@ -1102,7 +1080,7 @@ value ocamlodbc_itere_execDB_c (value caml_q_env, value vnb_records)
 #endif
           exec_string_list = exec_l_head;
 
-          exec_l_head2 = alloc_tuple (2);
+          exec_l_head2 = alloc_tuple(2);
           Store_field (exec_l_head2, 0, exec_string_list);
           Store_field (exec_l_head2, 1, Val_int(0));
 

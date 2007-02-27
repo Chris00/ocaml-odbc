@@ -80,7 +80,7 @@ struct
     (** [get_infoDB r] returns a list of pairs for each column in [r],
         where the pair [(cn, t)] means that the column name is [cn]
         and its SQL type is [t]. *)
-  external itereDB : env -> int -> int * string list list
+  external itereDB : env -> int -> int * string option list list
     = "ocamlodbc_itere_execDB_c"
     (** [itereDB r nmax] returns a pair [(n, l)] where [n] is the
         number of returned rows and [l] is the list of rows (of length

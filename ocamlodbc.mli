@@ -22,7 +22,7 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.mli,v 1.10 2005-11-12 16:37:08 chris Exp $ *)
+(* $Id: ocamlodbc.mli,v 1.11 2007-02-27 22:37:43 chris Exp $ *)
 
 
 (** Interface to ODBC databases. *)
@@ -85,9 +85,11 @@ val disconnect : connection -> unit
 
 (** [execute c q] executes query [q] through connection [c] and
     returns the result as a pair [(error_code, recordlist)], where a
-    record is a [string list].  The [error_code] is 0 if no error
-    occured.*)
-val execute : connection -> string -> int * string list list
+    record is a [string option list].  The [error_code] is 0 if no
+    error occured.  Each field of a record can be [None], which
+    represents the SQL NULL, or [Some v] where [v] is a string holding
+    the field value. *)
+val execute : connection -> string -> int * string option list list
 
 (** [execute_with_info c q] executes query [q] through connection [c] and
     returns the result as a tuple [(error_code, type_list, record list)],
@@ -96,7 +98,7 @@ val execute : connection -> string -> int * string list list
     The [error_code is] 0 if no error occured.*)
 val execute_with_info :
   connection -> string
-  -> int * (string * sql_column_type) list * string list list
+  -> int * (string * sql_column_type) list * string option list list
 
 (** [execute_gen c get_info n_rec q callback] executes query [q] over
     the connection [c], and invokes [callback] on successful blocks of
@@ -107,7 +109,7 @@ val execute_with_info :
     [false] *)
 val execute_gen :
   connection -> ?get_info:bool -> ?n_rec:int -> string ->
-  (string list list -> unit) -> int * (string * sql_column_type) list
+  (string option list list -> unit) -> int * (string * sql_column_type) list
 
 
 
@@ -134,7 +136,7 @@ object
   (** [#execute q] executes query [q] and returns the result as a pair
       [(error_code, recordlist)], where a record is a [string
       list]. The [error_code] is 0 if no error occured.*)
-  method execute : string -> int * (string list list)
+  method execute : string -> int * (string option list list)
 
   (** [#execute_with_info q] executes query [q] and returns the result
       as a tuple [(error_code, type_list, record list)], where
@@ -143,7 +145,8 @@ object
 
       The [error_code] is 0 if no error occured.*)
   method execute_with_info :
-    string -> int * ((string * sql_column_type) list) * (string list list)
+    string -> int * ((string * sql_column_type) list)
+                  * (string option list list)
 
   (** [#execute_gen get_info n_rec q callback] executes query [q] and
       invokes [callback] on successful blocks of the results (of
@@ -153,5 +156,5 @@ object
       [get_info] is [false].  *)
   method execute_gen :
     ?get_info:bool -> ?n_rec:int -> string ->
-    (string list list -> unit) -> int * (string * sql_column_type) list
+    (string option list list -> unit) -> int * (string * sql_column_type) list
 end

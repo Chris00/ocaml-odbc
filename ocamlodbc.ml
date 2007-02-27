@@ -22,7 +22,7 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.ml,v 1.13 2006-06-07 08:11:01 zoggy Exp $ *)
+(* $Id: ocamlodbc.ml,v 1.14 2007-02-27 22:37:43 chris Exp $ *)
 
 (** The software name *)
 let logiciel = "OCamlODBC"
@@ -217,6 +217,6 @@ object (self)
   method execute_with_info req = execute_with_info connection req
 
   method execute_gen ?(get_info=false) ?(n_rec=1) req
-    (callback : string list list -> unit) =
+    (callback : string option list list -> unit) =
     execute_gen connection ~get_info:get_info ~n_rec:n_rec req callback
 end
