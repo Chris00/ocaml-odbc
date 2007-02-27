@@ -172,9 +172,9 @@ findlib_install: META dummy
 	done
 
 # common rules
-.depend depend::
+.depend depend:: $(wildcard *.ml) $(wildcard *.mli)
 	rm -f .depend
-	$(OCAMLDEP) $(INCLUDES) *.ml *.mli > .depend
+	$(OCAMLDEP) $(INCLUDES) $^ > .depend
 
 
 .SUFFIXES: .c .o

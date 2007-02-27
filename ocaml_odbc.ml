@@ -49,45 +49,42 @@ struct
   external initDB : string -> string -> string -> (int * sQLHENV * sQLHDBC)
     = "ocamlodbc_initDB_c"
     (** [initDB database user password] initializes a DB access.
-	@return (err, phEnv, phDbc) where [err <> 0] in case of error,
-	and [phEnv], [phDbc] are DB environment and context.  *)
+        @return (err, phEnv, phDbc) where [err <> 0] in case of error,
+        and [phEnv], [phDbc] are DB environment and context.  *)
   external initDB_driver : string -> bool -> (int * sQLHENV * sQLHDBC)
     = "ocamlodbc_initDB_driver_c"
     (** [initDB_driver conn prompt] initializes a DB access where
-	[conn] is a ODBC driver connection string and [prompt = true]
-	if the driver should raise a dialog box to request username
-	and password.  The return value is the same as [initDB].  *)
+        [conn] is a ODBC driver connection string and [prompt = true]
+        if the driver should raise a dialog box to request username
+        and password.  The return value is the same as [initDB].  *)
   external exitDB : sQLHENV -> sQLHDBC -> int
     = "ocamlodbc_exitDB_c"
     (** [exitDB phEnv phDbc] closes the DB access.  Return [0] in case
-	of success and a non-null number otherwise.  *)
+        of success and a non-null number otherwise.  *)
 
   external execDB : sQLHENV -> sQLHDBC -> string -> int * env
     = "ocamlodbc_execDB_c"
     (** [execDB phEnv phDbc sql] retruns [(err, r)] where [r] is a
-	handle to the results of the [sql] statement and
-	- [err = 1] if there are no columns;
-	- [err = 0] if theare are columns and the statement was
+        handle to the results of the [sql] statement and
+        - [err = 1] if there are no columns;
+        - [err = 0] if theare are columns and the statement was
         executes properly;
-	- other values of [err] indicate an error (in which case only
-        [r] can be used).  *)
+        - other values of [err] indicate an error (in which case
+        [r] cannot be used).  *)
   external free_execDB : env -> unit
     = "ocamlodbc_free_execDB_c"
     (** [free_execDB r] free the resources associated with the request
-	handle [r].  *)
+        handle [r].  *)
   external get_infoDB : env -> (string * Sql_col.t) list
     = "ocamlodbc_get_infoDB_c"
     (** [get_infoDB r] returns a list of pairs for each column in [r],
-	where the pair [(cn, t)] means that the column name is [cn]
-	and its SQL type is [t]. *)
+        where the pair [(cn, t)] means that the column name is [cn]
+        and its SQL type is [t]. *)
   external itereDB : env -> int -> int * string list list
     = "ocamlodbc_itere_execDB_c"
     (** [itereDB r nmax] returns a pair [(n, l)] where [n] is the
-	number of returned rows and [l] is the list of rows (of length
-	[n <= nmax]).  If [n < n_max], you must NOT call again
-	[itereDB] on [r] -- this may result in a Segmentation
-	fault.  *)
+        number of returned rows and [l] is the list of rows (of length
+        [n <= nmax]).  If [n < n_max], you must NOT call again
+        [itereDB] on [r] -- this may result in a Segmentation
+        fault.  *)
 end
-
-
-

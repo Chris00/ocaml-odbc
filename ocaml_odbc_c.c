@@ -23,10 +23,10 @@
 /*****************************************************************************/
 
 #ifndef lint
-static char vcid[]="$Id: ocaml_odbc_c.c,v 1.11 2006-06-16 13:34:14 zoggy Exp $";
+static char vcid[]="$Id: ocaml_odbc_c.c,v 1.12 2007-02-27 16:14:47 chris Exp $";
 #endif /* lint */
 
-#define DEBUG_LIGHT 1
+//#define DEBUG_LIGHT 1
 //#define DEBUG2 1
 //#define DEBUG3 1
 
@@ -47,6 +47,7 @@ static char vcid[]="$Id: ocaml_odbc_c.c,v 1.11 2006-06-16 13:34:14 zoggy Exp $";
 #include <mlvalues.h>
 #include <alloc.h>
 #include <memory.h>
+#include <fail.h>
 
 /*---| includes (unixODBC/DB2/iODBC/mSQL/Oracle/Intersolv/WIN32) |----------*/
 #ifdef iODBC
@@ -209,10 +210,7 @@ CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
     printf("  Erreur allocation memoire \n");
     fflush(stdout);
 #endif
-    Field(res,0) = Val_int ((int) -2);
-    Field(res,1) = Val_long ((long) SQL_NULL_HENV);
-    Field(res,2) = Val_long ((long) SQL_NULL_HDBC);
-    CAMLreturn(res);
+    caml_raise_out_of_memory();
   }
 
   /*
@@ -332,16 +330,14 @@ CAMLprim value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
   res = alloc_tuple(3);
   if (cliRC != SQL_SUCCESS)
   {
+#ifdef DEBUG2
     printf("\n--ERROR while allocating the environment handle.\n");
     printf("  cliRC = %d\n", cliRC);
     printf("  line  = %d\n", __LINE__);
     printf("  file  = %s\n", __FILE__);
     fflush(stdout);
-
-    Field(res,0) = Val_int (-17);
-    Field(res,1) = Val_long ((long) henv);
-    Field(res,2) = Val_long ((long) hdbc1);
-    CAMLreturn(res);
+#endif
+    caml_failwith("Ocaml_odbc.initDB_driver: error while allocating the environment handle");
   }
 
   /* set attribute to enable application to run as OCBC 3.0 application */
@@ -357,16 +353,14 @@ CAMLprim value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
   cliRC = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc1);
   if (cliRC != SQL_SUCCESS)
   {
+#ifdef DEBUG2
     printf("\n--ERROR while allocating the environment handle.\n");
     printf("  cliRC = %d\n", cliRC);
     printf("  line  = %d\n", __LINE__);
     printf("  file  = %s\n", __FILE__);
     fflush(stdout);
-
-    Field(res,0) = Val_int (-18);
-    Field(res,1) = Val_long ((long) henv);
-    Field(res,2) = Val_long ((long) hdbc1);
-    CAMLreturn(res);
+#endif
+    caml_failwith("Ocaml_odbc.initDB_driver: error while allocating the environment handle");
   }
 
   // Make connection without data source. Ask that driver
@@ -374,13 +368,13 @@ CAMLprim value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
   // SQL_ERROR and application prompts user
   // for missing information. Window handle not needed for
   // SQL_DRIVER_NOPROMPT.
-  result = SQLDriverConnect(hdbc1,      // Connection handle
-                            NULL,         // Window handle
-                            connect_string,      // Input connect string
-                            SQL_NTS,         // Null-terminated string
-                            ConnStrOut,      // Address of output buffer
+  result = SQLDriverConnect(hdbc1,          // Connection handle
+                            NULL,           // Window handle
+                            connect_string, // Input connect string
+                            SQL_NTS,        // Null-terminated string
+                            ConnStrOut,     // Address of output buffer
                             MAXBUFLEN,      // Size of output buffer
-                            &cbConnStrOut,   // Address of output length
+                            &cbConnStrOut,  // Address of output length
                             (prompt ? SQL_DRIVER_PROMPT : SQL_DRIVER_NOPROMPT));
 
   if(result == SQL_SUCCESS_WITH_INFO)
@@ -550,19 +544,6 @@ typedef struct {
   HDBC *phDbc;
 } env ;
 
-env * new_env(void)
-{
-  env* q_env = (env*) malloc (sizeof(env));
-
-  q_env->exec_iResColumns = 0;
-  q_env->exec_iRowCount = 0;
-  q_env->exec_pData[0] = NULL;
-  q_env->phEnv = NULL;
-  q_env->phDbc = NULL;
-
-  return q_env ;
-}
-
 
 /* Allocate the result pair (in case of error) and return it.  */
 #define execDB_return_error(result)                          \
@@ -579,22 +560,25 @@ CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
   CAMLlocal1(retour) ;
   char *cmd = String_val(v_cmd);
   int exec_ci = 0;
-  SQLCHAR     exec_szColName[COLUMN_SIZE];     /* name of column          */
-  SQLSMALLINT exec_cbColName;                  /* length of column name   */
-  SQLSMALLINT exec_fColType;                   /* type of column          */
-  SQLUINTEGER exec_uiColPrecision;             /* precision of column     */
-  SQLSMALLINT exec_iColScaling;                /* scaling of column       */
-  SQLSMALLINT exec_fColNullable;               /* is column nullable?     */
+  SQLCHAR     exec_szColName[COLUMN_SIZE];   /* name of column          */
+  SQLSMALLINT exec_cbColName;                /* length of column name   */
+  SQLSMALLINT exec_fColType;                 /* type of column          */
+  SQLUINTEGER exec_uiColPrecision;           /* precision of column     */
+  SQLSMALLINT exec_iColScaling;              /* scaling of column       */
+  SQLSMALLINT exec_fColNullable;             /* is column nullable?     */
   RETCODE result = 0;
-  env* q_env = new_env ();
+  env* q_env = (env*) malloc(sizeof(env));
   caml_q_env = (value) q_env;
 
-  /*  caml_q_env = alloc (sizeof(env*), Abstract_tag);
-  Store_field (caml_q_env, 0, (value) q_env);
-  */
+  q_env->exec_iResColumns = 0;
+  q_env->exec_iRowCount = 0;
+  q_env->exec_pData[0] = NULL;
   q_env->phEnv = (HENV *) (Unsigned_long_val(v_phEnv));
   q_env->phDbc = (HDBC *) (Unsigned_long_val(v_phDbc));
   //printf("phEnv=%0x, phDbc=%0x\n",q_env->phEnv,q_env->phDbc); fflush(stdout);
+  /*  caml_q_env = alloc (sizeof(env*), Abstract_tag);
+  Store_field (caml_q_env, 0, (value) q_env);
+  */
 
 #ifdef DEBUG2
   printf("execDB cmd: \"%s\"\n", cmd);
@@ -713,17 +697,17 @@ CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
     for( exec_ci = q_env->exec_iResColumns;  exec_ci >=1;  exec_ci-- )
       {
         if( SQL_SUCCESS !=
-            (result = SQLDescribeCol(q_env->exec_hstmt,
-                                     exec_ci,
-                                     &(exec_szColName[0]),
-                                     sizeof(exec_szColName) - 1,
-                                     &(exec_cbColName),
-                                     &(exec_fColType),
-                                     (UDWORD FAR *) &(exec_uiColPrecision),
-                                     &(exec_iColScaling),
-                                     &(exec_fColNullable)
-              )
-              )
+            (result = SQLDescribeCol(
+              q_env->exec_hstmt,
+              exec_ci, /* ColumnNumber */
+              &(exec_szColName[0]), /* ColumnName */
+              sizeof(exec_szColName) - 1, /* BufferLength */
+              &(exec_cbColName), /* NameLengthPtr */
+              &(exec_fColType), /* DataTypePtr */
+              (SQLUINTEGER *) &(exec_uiColPrecision), /* ColumnSizePtr */
+              &(exec_iColScaling), /* DecimalDigitsPtr */
+              &(exec_fColNullable) /* NullablePtr */
+              ))
           )
           {
 #ifdef DEBUG2
@@ -737,31 +721,57 @@ CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
             execDB_return_error(result);
           }
         /*
+        ** Some drivers do not return the correct precision for the type
+        ** (I got the problem with unixODBC -> freeTDS -> M$SQL for the
+        ** SMALLINT type)
+        */
+#ifdef DEBUG2
+#define EXPECTED_PRECISION(n)                           \
+        if(exec_uiColPrecision != n) {                  \
+          fprintf(stderr, "    WARNING: precision = %i, changed to %i\n",  \
+            exec_uiColPrecision, n); fflush(stderr);    \
+          exec_uiColPrecision = n;                      \
+        }
+#else
+#define EXPECTED_PRECISION(n) exec_uiColPrecision = n
+#endif
+        switch(exec_fColType)
+          {
+            /* Ref: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/odbccolumn_size.asp */
+          case SQL_BIT:      EXPECTED_PRECISION(1);	break;
+          case SQL_TINYINT:  EXPECTED_PRECISION(3);	break;
+          case SQL_SMALLINT: EXPECTED_PRECISION(5);	break;
+          case SQL_INTEGER:  EXPECTED_PRECISION(10);	break;
+          case SQL_REAL:     EXPECTED_PRECISION(7);	break;
+          case SQL_FLOAT:
+          case SQL_DOUBLE:   EXPECTED_PRECISION(15);	break;
+          /* FIXME: Need to add more ?? */
+          }
+#undef EXPECTED_PRECISION
+        /*
         ** create list with data entries
         */
         (q_env->exec_pData)[exec_ci] = NULL;
         (q_env->exec_indicator)[exec_ci] = 0;
         if( NULL == ((q_env->exec_pData)[exec_ci]
-                     = malloc(exec_uiColPrecision +1)) )
+                     = malloc(exec_uiColPrecision + 1)) )
           {
-            result = -1;
+            caml_raise_out_of_memory();
           }
-        else
-          {
-            //memset( (q_env->exec_pData)[exec_ci], 0, exec_uiColPrecision +1 );
-            result = SQLBindCol(
-              q_env->exec_hstmt,
-              exec_ci,
-              SQL_C_CHAR, /* TargetType */
-              (q_env->exec_pData)[exec_ci], /* TargetValuePtr */
-              exec_uiColPrecision + 1, /* BufferLength */
-              &(q_env->exec_indicator[exec_ci]) /* StrLen_or_IndPtr */
-              );
+        //memset( (q_env->exec_pData)[exec_ci], 0, exec_uiColPrecision +1 );
+        result = SQLBindCol(
+          q_env->exec_hstmt,
+          exec_ci,
+          SQL_C_CHAR, /* TargetType */
+          (q_env->exec_pData)[exec_ci], /* TargetValuePtr */
+          exec_uiColPrecision + 1, /* BufferLength */
+          &(q_env->exec_indicator[exec_ci]) /* StrLen_or_IndPtr */
+          );
 #ifdef DEBUG2
-            printf("  q_env->exec_pData[%i] = %p\t(result=%i)\n", exec_ci,
-                   (q_env->exec_pData)[exec_ci], result );
+        printf("  q_env->exec_pData[%i] = %p\t(precision=%i, result=%i)\n",
+               exec_ci, (q_env->exec_pData)[exec_ci], exec_uiColPrecision,
+               result);
 #endif
-          }
       }
   }
 
@@ -866,9 +876,9 @@ int get_OCaml_SQL_type_code (int code)
     case SQL_TIMESTAMP: return (OCAML_SQL_TIMESTAMP);
     case SQL_VARCHAR: 	return (OCAML_SQL_VARCHAR);
     case SQL_VARBINARY: return (OCAML_SQL_VARBINARY);
-    default: return (OCAML_SQL_UNKNOWN);
-  }
-
+    case SQL_TINYINT: 	return (OCAML_SQL_TINYINT);
+    default: 		return (OCAML_SQL_UNKNOWN);
+    }
 }
 
 /* Fonction retournant la liste des couples (nom, type) pour chaque
@@ -983,6 +993,7 @@ CAMLprim value ocamlodbc_get_infoDB_c(value caml_q_env)
         case SQL_VARCHAR:            printf( "VARCHAR" );        break;
         case SQL_VARBINARY:          printf( "VARBINARY" );      break;
   /*        case SQL_VARGRAPHIC:         printf( "VARGRAPHIC" );     break;*/
+        case SQL_TINYINT:            printf( "SQL_TINYINT" );    break;
         default:                     printf( "unknown" );
 #endif
       } /* switch */
@@ -1016,9 +1027,9 @@ CAMLprim value ocamlodbc_get_infoDB_c(value caml_q_env)
 /* itere_execDB_c : fonction récupérant un certain nombre
    d'enregistrements, pour la requête exécutée par la fonction execDB.
 */
-value ocamlodbc_itere_execDB_c (value caml_q_env, value nb_records_ml)
+value ocamlodbc_itere_execDB_c (value caml_q_env, value vnb_records)
 {
-  CAMLparam2(caml_q_env, nb_records_ml);
+  CAMLparam2(caml_q_env, vnb_records);
   CAMLlocal1(exec_res);
   CAMLlocal1(exec_string_list_list);
   CAMLlocal5(exec_temp, exec_temp2, exec_l_head, exec_l_head2,
@@ -1027,7 +1038,7 @@ value ocamlodbc_itere_execDB_c (value caml_q_env, value nb_records_ml)
   RETCODE result = 0;
   int i = 0;
   int exec_ci = 0;
-  int nb_records = Int_val(nb_records_ml);
+  int nb_records = Int_val(vnb_records);
   /*env* q_env = (env*) Field (caml_q_env, 0);*/
   env* q_env = (env*) caml_q_env;
 
@@ -1070,6 +1081,7 @@ value ocamlodbc_itere_execDB_c (value caml_q_env, value nb_records_ml)
 #ifdef DEBUG2
                 printf ("NULL");
 #endif
+                /* Return [None] */
                 Store_field(exec_temp,0, copy_string("NULL"));
 /* XXX How do we detect real nulls then?  */
               }
