@@ -25,13 +25,18 @@
 
 open Ocamlodbc
 
+
+let string_of_opt = function
+  None -> "<NULL>"
+| Some s -> s
+
 let affiche iRC result =
   if iRC = 0
   then
     (
      print_newline();
      begin
-       let p_row row = (List.iter (function s -> print_string (s^" ")) row) in
+       let p_row row = (List.iter (function s -> print_string ((string_of_opt s)^" ")) row) in
        let p_rows rows = (List.iter (function row -> p_row row; print_newline()) rows) in
        begin
       	 print_string "Resultats :\n";
@@ -47,7 +52,7 @@ let affiche iRC result =
 let usage = Sys.argv.(0) ^ " database user [password]"
 
 let tab = Sys.argv
-let (pszDB, pszUser) = 
+let (pszDB, pszUser) =
   try tab.(1), tab.(2)
   with _ -> prerr_endline usage ; exit 1
 
@@ -64,10 +69,10 @@ let main () =
   print_string ("nom util : "^pszUser^"\n");
   print_string ("passwd   : "^pszPassword);
   print_newline ();
-  
+
   (* Connection *)
-  let connection = 
-    try connect pszDB pszUser pszPassword 
+  let connection =
+    try connect pszDB pszUser pszPassword
     with SQL_Error(s) -> print_string s; print_newline() ; exit 1
   in
 
@@ -80,7 +85,7 @@ let main () =
   done;
   print_string ("Thread "^(string_of_int id)^" finished insertions!");
   print_newline ();
-  let req_select i = 
+  let req_select i =
     let i = 100 in
     "select * from base_test where cle > "^(string_of_int i)^" and cle < "^(string_of_int (i+100))
   in

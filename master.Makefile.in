@@ -54,10 +54,11 @@ MV=@mv -f
 
 #################################
 # For Biniki
-LABLGTKDIR=$(OCAMLLIB)/lablgtk
+LABLGTKDIR=$(OCAMLLIB)/lablgtk2
 LIBSGTK=$(LABLGTKDIR)/lablgtk.cma $(LABLGTKDIR)/gtkInit.cmo #$(OCAMLLIB)/lablgl.cma
 LIBSGTK_OPT=$(LABLGTKDIR)/lablgtk.cmxa $(LABLGTKDIR)/gtkInit.cmx #$(OCAMLLIB)/lablgl.cmxa
-LINKGTK=-ccopt "${GLIB_LIBS} $(shell gtk-config --libs) -L$(LABLGTKDIR) -llablgtk "
+#LINKGTK=-ccopt "${GLIB_LIBS} $(shell gtk-config --libs) -L$(LABLGTKDIR) -llablgtk "
+LINKGTK=-ccopt "-L$(OCAMLLIB)/lablgtk2"
 INCLUDEGTK=  -I $(LABLGTKDIR)
 
 BINIKI=biniki

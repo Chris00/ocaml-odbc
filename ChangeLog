@@ -1,3 +1,10 @@
+2007-02-28  Maxence Guesdon  <Maxence.Guesdon@inria.fr>
+
+	* rel: 2.12
+	* fix: examples to handle the small modification in interface
+	  (string option for record values)
+	* fix: biniki now uses lablgtk2
+
 2006-06-07  Maxence Guesdon  <Maxence.Guesdon@inria.fr>
 
 	* add: Makefile.nt, configure.nt, Exemples/Makefile.nt by David Allsopp

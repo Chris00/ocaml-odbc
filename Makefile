@@ -154,8 +154,8 @@ noheaders: dummy
 .PHONY : install
 install:
 	@echo "Installation instructions:"
-	@echo '  To install $(RESULT) using findlib type: "make findlib_install"'
-	@echo '  To install $(RESULT) dirctly type : "make direct_install"'
+	@echo '  To install using findlib type: "make findlib_install"'
+	@echo '  To install directly type : "make direct_install"'
 
 direct_install: dummy
 	if test -d $(INSTALL_BINDIR); then : ; else $(MKDIR) $(INSTALL_BINDIR); fi

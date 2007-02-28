@@ -7,10 +7,10 @@ DataBase Connectivity (ODBC) driver from OCaml programs.
 
 *** What you need ***
 
-- OCaml 3.0x installed (3.01 or 3.02 for the Biniki example)
+- OCaml >= 3.0x installed (3.01 or 3.02 for the Biniki example)
 - ODBC driver installed (headers and libs), for example iODBC for
   MySQL or the PostgreSQL-ODBC package for PostgreSQL
-- LablGtk 1.2 installed for the Biniki example
+- LablGtk >= 2.6 installed for the Biniki example
 - make ;-)
 
 *** How to compile ***
@@ -64,7 +64,8 @@ queries and display the results in a window. It needs LablGTK 1.2.
 - make fr or make en to create a link to the messages file you want
 - make <db> to create biniki and biniki.opt
 	where <db> can be mysql, postgres, db2, openingres or unixodbc
-- biniki[.opt] <base> to connect to a database you're allowed to, and enjoy !
+- biniki[.opt] <base> [user [password]]
+  to connect to a database you're allowed to, and enjoy !
 
 
 *** Author ***

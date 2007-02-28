@@ -25,10 +25,14 @@
 
 open Ocamlodbc
 
+let string_of_opt = function
+  None -> "<NULL>"
+| Some s -> s
+
 let affiche iRC result =
   if iRC = 0 then (
     print_newline();
-    let p_row row = List.iter (function s -> print_string (s^" ")) row in
+    let p_row row = List.iter (function s -> print_string ((string_of_opt s)^" ")) row in
     let p_rows rows =
       List.iter (function row -> p_row row; print_newline()) rows in
     print_string "Resultats :\n";

@@ -13,7 +13,7 @@ CMXFILES =  $(CMOFILES:.cmo=.cmx)
 # Overriden flags
 
 COMPFLAGS=-nolabels -I ../$(SUBDIR) $(INCLUDEGTK)
-LINKFLAGS=-ccopt -L../$(SUBDIR) -I ../$(SUBDIR) $(LINKGTK) 
+LINKFLAGS=-ccopt -L../$(SUBDIR) -I ../$(SUBDIR) $(LINKGTK)
 
 ####
 BINIKI=biniki
@@ -47,11 +47,11 @@ en:
 	$(RM) biniki_messages.ml
 	ln -s biniki_messages_en.ml biniki_messages.ml
 
-$(BINIKI): $(CMOFILES) $(CMIFILES) 
-	$(OCAMLC) -custom -o $@ $(LINKFLAGS) $(LIB) unix.cma str.cma $(LIBSGTK) $(CMOFILES)
+$(BINIKI): $(CMOFILES) $(CMIFILES)
+	$(OCAMLC) -o $@ $(LINKFLAGS) $(LIB) unix.cma str.cma $(LIBSGTK) $(CMOFILES)
 
 $(BINIKI_OPT): $(CMXFILES) $(CMIFILES)
-	$(OCAMLOPT) -o $@ $(LINKFLAGS) $(LIB_OPT) unix.cmxa str.cmxa $(LIBSGTK_OPT) $(CMXFILES)  
+	$(OCAMLOPT) -o $@ $(LINKFLAGS) $(LIB_OPT) unix.cmxa str.cmxa $(LIBSGTK_OPT) $(CMXFILES)
 
 clean_all: clean
 	$(RM) $(CMOFILES) $(CMXFILES) $(CMIFILES) *.o

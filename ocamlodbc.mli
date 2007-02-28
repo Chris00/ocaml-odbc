@@ -22,7 +22,7 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.mli,v 1.11 2007-02-27 22:37:43 chris Exp $ *)
+(* $Id: ocamlodbc.mli,v 1.12 2007-02-28 09:10:04 zoggy Exp $ *)
 
 
 (** Interface to ODBC databases. *)
@@ -110,8 +110,6 @@ val execute_with_info :
 val execute_gen :
   connection -> ?get_info:bool -> ?n_rec:int -> string ->
   (string option list list -> unit) -> int * (string * sql_column_type) list
-
-
 
 (** {2 Object-oriented interface} *)
 

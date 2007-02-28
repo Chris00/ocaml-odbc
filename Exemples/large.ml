@@ -25,13 +25,17 @@
 
 open Ocamlodbc
 
+let string_of_opt = function
+  None -> "<NULL>"
+| Some s -> s
+
 let affiche iRC result =
   if iRC = 0
   then
     (
      print_newline();
      begin
-       let p_row row = (List.iter (function s -> print_string (s^" ")) row) in
+       let p_row row = (List.iter (function s -> print_string ((string_of_opt s)^" ")) row) in
        let p_rows rows = (List.iter (function row -> p_row row; print_newline()) rows) in
        begin
       	 print_string "Resultats :\n";
@@ -48,7 +52,7 @@ let usage = Sys.argv.(0) ^ " database user [password]"
 
 let main () =
   let tab = Sys.argv in
-  let (pszDB, pszUser) = 
+  let (pszDB, pszUser) =
     try tab.(1), tab.(2)
     with _ -> prerr_endline usage ; exit 1
   in

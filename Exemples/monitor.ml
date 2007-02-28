@@ -51,30 +51,34 @@ let main () =
       print_string "»»» ";
       str := read_line ();
       if !str = "" then (
-	sortie := true;
-      )
+         sortie := true;
+        )
       else (
-	let (iRC, l_nom_type, result) = db#execute_with_info !str in
-	if iRC = 0 then (
-    	  let p_col row =
-	    let print (s,col_type) =
-	      print_string(s^" : "^(SQL_column.string col_type)^"\n") in
-	    List.iter print row in
-    	 print_string "Columns : \n";
-    	 p_col l_nom_type;
-    	 print_newline();
-    	 print_newline();
-         let p_row row = List.iter (function s -> print_string (s^" ")) row in
-         let p_rows rows =
-	   List.iter (function row -> p_row row; print_newline()) rows in
-	 print_string "Results :\n";
-         p_rows result;
-	 print_newline()
-	)
-	else (
-          print_int iRC; print_newline()
-	)
-      )
+         let (iRC, l_nom_type, result) = db#execute_with_info !str in
+         if iRC = 0 then (
+            let p_col row =
+              let print (s,col_type) =
+                print_string(s^" : "^(SQL_column.string col_type)^"\n") in
+              List.iter print row in
+            print_string "Columns : \n";
+            p_col l_nom_type;
+            print_newline();
+            print_newline();
+            let string_of_opt = function
+              None -> "<NULL>"
+            | Some s -> s
+            in
+            let p_row row = List.iter (function s -> print_string ((string_of_opt s)^" ")) row in
+            let p_rows rows =
+              List.iter (function row -> p_row row; print_newline()) rows in
+            print_string "Results :\n";
+            p_rows result;
+            print_newline()
+           )
+         else (
+            print_int iRC; print_newline()
+           )
+        )
     end
   done;
   db#disconnect()
