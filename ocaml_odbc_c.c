@@ -23,7 +23,7 @@
 /*****************************************************************************/
 
 #ifndef lint
-static char vcid[]="$Id: ocaml_odbc_c.c,v 1.14 2007-06-15 20:38:35 chris Exp $";
+static char vcid[]="$Id: ocaml_odbc_c.c,v 1.15 2007-06-15 21:49:19 chris Exp $";
 #endif /* lint */
 
 //#define DEBUG_LIGHT 1
@@ -173,9 +173,8 @@ value ocamlodbc_HDBC_c ()
 CAMLprim
 value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user, value v_password)
 {
-  CAMLparam3 (v_nom_base, v_nom_user, v_password);
-  CAMLlocal1 (res);
-
+  CAMLparam3(v_nom_base, v_nom_user, v_password);
+  CAMLlocal1(res);
   char *nom_base = String_val(v_nom_base);
   char *nom_user = String_val(v_nom_user);
   char *password = String_val(v_password);

@@ -22,13 +22,13 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.ml,v 1.15 2007-02-28 09:10:04 zoggy Exp $ *)
+(* $Id: ocamlodbc.ml,v 1.16 2007-06-15 21:49:19 chris Exp $ *)
 
 (** The software name *)
 let logiciel = "OCamlODBC"
 
 (** The software version *)
-let version = "2.12"
+let version = "2.13"
 
 exception SQL_Error of string
 
@@ -109,7 +109,7 @@ type connection = {
 
 let connect base user passwd =
   let (iRC1,hEnv,pHDbc) = SQLInterface.initDB base user passwd in
-  if (iRC1 = 0) then
+  if iRC1 = 0 then
     {
       phEnv = hEnv;
       phDbc = pHDbc;
@@ -122,7 +122,7 @@ let connect base user passwd =
 
 let connect_driver ?(prompt=false) connect_string =
   let (iRC1,hEnv,pHDbc) = SQLInterface.initDB_driver connect_string prompt in
-  if (iRC1 = 0) then
+  if iRC1 = 0 then
     {
       phEnv = hEnv;
       phDbc = pHDbc;
@@ -137,9 +137,9 @@ let disconnect connection =
   let iRC = SQLInterface.exitDB connection.phEnv connection.phDbc in
   if iRC <> 0 then raise(SQL_Error OCamlODBC_messages.disconnect)
 
-(** Cette fonction privée exécute une requête interrompue par des
-    appels réguliers au GC. Elle retourne un triplet : code d'erreur (0
-    si ok), liste de couples (nom, type) pour décrire les colonnes
+(** Cette fonction exécute une requête interrompue par des appels
+    réguliers au GC. Elle retourne un triplet : code d'erreur (0 si
+    ok), liste de couples (nom, type) pour décrire les colonnes
     retournées, liste de liste de chaines représentant les
     enregistrements.
 *)

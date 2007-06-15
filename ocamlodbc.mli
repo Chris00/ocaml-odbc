@@ -22,10 +22,13 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.mli,v 1.12 2007-02-28 09:10:04 zoggy Exp $ *)
+(* $Id: ocamlodbc.mli,v 1.13 2007-06-15 21:49:19 chris Exp $ *)
 
 
-(** Interface to ODBC databases. *)
+(** Interface to ODBC databases.
+
+    See http://home.gna.org/ocamlodbc/configuring.html for
+    configutation information. *)
 
 (** Version of the library. *)
 val version : string
@@ -70,46 +73,58 @@ end
 (** The type of connections to databases. *)
 type connection
 
-(** [create base user passwd] creates a connection to data source
-    [base], as user [user], with password [passwd].
-
-    @raise SQL_Error if we could not connect to the database.*)
 val connect : string -> string -> string -> connection
+  (** [connect base user passwd] creates a connection to data source
+      [base], as user [user], with password [passwd].
+
+      @raise SQL_Error if the connection to the database failed. *)
+
 val connect_driver : ?prompt:bool -> string -> connection
+  (** [connect_driver conn_string] exposes the SQLDriverConnect
+      function to OCaml (for ODBC v2 or greater under MinGW).  This
+      allows SQLServer "trusted authentication" mode based on NT
+      domain identities.  An example of [conn_string] is ["Driver={SQL
+      Server};SERVER=FOOSERVER;Trusted_Connection=yes;Database=MYDB"].
 
-(** Disconnect from a database. The given connection should not be
-    used after this function was called.
+      @param prompt tells whether the if the driver should raise a
+      dialog box to request username and password.  Default: [false].
 
-    @raise SQL_Error if an error occured while disconnecting.*)
+      @raise SQL_Error if the connection to the database failed. *)
+
 val disconnect : connection -> unit
+  (** Disconnect from a database. The given connection should not be
+      used after this function was called.
 
-(** [execute c q] executes query [q] through connection [c] and
-    returns the result as a pair [(error_code, recordlist)], where a
-    record is a [string option list].  The [error_code] is 0 if no
-    error occured.  Each field of a record can be [None], which
-    represents the SQL NULL, or [Some v] where [v] is a string holding
-    the field value. *)
+      @raise SQL_Error if an error occured while disconnecting.*)
+
 val execute : connection -> string -> int * string option list list
+  (** [execute c q] executes query [q] through connection [c] and
+      returns the result as a pair [(error_code, recordlist)], where a
+      record is a [string option list].  The [error_code] is 0 if no
+      error occured.  Each field of a record can be [None], which
+      represents the SQL NULL, or [Some v] where [v] is a string holding
+      the field value. *)
 
-(** [execute_with_info c q] executes query [q] through connection [c] and
-    returns the result as a tuple [(error_code, type_list, record list)],
-    where [type_list] indicates the SQL types of the returned columns,
-    and a record is a [string list].
-    The [error_code is] 0 if no error occured.*)
 val execute_with_info :
   connection -> string
   -> int * (string * sql_column_type) list * string option list list
+  (** [execute_with_info c q] executes query [q] through connection [c] and
+      returns the result as a tuple [(error_code, type_list, record list)],
+      where [type_list] indicates the SQL types of the returned columns,
+      and a record is a [string list].
+      The [error_code is] 0 if no error occured.*)
 
-(** [execute_gen c get_info n_rec q callback] executes query [q] over
-    the connection [c], and invokes [callback] on successful blocks of
-    the results (of [n_rec] records each). Each record is a [string
-    list] of fields.
-    The result is a tuple [(error_code, type_list)].  The [error_code]
-    is 0 if no error occurred, [type_list] is empty if [get_info] is
-    [false] *)
 val execute_gen :
   connection -> ?get_info:bool -> ?n_rec:int -> string ->
   (string option list list -> unit) -> int * (string * sql_column_type) list
+  (** [execute_gen c get_info n_rec q callback] executes query [q] over
+      the connection [c], and invokes [callback] on successful blocks of
+      the results (of [n_rec] records each). Each record is a [string
+      list] of fields.
+      The result is a tuple [(error_code, type_list)].  The [error_code]
+      is 0 if no error occurred, [type_list] is empty if [get_info] is
+      [false] *)
+
 
 (** {2 Object-oriented interface} *)
 
@@ -122,37 +137,37 @@ class data_base :
   string ->
   string ->
 object
+  method connect : unit -> unit
   (** @deprecated The connection to the database oocurs when the
       object is created.*)
-  method connect : unit -> unit
 
+  method disconnect : unit -> unit
   (** Disconnect from the database. The objet should not be used
       after calling this method.
       @raise SQL_Error if an error occurs while disconnecting.*)
-  method disconnect : unit -> unit
 
+  method execute : string -> int * (string option list list)
   (** [#execute q] executes query [q] and returns the result as a pair
       [(error_code, recordlist)], where a record is a [string
       list]. The [error_code] is 0 if no error occured.*)
-  method execute : string -> int * (string option list list)
 
+  method execute_with_info :
+    string -> int * ((string * sql_column_type) list)
+                  * (string option list list)
   (** [#execute_with_info q] executes query [q] and returns the result
       as a tuple [(error_code, type_list, record list)], where
       [type_list] indicates the SQL types of the returned columns, and
       a record is a [string list].
 
       The [error_code] is 0 if no error occured.*)
-  method execute_with_info :
-    string -> int * ((string * sql_column_type) list)
-                  * (string option list list)
 
+  method execute_gen :
+    ?get_info:bool -> ?n_rec:int -> string ->
+    (string option list list -> unit) -> int * (string * sql_column_type) list
   (** [#execute_gen get_info n_rec q callback] executes query [q] and
       invokes [callback] on successful blocks of the results (of
       [n_rec] records each). Each record is a [string list] of fields.
       The result is a tuple [(error_code, type_list)]. The
       [error_code] is 0 if no error occurred, [type_list] is empty if
       [get_info] is [false].  *)
-  method execute_gen :
-    ?get_info:bool -> ?n_rec:int -> string ->
-    (string option list list -> unit) -> int * (string * sql_column_type) list
 end
