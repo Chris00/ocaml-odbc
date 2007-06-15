@@ -89,9 +89,11 @@ $(LIB_C): $(OBJFILES)
 	$(RANLIB) $@
 
 $(LIB): $(OBJOCAML) $(LIBOBJ)
-	$(OCAMLC) -a -linkall -custom -o $@ -cclib -locamlodbc $(LINKFLAGS) $(OBJOCAML) $(LIBOBJ)
+	$(OCAMLC) -a -linkall -custom -o $@ -cclib -locamlodbc \
+		$(LINKFLAGS) $(OBJOCAML) $(LIBOBJ)
 $(LIB_OPT): $(OBJOCAML_OPT) $(LIBOBJ_OPT) $(LIB_C)
-	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc $(LINKFLAGS) $(OBJOCAML_OPT) $(LIBOBJ_OPT)
+	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc \
+		$(LINKFLAGS) $(OBJOCAML_OPT) $(LIBOBJ_OPT)
 
 META : DESTDIR=$(shell ocamlfind printconf destdir)
 META :

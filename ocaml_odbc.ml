@@ -42,8 +42,8 @@ end
 module Interface (Sql_col : Sql_column_type) =
 struct
   (*  Constructeurs des types abstraits (valeur vide) *)
-  external value_SQLHENV : unit -> sQLHENV = "ocamlodbc_HENV_c"
-  external value_SQLHDBC : unit -> sQLHDBC = "ocamlodbc_HDBC_c"
+  external value_SQLHENV : unit -> sQLHENV = "ocamlodbc_HENV_c" "noalloc"
+  external value_SQLHDBC : unit -> sQLHDBC = "ocamlodbc_HDBC_c" "noalloc"
 
   (*  Fonctions C utilisées *)
   external initDB : string -> string -> string -> (int * sQLHENV * sQLHDBC)

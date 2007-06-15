@@ -9,4 +9,4 @@ EXPORTS
 	ocamlodbc_free_execDB_c @6
 	ocamlodbc_get_infoDB_c @7
 	ocamlodbc_exitDB_c @8
-
+	ocamlodbc_initDB_driver_c @9

@@ -23,7 +23,7 @@
 /*****************************************************************************/
 
 #ifndef lint
-static char vcid[]="$Id: ocaml_odbc_c.c,v 1.13 2007-02-27 22:37:43 chris Exp $";
+static char vcid[]="$Id: ocaml_odbc_c.c,v 1.14 2007-06-15 20:38:35 chris Exp $";
 #endif /* lint */
 
 //#define DEBUG_LIGHT 1
@@ -44,10 +44,10 @@ static char vcid[]="$Id: ocaml_odbc_c.c,v 1.13 2007-02-27 22:37:43 chris Exp $";
 #include <time.h>
 
 /* Includes pour OCAML */
-#include <mlvalues.h>
-#include <alloc.h>
-#include <memory.h>
-#include <fail.h>
+#include <caml/mlvalues.h>
+#include <caml/alloc.h>
+#include <caml/memory.h>
+#include <caml/fail.h>
 
 /*---| includes (unixODBC/DB2/iODBC/mSQL/Oracle/Intersolv/WIN32) |----------*/
 #ifdef iODBC
@@ -137,11 +137,13 @@ void displayError( HENV   hEnv,
 void print_sql_info(SQLHDBC hdbc);
 
 /* Constructeurs des types abstraits ODBC */
+CAMLprim
 value ocamlodbc_HENV_c ()
 {
   return(Val_int(SQL_NULL_HENV));
 }
 
+CAMLprim
 value ocamlodbc_HDBC_c ()
 {
   return(Val_int(SQL_NULL_HDBC));
@@ -168,8 +170,8 @@ value ocamlodbc_HDBC_c ()
  *             pointer to DB context
  *-----------------------------------------------------------------------------
  */
-CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
-                                  value v_password)
+CAMLprim
+value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user, value v_password)
 {
   CAMLparam3 (v_nom_base, v_nom_user, v_password);
   CAMLlocal1 (res);
@@ -303,7 +305,8 @@ CAMLprim value ocamlodbc_initDB_c(value v_nom_base, value v_nom_user,
  *             pointer to DB context
  *-----------------------------------------------------------------------------
  */
-CAMLprim value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
+CAMLprim
+value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
 {
   CAMLparam2 (v_connect_string,v_prompt);
   CAMLlocal1 (res);
@@ -406,7 +409,8 @@ CAMLprim value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
  *             == 0 - no error
  *-----------------------------------------------------------------------------
  */
-CAMLprim value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
+CAMLprim
+value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
 {
   CAMLparam2 (v_phEnv, v_phDbc);
   HENV *phEnv = (HENV *) (Unsigned_long_val(v_phEnv));
@@ -553,7 +557,8 @@ typedef struct {
   CAMLreturn(retour)
 
 
-CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
+CAMLprim
+value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
 {
   CAMLparam3(v_phEnv, v_phDbc, v_cmd);
   CAMLlocal1(caml_q_env) ;
@@ -773,7 +778,8 @@ CAMLprim value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
 
 /* free_ExecDB_c : fonction de désallocation des structures allouées par
    execDB_c */
-CAMLprim value ocamlodbc_free_execDB_c(value caml_q_env)
+CAMLprim
+value ocamlodbc_free_execDB_c(value caml_q_env)
 {
   CAMLparam1(caml_q_env);
   int result;
@@ -860,7 +866,8 @@ int get_OCaml_SQL_type_code (int code)
 /* Fonction retournant la liste des couples (nom, type) pour chaque
    champ retourné par la dernière requête exécutée et non encore
    libérée. */
-CAMLprim value ocamlodbc_get_infoDB_c(value caml_q_env)
+CAMLprim
+value ocamlodbc_get_infoDB_c(value caml_q_env)
 {
   CAMLparam1(caml_q_env);
   CAMLlocal2(info_temp, info_l_head);
@@ -898,104 +905,100 @@ CAMLprim value ocamlodbc_get_infoDB_c(value caml_q_env)
   /*
   ** get table description and create list with pointers
   */
-  if( 0 < q_env->exec_iResColumns )
-  {
+  if(q_env->exec_iResColumns <= 0) {
+      caml_failwith("Ocamlodbc.execute: no columns in the result!");  
+  }
+  
 #ifdef DEBUG2
-    printf( "  result columns:\n" );
+  printf("  result columns:\n");
 #endif
-    /* Initialisation de la liste des descriptions de colonnes */
-    info_l_head = Val_int(0);
+  /* Initialisation de la liste des descriptions de colonnes */
+  info_l_head = Val_int(0);
 
-    for( exec_ci = q_env->exec_iResColumns; exec_ci >=1; exec_ci-- )
-    { /*
-      ** display table info
-      */
+  for( exec_ci = q_env->exec_iResColumns; exec_ci >=1; exec_ci-- ) {
+    /*
+    ** display table info
+    */
 #ifdef DEBUG2
-      printf( "    [%03u] ", exec_ci ); fflush( stdout );
+    printf( "    [%03u] ", exec_ci ); fflush( stdout );
 #endif
-      if( SQL_SUCCESS !=
-          (result=SQLDescribeCol(q_env->exec_hstmt,
-                                 exec_ci,
-                                 &(exec_szColName[0]),
-                                 sizeof(exec_szColName) - 1,
-                                 &(exec_cbColName),
-                                 &(exec_fColType),
-                                 (UDWORD FAR *) &(exec_uiColPrecision),
-                                 &(exec_iColScaling),
-                                 &(exec_fColNullable)
-                                 )
-           )
-          ) {
+    if( SQL_SUCCESS !=
+        (result=SQLDescribeCol(q_env->exec_hstmt,
+                               exec_ci,
+                               &(exec_szColName[0]),
+                               sizeof(exec_szColName) - 1,
+                               &(exec_cbColName),
+                               &(exec_fColType),
+                               (UDWORD FAR *) &(exec_uiColPrecision),
+                               &(exec_iColScaling),
+                               &(exec_fColNullable)     )
+          )) {
 #ifdef DEBUG2
-        printf("  Erreur SQLDescribeCol\n");
-        fflush(stdout);
-        displayError( *(q_env->phEnv),
-                      *(q_env->phDbc),
-                      q_env->exec_hstmt,
-                      result, __LINE__ );
+      printf("  Erreur SQLDescribeCol\n");
+      fflush(stdout);
+      displayError( *(q_env->phEnv),
+                    *(q_env->phDbc),
+                    q_env->exec_hstmt,
+                    result, __LINE__ );
 #endif
-        /* Allocation de la structure de retour */
-        info_l_head = Val_int(0);
-        CAMLreturn(info_l_head);
-      }
+      /* Allocation de la structure de retour */
+      info_l_head = Val_int(0);
+      CAMLreturn(info_l_head);
+    }
 
 #ifdef DEBUG2
-      printf( "  %s type=", exec_szColName );
-      switch( exec_fColType )
-        {
+    printf( "  %s type=", exec_szColName );
+    switch( exec_fColType ) {
 #ifndef INTERSOLV
   /*        case SQL_BLOB:               printf( "BLOB" );           break;
             case SQL_BLOB_LOCATOR:       printf( "BLOB_LOCATOR" );   break;*/
-        case SQL_CHAR:               printf( "CHAR" );           break;
-        case SQL_BINARY:             printf( "BINARY" );         break;
+    case SQL_CHAR:               printf( "CHAR" );           break;
+    case SQL_BINARY:             printf( "BINARY" );         break;
   /*        case SQL_CLOB:               printf( "CLOB" );           break;
             case SQL_CLOB_LOCATOR:       printf( "CLOB_LOCATOR" );   break;*/
-        case SQL_DATE:               printf( "DATE" );           break;
+    case SQL_DATE:               printf( "DATE" );           break;
   /*        case SQL_DBCLOB:             printf( "DBCLOB" );         break;
             case SQL_DBCLOB_LOCATOR:     printf( "DBCLOB_LOCATOR" ); break;*/
-        case SQL_DECIMAL:            printf( "DECIMAL" );        break;
-        case SQL_DOUBLE:             printf( "DOUBLE" );         break;
-        case SQL_FLOAT:              printf( "FLOAT" );          break;
+    case SQL_DECIMAL:            printf( "DECIMAL" );        break;
+    case SQL_DOUBLE:             printf( "DOUBLE" );         break;
+    case SQL_FLOAT:              printf( "FLOAT" );          break;
   /*        case SQL_GRAPHIC:            printf( "GRAPHIC" );        break;*/
-        case SQL_INTEGER:            printf( "INTEGER" );        break;
-        case SQL_LONGVARCHAR:        printf( "LONGVARCHAR" );    break;
-        case SQL_LONGVARBINARY:      printf( "LONGVARBINARY" );  break;
+    case SQL_INTEGER:            printf( "INTEGER" );        break;
+    case SQL_LONGVARCHAR:        printf( "LONGVARCHAR" );    break;
+    case SQL_LONGVARBINARY:      printf( "LONGVARBINARY" );  break;
   /*        case SQL_LONGVARGRAPHIC:     printf( "LONGVARGRAPHIC" ); break;*/
-        case SQL_NUMERIC:            printf( "NUMERIC" );        break;
-        case SQL_REAL:               printf( "REAL" );           break;
-        case SQL_SMALLINT:           printf( "SMALLINT" );       break;
-        case SQL_TIME:               printf( "TIME" );           break;
-        case SQL_TIMESTAMP:          printf( "TIMESTAMP" );      break;
-        case SQL_VARCHAR:            printf( "VARCHAR" );        break;
-        case SQL_VARBINARY:          printf( "VARBINARY" );      break;
+    case SQL_NUMERIC:            printf( "NUMERIC" );        break;
+    case SQL_REAL:               printf( "REAL" );           break;
+    case SQL_SMALLINT:           printf( "SMALLINT" );       break;
+    case SQL_TIME:               printf( "TIME" );           break;
+    case SQL_TIMESTAMP:          printf( "TIMESTAMP" );      break;
+    case SQL_VARCHAR:            printf( "VARCHAR" );        break;
+    case SQL_VARBINARY:          printf( "VARBINARY" );      break;
   /*        case SQL_VARGRAPHIC:         printf( "VARGRAPHIC" );     break;*/
-        case SQL_TINYINT:            printf( "SQL_TINYINT" );    break;
-        default:                     printf( "unknown" );
+    case SQL_TINYINT:            printf( "TINYINT" );    break;
+    default:                     printf( "unknown" );
 #endif
-      } /* switch */
-      printf( " precision=%u scaling=%d nullable=%s\n",
-              exec_uiColPrecision, exec_iColScaling,
-              (SQL_NO_NULLS == exec_fColNullable) ? "YES" : "NO"
-            );
+    } /* switch */
+    printf( " precision=%u scaling=%d nullable=%s\n",
+            exec_uiColPrecision, exec_iColScaling,
+            (SQL_NO_NULLS == exec_fColNullable) ? "YES" : "NO"
+      );
 #endif
       /* Construction des éléments de la liste */
-      info_temp = alloc_tuple (2);
-      info_cpl = alloc_tuple (2);
-      Store_field (info_cpl, 0, copy_string(exec_szColName));
-      Store_field (info_cpl, 1,
-                   Val_int(get_OCaml_SQL_type_code ((int)exec_fColType)));
-      Store_field (info_temp, 0, info_cpl);
-      Store_field (info_temp, 1, info_l_head);
-      info_l_head = info_temp;
-    }
+    info_temp = alloc_tuple (2);
+    info_cpl = alloc_tuple (2);
+    Store_field (info_cpl, 0, copy_string(exec_szColName));
+    Store_field (info_cpl, 1,
+                 Val_int(get_OCaml_SQL_type_code ((int)exec_fColType)));
+    Store_field (info_temp, 0, info_cpl);
+    Store_field (info_temp, 1, info_l_head);
+    info_l_head = info_temp;
+  }
 #ifdef DEBUG2
-    printf("  Point N\n");
+  printf("  Point N\n");
 #endif
-    CAMLreturn(info_l_head);
-  } /* if */
-
+  CAMLreturn(info_l_head);
 }
-
 
 
 
@@ -1003,6 +1006,7 @@ CAMLprim value ocamlodbc_get_infoDB_c(value caml_q_env)
 /* itere_execDB_c : fonction récupérant un certain nombre
    d'enregistrements, pour la requête exécutée par la fonction execDB.
 */
+CAMLprim
 value ocamlodbc_itere_execDB_c (value caml_q_env, value vnb_records)
 {
   CAMLparam2(caml_q_env, vnb_records);
