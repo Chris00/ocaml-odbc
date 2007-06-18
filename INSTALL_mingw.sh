@@ -13,7 +13,7 @@
 #copy dllocamlodbc.dll %OCAMLLIB%\stublibs
 
 #insert -DDEBUG2 for gobs of debugging output
-gcc -mno-cygwin -g -DDEBUG_LIGHT -DODBC2 -I /cygdrive/c/ocaml/lib/caml -I /usr/include/w32api -DWIN32 -c ocaml_odbc_c.c
+gcc -mno-cygwin -g -DDEBUG_LIGHT -DODBC3 -I /cygdrive/c/ocaml/lib/caml -I /usr/include/w32api -DWIN32 -c ocaml_odbc_c.c
 gcc -mno-cygwin -g -shared -L /cygdrive/c/ocaml/lib -o dllocamlodbc.dll /cygdrive/c/ocaml/bin/ocamlrun.dll ocaml_odbc_c.o -lodbc32
 
 #  Make a native code library

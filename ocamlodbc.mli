@@ -22,7 +22,7 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.mli,v 1.13 2007-06-15 21:49:19 chris Exp $ *)
+(* $Id: ocamlodbc.mli,v 1.14 2007-06-18 14:04:51 chris Exp $ *)
 
 
 (** Interface to ODBC databases.
@@ -112,7 +112,7 @@ val execute_with_info :
       returns the result as a tuple [(error_code, type_list, record list)],
       where [type_list] indicates the SQL types of the returned columns,
       and a record is a [string list].
-      The [error_code is] 0 if no error occured.*)
+      The [error_code] is [>= 0] if no error occured.*)
 
 val execute_gen :
   connection -> ?get_info:bool -> ?n_rec:int -> string ->
@@ -121,9 +121,10 @@ val execute_gen :
       the connection [c], and invokes [callback] on successful blocks of
       the results (of [n_rec] records each). Each record is a [string
       list] of fields.
-      The result is a tuple [(error_code, type_list)].  The [error_code]
-      is 0 if no error occurred, [type_list] is empty if [get_info] is
-      [false] *)
+
+      The result is a tuple [(error_code, type_list)].  The
+      [error_code] is [>= 0] if no error occurred, [type_list] is
+      empty if [get_info] is [false].  *)
 
 
 (** {2 Object-oriented interface} *)

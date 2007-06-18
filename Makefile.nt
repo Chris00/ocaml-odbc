@@ -1,25 +1,28 @@
-# ################################################################################################ #
-# MetaStack Solutions Ltd.                                                                         #
-# ################################################################################################ #
-# OCamlODBC Win32/MinGW Makefile                                                                   #
-# ################################################################################################ #
-# Copyright (c) 2006 MetaStack Solutions Ltd.                                                      #
-#                                                                                                  #
-# This program is free software; you can redistribute it and/or modify it under the terms of the   #
-# GNU Lesser General Public License as published by the Free Software Foundation; either version   #
-# 2.1 of the License, or any later version.                                                        #
-#                                                                                                  #
-# This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;        #
-# without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See    #
-# the GNU Lesser General Public License for more details.                                          #
-#                                                                                                  #
-# You should have received a copy of the GNU Lesser General Public License along with this         #
-# program; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330,        #
-# Boston, MA 02111-1307 USA                                                                        #
-# ################################################################################################ #
-# Author: David Allsopp                                                                            #
-# 4-Jun-2006                                                                                       #
-# ################################################################################################ #
+# ###########################################################################
+# MetaStack Solutions Ltd.                                                  #
+# ###########################################################################
+# OCamlODBC Win32/MinGW Makefile                                            #
+# ###########################################################################
+# Copyright (c) 2006 MetaStack Solutions Ltd.                               #
+#                                                                           #
+# This program is free software; you can redistribute it and/or modify      #
+# it under the terms of the GNU Lesser General Public License as            #
+# published by the Free Software Foundation; either version 2.1 of the      #
+# License, or any later version.                                            #
+#                                                                           #
+# This program is distributed in the hope that it will be useful, but       #
+# WITHOUT ANY WARRANTY; without even the implied warranty of                #
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU          #
+# Lesser General Public License for more details.                           #
+#                                                                           #
+# You should have received a copy of the GNU Lesser General Public          #
+# License along with this program; if not, write to the Free Software       #
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA   #
+#                                                                           #
+# ###########################################################################
+# Author: David Allsopp                                                     #
+# 4-Jun-2006                                                                #
+# ###########################################################################
 
 OCAMLC=ocamlc
 OCAMLOPT=ocamlopt
@@ -54,15 +57,15 @@ $(OPT_LIB): ocaml_odbc.cmi ocaml_odbc.cmx ocamlodbc.cmi ocamlodbc.cmx
 	$(OCAMLOPT) -a -o $@ ocaml_odbc.cmx ocamlodbc.cmx -cclib -locamlodbc -cclib -lodbc32
 
 ocaml_odbc_c.o: ocaml_odbc_c.c
-	$(GCC) -c -DODBC2 -DWIN32 -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
+	$(GCC) -c -DODBC3 -DWIN32 -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
 
 $(BYTE_LIB_DLL): ocaml_odbc_c.o
-	$(GCC) -shared -L `cygpath $(OCAMLLIBDIR)` -L `which ocamlrun.dll | sed -e 's/\/ocamlrun.dll$$//'` -o $@ ocaml_odbc_c.o -lodbc32 -locamlrun 
+	$(GCC) -shared -L `cygpath $(OCAMLLIBDIR)` -L `which ocamlrun.dll | sed -e 's/\/ocamlrun.dll$$//'` -o $@ ocaml_odbc_c.o -lodbc32 -locamlrun
 
 $(OPT_LIB_A): ocaml_odbc_c.o
-	$(GCC) -c -DODBC2 -DWIN32 -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
+	$(GCC) -c -DODBC3 -DWIN32 -I `cygpath $(OCAMLLIBDIR)/caml` -I /usr/include/w32api ocaml_odbc_c.c
 	$(AR) rsc $(OPT_LIB_A) ocaml_odbc_c.o
-	
+
 META:
 	@echo 'name="$(LIB)"' > $@
 	@echo 'version="'`grep "let version =" ocamlodbc.ml | cut -d'"' -f 2`'"' >> $@

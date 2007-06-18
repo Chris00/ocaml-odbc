@@ -22,13 +22,13 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.ml,v 1.16 2007-06-15 21:49:19 chris Exp $ *)
+(* $Id: ocamlodbc.ml,v 1.17 2007-06-18 14:04:51 chris Exp $ *)
 
 (** The software name *)
 let logiciel = "OCamlODBC"
 
 (** The software version *)
-let version = "2.13"
+let version = "2.14"
 
 exception SQL_Error of string
 
@@ -167,7 +167,7 @@ let execute_gen conn ?(get_info=false) ?(n_rec=40) req callback =
 
      | 1 ->
 	 (* pas de colonne, donc pas d'enregistrements à récupérer *)
-	  SQLInterface.free_execDB env;
+	 SQLInterface.free_execDB env;
 	 (0, [])
      | _ ->
 	 SQLInterface.free_execDB env;

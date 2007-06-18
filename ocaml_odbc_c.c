@@ -23,16 +23,16 @@
 /*****************************************************************************/
 
 #ifndef lint
-static char vcid[]="$Id: ocaml_odbc_c.c,v 1.15 2007-06-15 21:49:19 chris Exp $";
+static char vcid[]="$Id: ocaml_odbc_c.c,v 1.16 2007-06-18 14:04:51 chris Exp $";
 #endif /* lint */
 
 //#define DEBUG_LIGHT 1
 //#define DEBUG2 1
 //#define DEBUG3 1
 
-//in makefile, or not: #define ODBC2 1
+//in makefile, or not: #define ODBC3 1
 
-#ifndef ODBC2
+#ifndef ODBC3
 #define OLD_POINTERS 1
 #endif
 
@@ -343,7 +343,7 @@ value ocamlodbc_initDB_driver_c(value v_connect_string, value v_prompt)
   }
 
   /* set attribute to enable application to run as OCBC 3.0 application */
-#ifdef ODBC2
+#ifdef ODBC3
   cliRC = SQLSetEnvAttr(henv,
                         SQL_ATTR_ODBC_VERSION,
                         (void *)SQL_OV_ODBC2,
@@ -613,7 +613,7 @@ value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
   /*
   ** get statement handle
   */
-#ifdef ODBC2
+#ifdef ODBC3
 #ifdef DEBUG3
   int x = (int)(*(q_env->phDbc));
   printf("<2.5,%0x>", x); fflush(stdout);
@@ -628,7 +628,12 @@ value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
 #endif
   if( SQL_SUCCESS != result ) {
 #ifdef DEBUG2
-    printf("  Erreur SQLAllocStmt\n");
+#ifdef ODBC3
+    printf("  Erreur SQLAllocHandle (ODBC 3): are you sure ODBC 3 is"
+           " supported by your platform?\n");
+#else
+    printf("  Erreur SQLAllocStmt (ODBC 2)\n");
+#endif
     fflush(stdout);
     displayError( *(q_env->phEnv),
                   *(q_env->phDbc),
