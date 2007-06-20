@@ -22,13 +22,13 @@
 (*  Contact: Maxence.Guesdon@inria.fr                                        *)
 (*****************************************************************************)
 
-(* $Id: ocamlodbc.ml,v 1.17 2007-06-18 14:04:51 chris Exp $ *)
+(* $Id: ocamlodbc.ml,v 1.18 2007-06-20 18:28:35 chris Exp $ *)
 
 (** The software name *)
 let logiciel = "OCamlODBC"
 
 (** The software version *)
-let version = "2.14"
+let version = "2.15"
 
 exception SQL_Error of string
 
