@@ -23,7 +23,7 @@
 /*****************************************************************************/
 
 #ifndef lint
-static char vcid[]="$Id: ocaml_odbc_c.c,v 1.16 2007-06-18 14:04:51 chris Exp $";
+static char vcid[]="$Id: ocaml_odbc_c.c,v 1.17 2008-03-28 03:11:47 chris Exp $";
 #endif /* lint */
 
 //#define DEBUG_LIGHT 1
@@ -537,12 +537,12 @@ value ocamlodbc_exitDB_c(value v_phEnv, value v_phDbc)
 
 typedef struct {
   HSTMT      exec_hstmt;                    /* handle for statement    */
-  SWORD      exec_iResColumns;              /* number of result cols   */
-  int        exec_iRowCount;                /* number of rows affected */
+  SQLSMALLINT exec_iResColumns;              /* number of result cols   */
+  SQLLEN     exec_iRowCount;                /* number of rows affected */
   SQLPOINTER exec_pData[MAX_COLUMNS+1];
   /* pointer to results exec_pData[1..exec_iResColumns]
      (column 0 is not used) */
-  SQLINTEGER exec_indicator[MAX_COLUMNS+1]; /* [1..exec_iResColumns] */
+  SQLLEN exec_indicator[MAX_COLUMNS+1]; /* [1..exec_iResColumns] */
   HENV *phEnv;
   HDBC *phDbc;
 } env ;
@@ -567,10 +567,10 @@ value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
   SQLCHAR     exec_szColName[COLUMN_SIZE];   /* name of column          */
   SQLSMALLINT exec_cbColName;                /* length of column name   */
   SQLSMALLINT exec_fColType;                 /* type of column          */
-  SQLUINTEGER exec_uiColPrecision;           /* precision of column     */
+  SQLULEN     exec_uiColPrecision;           /* precision of column     */
   SQLSMALLINT exec_iColScaling;              /* scaling of column       */
   SQLSMALLINT exec_fColNullable;             /* is column nullable?     */
-  SQLINTEGER  collen;
+  SQLLEN collen;
   RETCODE result = 0;
   env* q_env = (env*) malloc(sizeof(env));
   caml_q_env = (value) q_env;
@@ -681,15 +681,13 @@ value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
   ** get number of rows affected / columns returned
   */
   q_env->exec_iRowCount = 0;
-  result = SQLRowCount(q_env->exec_hstmt,
-                       (SQLINTEGER FAR *) &(q_env->exec_iRowCount) );
+  result = SQLRowCount(q_env->exec_hstmt, &(q_env->exec_iRowCount));
 #ifdef DEBUG_LIGHT
   printf("  number of rows affected    : %d\n",
          (SQL_SUCCESS == result) ? q_env->exec_iRowCount : -1);
 #endif
   q_env->exec_iResColumns = 0;
-  result = SQLNumResultCols(q_env->exec_hstmt,
-                            (SWORD FAR *) &(q_env->exec_iResColumns) );
+  result = SQLNumResultCols(q_env->exec_hstmt, &(q_env->exec_iResColumns) );
 #ifdef DEBUG_LIGHT
   printf("  number of columns returned : %d\n",
          (SQL_SUCCESS == result) ? q_env->exec_iResColumns : -1);
@@ -714,7 +712,7 @@ value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
               sizeof(exec_szColName) - 1, /* BufferLength */
               &(exec_cbColName), /* NameLengthPtr */
               &(exec_fColType), /* DataTypePtr */
-              (SQLUINTEGER*) &exec_uiColPrecision, /* ColumnSizePtr (length) */
+              (SQLULEN*) &exec_uiColPrecision, /* ColumnSizePtr (length) */
               &(exec_iColScaling), /* DecimalDigitsPtr (scale) */
               &(exec_fColNullable) /* NullablePtr */
               ))
@@ -751,7 +749,7 @@ value ocamlodbc_execDB_c(value v_phEnv, value v_phDbc, value v_cmd)
           SQL_C_CHAR, /* TargetType */
           (q_env->exec_pData)[exec_ci], /* TargetValuePtr */
           collen, /* BufferLength */
-          &(q_env->exec_indicator[exec_ci]) /* StrLen_or_IndPtr */
+          &(q_env->exec_indicator[exec_ci]) /* SQLLEN *StrLen_or_Ind */
           );
 #ifdef DEBUG2
         printf("  q_env->exec_pData[%i] = %p\t(collen=%i, result=%i)\n",
@@ -880,7 +878,7 @@ value ocamlodbc_get_infoDB_c(value caml_q_env)
   SQLCHAR     exec_szColName[COLUMN_SIZE];    /* name of column          */
   SQLSMALLINT exec_cbColName;                 /* length of column name   */
   SQLSMALLINT exec_fColType;                  /* type of column          */
-  SQLUINTEGER exec_uiColPrecision;            /* precision of column     */
+  SQLULEN     exec_uiColPrecision;            /* precision of column     */
   SQLSMALLINT exec_iColScaling;               /* scaling of column       */
   SQLSMALLINT exec_fColNullable;              /* is column nullable?     */
   RETCODE result = 0;
@@ -933,7 +931,7 @@ value ocamlodbc_get_infoDB_c(value caml_q_env)
                                sizeof(exec_szColName) - 1,
                                &(exec_cbColName),
                                &(exec_fColType),
-                               (UDWORD FAR *) &(exec_uiColPrecision),
+                               &(exec_uiColPrecision),
                                &(exec_iColScaling),
                                &(exec_fColNullable)     )
           )) {
