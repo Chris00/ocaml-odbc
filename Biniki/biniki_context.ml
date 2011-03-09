@@ -1,7 +1,7 @@
 (************************************************************************************)
 (*                OCamlODBC                                                         *)
 (*                                                                                  *)
-(*    Copyright (C) 200-2011 Institut National de Recherche en Informatique         *)
+(*    Copyright (C) 2004-2011 Institut National de Recherche en Informatique        *)
 (*    et en Automatique. All rights reserved.                                       *)
 (*                                                                                  *)
 (*    This program is free software; you can redistribute it and/or modify          *)
