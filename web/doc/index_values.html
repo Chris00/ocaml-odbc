@@ -1,0 +1,70 @@
+<html>
+<head>
+<link rel="stylesheet" href="../style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Ocamlodbc" rel="Chapter" href="Ocamlodbc.html"><title>Index of values</title>
+</head>
+<body>
+<center><h1>Index of values</h1></center>
+<table>
+<tr><td align="left"><br>C</td></tr>
+<tr><td><a href="Ocamlodbc.html#VALconnect">connect</a> [<a href="Ocamlodbc.html">Ocamlodbc</a>]</td>
+<td><div class="info">
+<code class="code">connect base user passwd</code> creates a connection to data source
+      <code class="code">base</code>, as user <code class="code">user</code>, with password <code class="code">passwd</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ocamlodbc.html#VALconnect_driver">connect_driver</a> [<a href="Ocamlodbc.html">Ocamlodbc</a>]</td>
+<td><div class="info">
+<code class="code">connect_driver conn_string</code> exposes the SQLDriverConnect
+      function to OCaml (for ODBC v2 or greater under MinGW).
+</div>
+</td></tr>
+<tr><td align="left"><br>D</td></tr>
+<tr><td><a href="Ocamlodbc.html#VALdisconnect">disconnect</a> [<a href="Ocamlodbc.html">Ocamlodbc</a>]</td>
+<td><div class="info">
+Disconnect from a database.
+</div>
+</td></tr>
+<tr><td align="left"><br>E</td></tr>
+<tr><td><a href="Ocamlodbc.html#VALexecute">execute</a> [<a href="Ocamlodbc.html">Ocamlodbc</a>]</td>
+<td><div class="info">
+<code class="code">execute c q</code> executes query <code class="code">q</code> through connection <code class="code">c</code> and
+      returns the result as a pair <code class="code">(error_code, recordlist)</code>, where a
+      record is a <code class="code">string option list</code>.
+</div>
+</td></tr>
+<tr><td><a href="Ocamlodbc.html#VALexecute_gen">execute_gen</a> [<a href="Ocamlodbc.html">Ocamlodbc</a>]</td>
+<td><div class="info">
+<code class="code">execute_gen c get_info n_rec q callback</code> executes query <code class="code">q</code> over
+      the connection <code class="code">c</code>, and invokes <code class="code">callback</code> on successful blocks of
+      the results (of <code class="code">n_rec</code> records each).
+</div>
+</td></tr>
+<tr><td><a href="Ocamlodbc.html#VALexecute_with_info">execute_with_info</a> [<a href="Ocamlodbc.html">Ocamlodbc</a>]</td>
+<td><div class="info">
+<code class="code">execute_with_info c q</code> executes query <code class="code">q</code> through connection <code class="code">c</code> and
+      returns the result as a tuple <code class="code">(error_code, type_list, record list)</code>,
+      where <code class="code">type_list</code> indicates the SQL types of the returned columns,
+      and a record is a <code class="code">string list</code>.
+</div>
+</td></tr>
+<tr><td align="left"><br>S</td></tr>
+<tr><td><a href="Ocamlodbc.SQL_column.html#VALstring">string</a> [<a href="Ocamlodbc.SQL_column.html">Ocamlodbc.SQL_column</a>]</td>
+<td></td></tr>
+<tr><td align="left"><br>V</td></tr>
+<tr><td><a href="Ocamlodbc.html#VALversion">version</a> [<a href="Ocamlodbc.html">Ocamlodbc</a>]</td>
+<td><div class="info">
+Version of the library.
+</div>
+</td></tr>
+</table><br>
+</body>
+</html>

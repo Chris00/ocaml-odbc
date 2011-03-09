@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="Up" href="Ocamlodbc.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Ocamlodbc" rel="Chapter" href="Ocamlodbc.html"><title>Ocamlodbc.data_base</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a href="Ocamlodbc.html">Up</a>
+&nbsp;</div>
+<center><h1>Class <a href="type_Ocamlodbc.data_base.html">Ocamlodbc.data_base</a></h1></center>
+<br>
+<pre><span class="keyword">class</span> <a name="TYPEdata_base"></a>data_base : <code class="type">string -> string -> string -> </code><code class="code">object</code> <a href="Ocamlodbc.data_base.html">..</a> <code class="code">end</code></pre>The class which represents a connection to a database.  The
+    connection occurs when the object is created.<br>
+<b>Raises</b> <code>SQL_Error</code> if an error occured during the connection to the
+    database.<br>
+<div class="param_info"><code class="code">base</code> : the database to connect to</div>
+<div class="param_info"><code class="code">user</code> : the user to use when connecting</div>
+<div class="param_info"><code class="code">passwd</code> : the password to use when connecting, can be <code class="code">""</code></div>
+<hr width="100%">
+<pre><span class="keyword">method</span> <a name="METHODconnect"></a>connect : <code class="type">unit -> unit</code></pre><div class="info">
+<span class="warning">Deprecated.</span>The connection to the database oocurs when the
+      object is created.<br>
+</div>
+<pre><span class="keyword">method</span> <a name="METHODdisconnect"></a>disconnect : <code class="type">unit -> unit</code></pre><div class="info">
+Disconnect from the database. The objet should not be used
+      after calling this method.<br>
+<b>Raises</b> <code>SQL_Error</code> if an error occurs while disconnecting.<br>
+</div>
+<pre><span class="keyword">method</span> <a name="METHODexecute"></a>execute : <code class="type">string -> int * string option list list</code></pre><div class="info">
+<code class="code">#execute q</code> executes query <code class="code">q</code> and returns the result as a pair
+      <code class="code">(error_code, recordlist)</code>, where a record is a <code class="code">string
+      list</code>. The <code class="code">error_code</code> is 0 if no error occured.<br>
+</div>
+<pre><span class="keyword">method</span> <a name="METHODexecute_with_info"></a>execute_with_info : <code class="type">string -><br>       int * (string * <a href="Ocamlodbc.html#TYPEsql_column_type">sql_column_type</a>) list * string option list list</code></pre><div class="info">
+<code class="code">#execute_with_info q</code> executes query <code class="code">q</code> and returns the result
+      as a tuple <code class="code">(error_code, type_list, record list)</code>, where
+      <code class="code">type_list</code> indicates the SQL types of the returned columns, and
+      a record is a <code class="code">string list</code>.
+<p>
+
+      The <code class="code">error_code</code> is 0 if no error occured.<br>
+</div>
+<pre><span class="keyword">method</span> <a name="METHODexecute_gen"></a>execute_gen : <code class="type">?get_info:bool -><br>       ?n_rec:int -><br>       string -><br>       (string option list list -> unit) -><br>       int * (string * <a href="Ocamlodbc.html#TYPEsql_column_type">sql_column_type</a>) list</code></pre><div class="info">
+<code class="code">#execute_gen get_info n_rec q callback</code> executes query <code class="code">q</code> and
+      invokes <code class="code">callback</code> on successful blocks of the results (of
+      <code class="code">n_rec</code> records each). Each record is a <code class="code">string list</code> of fields.
+      The result is a tuple <code class="code">(error_code, type_list)</code>. The
+      <code class="code">error_code</code> is 0 if no error occurred, <code class="code">type_list</code> is empty if
+      <code class="code">get_info</code> is <code class="code">false</code>.<br>
+</div>
+</body></html>

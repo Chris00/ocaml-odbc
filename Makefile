@@ -186,4 +186,10 @@ ocaml_odbc_c.o :ocaml_odbc_c.c
 
 dummy:
 
+# web site :
+############
+WEBDEST=forge.ocamlcore.org:/home/groups/ocamlodbc/htdocs/
+installweb:
+	scp -r web/* $(LOGIN)@$(WEBDEST)
+
 include .depend

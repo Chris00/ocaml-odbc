@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC
+  "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
+<meta http-equiv="Content-Language" content="fr"/>
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<title>Configuring OCamlODBC</title>
+</head>
+
+<body>
+<table id="page">
+<tr><td>
+<a href="index.html">OCamlODBC home page</a>
+<h1>Configuring OCamlODBC</h1>
+<p>
+Here are some information about using OCamlODBC with some
+supported DBMS.
+</p>
+<p>
+<a href="#mysql">MySQL</a><br/>
+<a href="#postgresql">PostgreSQL</a><br/>
+<a href="#unixodbc">UnixODBC</a><br/>
+<a href="#msaccess">MS-Access</a><br/>
+</p>
+<hr width="100%"/>
+
+<a name="mysql"></a>
+<h2>MySQL</h2>
+<p>
+What you need :
+<ul>
+<li>iODBC library, a standard ODBC library.</li>
+<li>MyODBC, ODBC library for MySQL.</li>
+</ul>
+</p>
+<p>
+Check <a href="http://www.mysql.com">http://www.mysql.com</a> for downloads.
+<br>The MyODBC rpm available on this site is not enough, since it doesn't
+contains the needed headers (.h) files : <tt>iodbc.h</tt>,
+<tt>isql.h</tt> and <tt>isqlext.h</tt>.
+</p>
+
+<p>
+The easiest way is to get the iODBC library, compile it, install it.
+Then get the MyODBC library, compile it using the iODBC library, install
+it. Then adapt the <tt>MYSQL_</tt> variables in the
+<tt>master.Makefile</tt> of OCamlODBC to your intallation paths and compile.
+</p>
+
+<p>
+Before executing a program accessing your favorite MySQL database through
+the iODBC library, you must have a <tt>~/.odbc.ini</tt> file.
+Here is an example of this file (another example is included in the
+iODBC library) :
+<pre>
+[mydatabase]
+Trace     = Off
+TraceFile = stderr
+Driver    = /usr/local/lib/libmyodbc.so
+DSN       = mydatabase
+SERVER    = localhost
+USER      = guesdon
+PASSWORD  =
+PORT      = 3306
+#SOCKET   = /tmp/mysql.sock
+</pre>
+The difference between the <tt>mydatabase</tt> enclosed in <tt>[]</tt> and
+<tt>DSN = mydatabase</tt> is that when you connect through iODBC you'll
+refer to the name enclosed in <tt>[]</tt>, and the <tt>DSN = mydatabase</tt>
+indicates to the iODBC driver that the corresponding database is <tt>mydatabase</tt>.
+The two names are usually the same, and you will have one section per database.
+</p>
+
+<a name="postgresql"></a>
+<h2>PostgreSQL</h2>
+<p>
+What you need :
+<ul>
+<li>Postgresql development libraries,</li>
+<li>Postgresql ODBC driver.</li>
+</ul>
+</p>
+
+<p>
+Check <a href="http://www.postgresql.org">http://www.postgresql.org</a>
+for downloads. The Postgresql ODBC driver is based on the iODBC library.
+</p>
+
+<p>The postgresql-devel-... and postresql-odbc-... rpms are enough, since
+postgresql-devel-... comes with the header (.h) files <tt>iodbc.h</tt>,
+i<tt>sql.h</tt> and <tt>isqlext.h</tt>,
+and opstgresql-odbc-... includes the needed libraries.
+</p>
+
+<p>
+Before compiling OCamlODBC, edit the file <tt>master.Makefile</tt>
+to set <tt>POSTGRES_</tt> variables according to your installation.
+</p>
+
+<p>
+Before executing a program accessing your favorite Postgresql database
+through the Postgresql driver, you must have a <tt>~/.odbc.ini</tt>
+file. Here is an example of this file :
+<pre>
+[ODBC Data Sources]
+mydatabase = Read/Write Database
+
+[mydatabase]
+Driver = /usr/lib/libpsqlodbc.so
+ReadOnly = 0
+Database = mydatabase
+Servername = localhost
+UserName = guesdon
+Password=
+Port = 5432
+
+[ODBC]
+InstallDir = /usr/lib/pgsql
+</pre>
+
+The difference between the <tt>mydatabase</tt> enclosed in <tt>[]</tt> and
+<tt>DSN = mydatabase</tt> is that when you connect through iODBC you'll
+refer to the name enclosed in <tt>[]</tt>, and the <tt>DSN = mydatabase</tt>
+indicates to the iODBC driver that the corresponding database is <tt>mydatabase</tt>.
+The two names are usually the same, and you will have one section per database.
+</p>
+
+<p>
+The documentation of Posgresql about this file is very complete.
+</p>
+
+<p>At last, in order to be able to connect to the <tt>postmaster</tt>
+server, this one must be launched with <tt>-i</tt> option.
+</p>
+
+<a name="unixodbc"></a>
+<h2>unixODBC</h2>
+<p>
+What you need :
+<ul>
+<li>unixODBC driver,</li>
+<li>the ODBC driver for your DBMS.</li>
+</ul>
+</p>
+
+<p>
+Check <a href="http://www.unixODBC.com">http://www.unixODBC.com</a> for
+downloads and compilation and installation instructions. There are good
+tutorials and explanations on this site.
+</p>
+
+<p>
+unixODBC is a kind of common interface for other ODBC drivers. It comes
+with graphical configuration tools which will create the correct <tt>~/.odbc.ini</tt>
+file. The advantage is that you don't have to compile your application
+for each DBMS you want to access to, since the unixODBC driver will use
+the correct ODBC driver for the DBMS you want to connect to.
+</p>
+
+<p>
+Compile and install the unixODBC according to the given instructions.
+Then edit the file <tt>master.Makefile</tt> of OCamlODBC
+to set <tt>unixODBC_</tt> variables according to your installation.
+</p>
+
+<a name="msaccess"></a>
+<h2>Access</h2>
+<p>
+A script <tt><a href="https://forge.ocamlcore.org/plugins/scmgit/cgi-bin/gitweb.cgi?p=ocamlodbc/ocamlodbc.git;a=blob_plain;f=INSTALL_WIN32.bat;hb=HEAD">INSTALL_WIN32</a></tt> and a
+<tt><a href="https://forge.ocamlcore.org/plugins/scmgit/cgi-bin/gitweb.cgi?p=ocamlodbc/ocamlodbc.git;a=blob_plain;f=ocamlodbc.DEF;hb=HEAD">ocamlodbc.DEF</a></tt> file area available
+to use OCamlODBC with Access, thanks to <a href="mailo:jsmall@laser.net">John Small</a>
+and <a href="mailto:Clement.Capel@pps.jussieu.fr">Clément Capel</a>.
+Need some proof ? See the <a href="msaccess.jpg">screenshot</a> (Thanks to Clément Capel).
+<p>
+
+<a name="db2"></a>
+<h2>DB2</h2>
+<p>
+Yet to come...
+</p>
+
+</td>
+</tr>
+</table> <!-- page -->
+</body>
+</html>

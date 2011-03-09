@@ -1,0 +1,23 @@
+Some information about MinGW and SQLServer support.
+Thanks to Jeff Henrikson
+
+SQLDriverConnect is exposed to Caml as
+
+# connect_driver;;
+- : ?prompt:bool -> string -> Ocamlodbc.connection = <fun>
+
+This allows SQLServer "trusted authentication" mode based on NT domain
+identities.  An example connection string is:
+
+let db = connect_driver "Driver={SQL
+Server};SERVER=FOOSERVER;Trusted_Connection=yes;Database=MYDB";;
+
+The SQLDriverConnect is only supported with runtime ODBC v2 or greater.
+Accordingly, a #define symbol ODBC2 activates odbc2.  Note that pointer
+conventions are different in ODBC2, so there is another #define
+OLD_POINTERS, which is default on unless ODBC2 is on.  There are also
+some debugging printfs which you may delete, clearly marked by DEBUG3.
+
+A build shell script for the mingw toolchain is called INSTALL_mingw.sh,
+by analogy with INSTALL_win32.bat.  Note the command line option
+-DODBC2.  autoconf integration is not attempted at this time.

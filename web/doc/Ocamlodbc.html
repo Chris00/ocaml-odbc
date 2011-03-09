@@ -1,0 +1,245 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<link rel="stylesheet" href="../style.css" type="text/css">
+<meta content="text/html; charset=iso-8859-1" http-equiv="Content-Type">
+<link rel="Start" href="index.html">
+<link rel="Up" href="index.html">
+<link title="Index of types" rel=Appendix href="index_types.html">
+<link title="Index of exceptions" rel=Appendix href="index_exceptions.html">
+<link title="Index of values" rel=Appendix href="index_values.html">
+<link title="Index of class methods" rel=Appendix href="index_methods.html">
+<link title="Index of classes" rel=Appendix href="index_classes.html">
+<link title="Index of modules" rel=Appendix href="index_modules.html">
+<link title="Ocamlodbc" rel="Chapter" href="Ocamlodbc.html"><link title="Classic interface" rel="Section" href="#2_Classicinterface">
+<link title="Object-oriented interface" rel="Section" href="#2_Objectorientedinterface">
+<title>Ocamlodbc</title>
+</head>
+<body>
+<div class="navbar">&nbsp;<a href="index.html">Up</a>
+&nbsp;</div>
+<center><h1>Module <a href="type_Ocamlodbc.html">Ocamlodbc</a></h1></center>
+<br>
+<pre><span class="keyword">module</span> Ocamlodbc: <code class="code">sig</code> <a href="Ocamlodbc.html">..</a> <code class="code">end</code></pre>Interface to ODBC databases.
+<p>
+
+    See http://home.gna.org/ocamlodbc/configuring.html for
+    configutation information.<br>
+<hr width="100%">
+<pre><span class="keyword">val</span> <a name="VALversion"></a>version : <code class="type">string</code></pre><div class="info">
+Version of the library.<br>
+</div>
+<pre><span class="keyword">exception</span> <a name="EXCEPTIONSQL_Error"></a>SQL_Error <span class="keyword">of</span> <code class="type">string</code></pre>
+<div class="info">
+To report errors.<br>
+</div>
+<br><code><span class="keyword">type</span> <a name="TYPEsql_column_type"></a><code class="type"></code>sql_column_type = </code><table class="typetable">
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_unknown</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_char</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_numeric</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_decimal</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_integer</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_smallint</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_float</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_real</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_double</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_varchar</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_date</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_time</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_timestamp</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_longvarchar</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_binary</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_varbinary</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_longvarbinary</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_bigint</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_tinyint</span></code></td>
+
+</tr>
+<tr>
+<td align="left" valign="top" >
+<code><span class="keyword">|</span></code></td>
+<td align="left" valign="top" >
+<code><span class="constructor">SQL_bit</span></code></td>
+
+</tr></table>
+
+<div class="info">
+The various SQL types for columns.<br>
+</div>
+
+<pre><span class="keyword">module</span> <a href="Ocamlodbc.SQL_column.html">SQL_column</a>: <code class="code">sig</code> <a href="Ocamlodbc.SQL_column.html">..</a> <code class="code">end</code></pre><div class="info">
+The module for the column type and its conversion into a string.
+</div>
+<br>
+<a name="2_Classicinterface"></a>
+<h2>Classic interface</h2><br>
+<pre><span class="keyword">type</span> <a name="TYPEconnection"></a><code class="type"></code>connection </pre>
+<div class="info">
+The type of connections to databases.<br>
+</div>
+
+<pre><span class="keyword">val</span> <a name="VALconnect"></a>connect : <code class="type">string -> string -> string -> <a href="Ocamlodbc.html#TYPEconnection">connection</a></code></pre><div class="info">
+<code class="code">connect base user passwd</code> creates a connection to data source
+      <code class="code">base</code>, as user <code class="code">user</code>, with password <code class="code">passwd</code>.<br>
+<b>Raises</b> <code>SQL_Error</code> if the connection to the database failed.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALconnect_driver"></a>connect_driver : <code class="type">?prompt:bool -> string -> <a href="Ocamlodbc.html#TYPEconnection">connection</a></code></pre><div class="info">
+<code class="code">connect_driver conn_string</code> exposes the SQLDriverConnect
+      function to OCaml (for ODBC v2 or greater under MinGW).  This
+      allows SQLServer "trusted authentication" mode based on NT
+      domain identities.  An example of <code class="code">conn_string</code> is <code class="code">"Driver={SQL
+      Server};SERVER=FOOSERVER;Trusted_Connection=yes;Database=MYDB"</code>.<br>
+<b>Raises</b> <code>SQL_Error</code> if the connection to the database failed.<br>
+</div>
+<div class="param_info"><code class="code">prompt</code> : tells whether the if the driver should raise a
+      dialog box to request username and password.  Default: <code class="code">false</code>.</div>
+<pre><span class="keyword">val</span> <a name="VALdisconnect"></a>disconnect : <code class="type"><a href="Ocamlodbc.html#TYPEconnection">connection</a> -> unit</code></pre><div class="info">
+Disconnect from a database. The given connection should not be
+      used after this function was called.<br>
+<b>Raises</b> <code>SQL_Error</code> if an error occured while disconnecting.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALexecute"></a>execute : <code class="type"><a href="Ocamlodbc.html#TYPEconnection">connection</a> -> string -> int * string option list list</code></pre><div class="info">
+<code class="code">execute c q</code> executes query <code class="code">q</code> through connection <code class="code">c</code> and
+      returns the result as a pair <code class="code">(error_code, recordlist)</code>, where a
+      record is a <code class="code">string option list</code>.  The <code class="code">error_code</code> is 0 if no
+      error occured.  Each field of a record can be <code class="code">None</code>, which
+      represents the SQL NULL, or <code class="code">Some v</code> where <code class="code">v</code> is a string holding
+      the field value.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALexecute_with_info"></a>execute_with_info : <code class="type"><a href="Ocamlodbc.html#TYPEconnection">connection</a> -><br>       string -><br>       int * (string * <a href="Ocamlodbc.html#TYPEsql_column_type">sql_column_type</a>) list * string option list list</code></pre><div class="info">
+<code class="code">execute_with_info c q</code> executes query <code class="code">q</code> through connection <code class="code">c</code> and
+      returns the result as a tuple <code class="code">(error_code, type_list, record list)</code>,
+      where <code class="code">type_list</code> indicates the SQL types of the returned columns,
+      and a record is a <code class="code">string list</code>.
+      The <code class="code">error_code</code> is <code class="code">&gt;= 0</code> if no error occured.<br>
+</div>
+<pre><span class="keyword">val</span> <a name="VALexecute_gen"></a>execute_gen : <code class="type"><a href="Ocamlodbc.html#TYPEconnection">connection</a> -><br>       ?get_info:bool -><br>       ?n_rec:int -><br>       string -><br>       (string option list list -> unit) -><br>       int * (string * <a href="Ocamlodbc.html#TYPEsql_column_type">sql_column_type</a>) list</code></pre><div class="info">
+<code class="code">execute_gen c get_info n_rec q callback</code> executes query <code class="code">q</code> over
+      the connection <code class="code">c</code>, and invokes <code class="code">callback</code> on successful blocks of
+      the results (of <code class="code">n_rec</code> records each). Each record is a <code class="code">string
+      list</code> of fields.
+<p>
+
+      The result is a tuple <code class="code">(error_code, type_list)</code>.  The
+      <code class="code">error_code</code> is <code class="code">&gt;= 0</code> if no error occurred, <code class="code">type_list</code> is
+      empty if <code class="code">get_info</code> is <code class="code">false</code>.<br>
+</div>
+<br>
+<a name="2_Objectorientedinterface"></a>
+<h2>Object-oriented interface</h2><br>
+<pre><span class="keyword">class</span> <a name="TYPEdata_base"></a><a href="Ocamlodbc.data_base.html">data_base</a> : <code class="type">string -> string -> string -> </code><code class="code">object</code> <a href="Ocamlodbc.data_base.html">..</a> <code class="code">end</code></pre><div class="info">
+The class which represents a connection to a database.
+</div>
+</body></html>
