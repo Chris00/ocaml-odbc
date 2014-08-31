@@ -1,27 +1,27 @@
-(************************************************************************************)
-(*                OCamlODBC                                                         *)
-(*                                                                                  *)
-(*    Copyright (C) 2004-2011 Institut National de Recherche en Informatique        *)
-(*    et en Automatique. All rights reserved.                                       *)
-(*                                                                                  *)
-(*    This program is free software; you can redistribute it and/or modify          *)
-(*    it under the terms of the GNU General Public License as published             *)
-(*    by the Free Software Foundation; either version 2.1 of the License, or        *)
-(*    any later version.                                                            *)
-(*                                                                                  *)
-(*    This program is distributed in the hope that it will be useful,               *)
-(*    but WITHOUT ANY WARRANTY; without even the implied warranty of                *)
-(*    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 *)
-(*    GNU Lesser General Public License for more details.                           *)
-(*                                                                                  *)
-(*    You should have received a copy of the GNU General Public License             *)
-(*    along with this program; if not, write to the Free Software                   *)
-(*    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                      *)
-(*    02111-1307  USA                                                               *)
-(*                                                                                  *)
-(*    Contact: Maxence.Guesdon@inria.fr                                             *)
-(*                                                                                  *)
-(************************************************************************************)
+(****************************************************************************)
+(*             OCamlODBC                                                    *)
+(*                                                                          *)
+(* Copyright (C) 2004-2011 Institut National de Recherche en Informatique   *)
+(* et en Automatique. All rights reserved.                                  *)
+(*                                                                          *)
+(* This program is free software; you can redistribute it and/or modify     *)
+(* it under the terms of the GNU General Public License as published        *)
+(* by the Free Software Foundation; either version 2.1 of the License, or   *)
+(* any later version.                                                       *)
+(*                                                                          *)
+(* This program is distributed in the hope that it will be useful,          *)
+(* but WITHOUT ANY WARRANTY; without even the implied warranty of           *)
+(* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the            *)
+(* GNU Lesser General Public License for more details.                      *)
+(*                                                                          *)
+(* You should have received a copy of the GNU General Public License        *)
+(* along with this program; if not, write to the Free Software              *)
+(* Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                 *)
+(* 02111-1307  USA                                                          *)
+(*                                                                          *)
+(* Contact: Maxence.Guesdon@inria.fr                                        *)
+(*                                                                          *)
+(****************************************************************************)
 
 (*[Mo] This module contains misc functions used in biniki.[Mo]*)
 
@@ -104,7 +104,8 @@ let question_box title message button_list =
   !button_nb
 ;;
 
-(*[Fonc]This function is used to display a message in a dialog box with just an Ok button.
+(*[Fonc]This function is used to display a message in a dialog box with
+  just an Ok button.
    We use the question box with just an ok button. [Fonc]*)
 let message_box title message =
   let _ = question_box title message [Biniki_messages.mOk] in
@@ -112,7 +113,8 @@ let message_box title message =
 ;;
 
 (*[Fonc]This function takes a clist widget and set the width of each column
-   to be large enough for the largest string in the column and its title.[Fonc]*)
+   to be large enough for the largest string in the column and its
+   title.[Fonc] *)
 let autosize_clist wlist =
   (* get the number of columns *)
   let nb_columns = wlist#columns in

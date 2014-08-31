@@ -1,26 +1,26 @@
-####################################################################################
-#                OCamlODBC                                                         #
-#                                                                                  #
-#    Copyright (C) 2004-2011 Institut National de Recherche en Informatique        #
-#    et en Automatique. All rights reserved.                                       #
-#                                                                                  #
-#    This program is free software; you can redistribute it and/or modify          #
-#    it under the terms of the GNU Lesser General Public License as published      #
-#    by the Free Software Foundation; either version 2.1 of the License, or        #
-#    any later version.                                                            #
-#                                                                                  #
-#    This program is distributed in the hope that it will be useful,               #
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of                #
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the                 #
-#    GNU Lesser General Public License for more details.                           #
-#                                                                                  #
-#    You should have received a copy of the GNU Lesser General Public License      #
-#    along with this program; if not, write to the Free Software                   #
-#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                      #
-#    02111-1307  USA                                                               #
-#                                                                                  #
-#    Contact: Maxence.Guesdon@inria.fr                                             #
-####################################################################################
+###############################################################################
+#              OCamlODBC                                                      #
+#                                                                             #
+#  Copyright (C) 2004-2011 Institut National de Recherche en Informatique     #
+#  et en Automatique. All rights reserved.                                    #
+#                                                                             #
+#  This program is free software; you can redistribute it and/or modify       #
+#  it under the terms of the GNU Lesser General Public License as published   #
+#  by the Free Software Foundation; either version 2.1 of the License, or     #
+#  any later version.                                                         #
+#                                                                             #
+#  This program is distributed in the hope that it will be useful,            #
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of             #
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              #
+#  GNU Lesser General Public License for more details.                        #
+#                                                                             #
+#  You should have received a copy of the GNU Lesser General Public License   #
+#  along with this program; if not, write to the Free Software                #
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                   #
+#  02111-1307  USA                                                            #
+#                                                                             #
+#  Contact: Maxence.Guesdon@inria.fr                                          #
+###############################################################################
 
 include master.Makefile
 
@@ -135,21 +135,6 @@ distribdoc:
 	-css-style "../style.css" ocamlodbc.mli ocamlodbc.ml
 	@echo Distrib documentation is in $@/
 
-# headers :
-###########
-headers: dummy
-	headache -h lgpl_header -c ~/.headache_config *.ml *.mli *.c \
-	configure.in configure master.Makefile.in Makefile
-	headache -h gpl_header -c ~/.headache_config \
-	Biniki/*.ml \
-	Exemples/*.ml
-
-noheaders: dummy
-	headache -r -c ~/.headache_config *.ml *.mli \
-	configure.in configure master.Makefile.in \
-	Exemples/*.ml \
-	Biniki/*.ml
-
 
 # installation :
 ################
@@ -160,16 +145,23 @@ install:
 	@echo '  To install directly type : "make direct_install"'
 
 direct_install: dummy
-	if test -d $(INSTALL_BINDIR); then : ; else $(MKDIR) $(INSTALL_BINDIR); fi
-	if test -d $(INSTALL_LIBDIR); then : ; else $(MKDIR) $(INSTALL_LIBDIR); fi
+	if test -d $(INSTALL_BINDIR); then : ; \
+	  else $(MKDIR) $(INSTALL_BINDIR); fi
+	if test -d $(INSTALL_LIBDIR); then : ; \
+	  else $(MKDIR) $(INSTALL_LIBDIR); fi
 	for i in mysql postgres db2 unixodbc openingres oraclecfo ; \
-	do (if test -d $$i ; then ($(MKDIR) $(INSTALL_LIBDIR)/$$i ; $(CP) $$i/* $(INSTALL_LIBDIR)/$$i/) fi) ; done
+	do (if test -d $$i ; then ($(MKDIR) $(INSTALL_LIBDIR)/$$i ; \
+	  $(CP) $$i/* $(INSTALL_LIBDIR)/$$i/) fi) ; \
+	done
 
 findlib_install: META dummy
 	for i in mysql postgres db2 unixodbc openingres oraclecfo ; do \
 	  if [ -d $$i ]; then \
-	    if (ocamlfind list | grep ocamlodbc_$$i >/dev/null); then ocamlfind remove ocamlodbc_$$i; fi; \
-	    ocamlfind install ocamlodbc_$$i $$i/META `find $$i -not -name META -type f`; \
+	    if (ocamlfind list | grep ocamlodbc_$$i >/dev/null); then \
+	      ocamlfind remove ocamlodbc_$$i; \
+	    fi; \
+	    ocamlfind install ocamlodbc_$$i $$i/META \
+	      `find $$i -not -name META -type f`; \
 	  fi; \
 	done
 
