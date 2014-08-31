@@ -1,6 +1,11 @@
+*.cm[ioax]
+*.cmxa
+*.o
 .depend
 .chamo*
+configure
 config.log
 config.status
 Makefile.master
 autom4te.cache/
+Biniki/biniki_messages.ml
