@@ -22,12 +22,6 @@
 (* Contact: Maxence.Guesdon@inria.fr                                         *)
 (*****************************************************************************)
 
-(** The software name *)
-let logiciel = "OCamlODBC"
-
-(** The software version *)
-let version = "2.15"
-
 exception SQL_Error of string
 
 (* BEWARE: Keep constructor in the right order w.r.t. OCAML_SQL_*

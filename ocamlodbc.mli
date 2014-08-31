@@ -27,9 +27,6 @@
     See http://home.gna.org/ocamlodbc/configuring.html for
     configutation information. *)
 
-(** Version of the library. *)
-val version : string
-
 (** To report errors. *)
 exception SQL_Error of string
 

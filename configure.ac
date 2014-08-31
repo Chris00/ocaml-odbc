@@ -22,14 +22,13 @@
 # Contact: Maxence.Guesdon@inria.fr                                         #
 #############################################################################
 
-# autoconf input based on sample by Jean-Christophe Filli<E2>tre
+AC_INIT(odbc, 2.15, Christophe.Troestler@umons.ac.be)
 
+AC_MSG_RESULT([configuring $PACKAGE_STRING])
 
 # check for one particular file of the sources 
 define([AC_CACHE_LOAD], )dnl
 define([AC_CACHE_SAVE], )dnl
-
-AC_INIT(ocaml_odbc.ml)
 
 # Check for Ocaml compilers
 

@@ -22,6 +22,9 @@
 #  Contact: Maxence.Guesdon@inria.fr                                          #
 ###############################################################################
 
+PACKAGE_NAME=@PACKAGE_NAME@
+PACKAGE_VERSION=@PACKAGE_VERSION@
+
 # OCAML compilation tools
 OCAMLBIN= @OCAMLBIN@
 OCAMLC   = @OCAMLC@ -verbose

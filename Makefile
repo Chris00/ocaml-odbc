@@ -98,7 +98,7 @@ $(LIB_OPT): $(OBJOCAML_OPT) $(LIBOBJ_OPT) $(LIB_C)
 META : DESTDIR=$(shell ocamlfind printconf destdir)
 META :
 	@echo 'name="ocamlodbc_$(LIB_DIR)"' > $@
-	@echo 'version="'`grep "let version =" ocamlodbc.ml | cut -d'"' -f 2`'"' >> $@
+	@echo 'version="'$(PACKAGE_VERSION)'"' >> $@
 	@echo 'requires=""' >> $@
 #	echo 'directory="+ocamlodbc/$(LIB_DIR)"' >> $@
 	@echo 'archive(byte)="$(LIB)"' >> $@
