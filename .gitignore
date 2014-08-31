@@ -2,4 +2,5 @@
 .chamo*
 config.log
 config.status
-master.Makefile
+Makefile.master
+autom4te.cache/

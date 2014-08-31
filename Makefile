@@ -22,7 +22,7 @@
 #  Contact: Maxence.Guesdon@inria.fr                                          #
 ###############################################################################
 
-include master.Makefile
+include Makefile.master
 
 OBJOCAML  = ocaml_odbc.cmo
 OBJOCAML_OPT  = ocaml_odbc.cmx
@@ -119,7 +119,7 @@ clean:
 	$(RM) *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a *.so META
 
 distclean: clean
-	$(RM) master.Makefile config.*
+	$(RM) Makefile.master config.*
 
 # documentation :
 #################
