@@ -24,18 +24,8 @@
 
 include Makefile.master
 
-OBJOCAML  = ocaml_odbc.cmo
-OBJOCAML_OPT  = ocaml_odbc.cmx
-
-LIBOBJ    = ocamlodbc.cmo
-LIBOBJ_OPT    = ocamlodbc.cmx
-LIBOBJI   = ocamlodbc.cmi
-
-OBJFILES = ocaml_odbc_c.o
-
 all:
 	for d in $(DATABASES_INSTALLED); do \
-	  $(MAKE) clean; \
 	  $(MAKE) BASE=$$d library; \
 	done
 
@@ -47,35 +37,33 @@ library:
 	else \
 	  echo "======== Compiling '$(BASE)' ========"; \
 	fi
-	$(MAKE) BASE=$(BASE) lib opt
-	mkdir -p $(BASE)
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) $(BASE)
-	@echo Libs are in $@/
+	$(MAKE) BASE=$(BASE) ocamlmklib
 
-opt: lib_opt
 
-lib: $(LIB_CMI) $(LIB)
-lib_opt: $(LIB_CMI) $(LIB_OPT)
+odbc_$(BASE)_c.c: ocaml_odbc_c.c
+	sed -e 's/ocamlodbc_/ocamlodbc_$(BASE)_/' $< > $@
 
-$(LIB_C): $(OBJFILES)
-	$(RM) $@
-	$(AR) $@ $(OBJFILES)
-	$(RANLIB) $@
+odbc_$(BASE)_c.o: odbc_$(BASE)_c.c
+	$(CC) -c $(CFLAGS) $(OPTODBC) $(ODBCINCLUDE) $<
 
-$(LIB): $(OBJOCAML) $(LIBOBJ)
-	$(OCAMLC) -a -linkall -custom -o $@ -cclib -locamlodbc \
-		$(LINKFLAGS) $(OBJOCAML) $(LIBOBJ)
-$(LIB_OPT): $(OBJOCAML_OPT) $(LIBOBJ_OPT) $(LIB_C)
-	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc \
-		$(LINKFLAGS) $(OBJOCAML_OPT) $(LIBOBJ_OPT)
+odbc_$(BASE)_lowlevel.ml: ocamlodbc_lowlevel.ml
+	sed -e 's/ocamlodbc_/ocamlodbc_$(BASE)_/' $< > $@
+odbc_$(BASE).ml: ocamlodbc.ml
+	sed -e 's/Ocamlodbc_lowlevel/Odbc_$(BASE)_lowlevel/' $< > $@
+odbc_$(BASE).mli: ocamlodbc.mli
+	$(CP) $< $@
 
+ocamlmklib: odbc_$(BASE)_c.o odbc_$(BASE)_lowlevel.ml \
+  odbc_$(BASE).mli odbc_$(BASE).ml
+	$(OCAMLMKLIB) -o odbc_$(BASE) -oc odbc_$(BASE)_stubs \
+	  $(addprefix -I, $(ODBCINCLUDE)) $(ODBCLIB) $(LIBS) $^
 
 clean:
 	$(RM) *~ #*# *-
-	$(RM) *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a *.so
+	$(RM) $(wildcard *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a *.so)
 
 distclean: clean
-	$(RM) Makefile.master config.*
+	$(RM) Makefile.master $(wildcard config.* odbc_*.ml odbc_*.mli odbc_*.c)
 
 # documentation :
 #################
@@ -128,9 +116,6 @@ findlib_install: dummy
 
 
 .SUFFIXES: .c .o
-
-ocaml_odbc_c.o :ocaml_odbc_c.c
-	$(CC) -c $(CFLAGS) $<
 
 dummy:
 

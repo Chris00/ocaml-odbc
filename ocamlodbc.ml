@@ -77,7 +77,7 @@ struct
     | SQL_bit -> "SQL_bit"
 end
 
-module SQLInterface = Ocaml_odbc.Interface(SQL_column)
+module SQLInterface = Ocamlodbc_lowlevel.Interface(SQL_column)
 
 module OCamlODBC_messages =
 struct
@@ -92,8 +92,8 @@ struct
 end
 
 type connection = {
-  phEnv : Ocaml_odbc.sQLHENV ;
-  phDbc : Ocaml_odbc.sQLHDBC ;
+  phEnv : Ocamlodbc_lowlevel.sQLHENV ;
+  phDbc : Ocamlodbc_lowlevel.sQLHDBC ;
   base : string ;
   user : string ;
   passwd : string ;

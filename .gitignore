@@ -2,7 +2,11 @@
 *.cmxa
 *.a
 *.o
+*.so
 META
+odbc_*.c
+odbc_*.ml
+odbc_*.mli
 .depend
 .chamo*
 configure

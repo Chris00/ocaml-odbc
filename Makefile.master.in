@@ -72,12 +72,14 @@ BINIKI_OPT=biniki.opt
 DATABASES_INSTALLED = @DATABASES_INSTALLED@
 
 # These variables will be set to "no" if the library is not installed
-POSTGRES_LIB = @POSTGRES_LIBS@
-MYSQL_LIB = @MYSQL_LIBS@
-UNIXODBC_LIBS = @UNIXODBC_LIBS@
-DB2_LIBS = @DB2_LIBS@
-OPENINGRES_LIBS = @OPENINGRES_LIBS@
-ORACLECFO_LIBS = @ORACLECFO_LIBS@
+postgres_LIB = @POSTGRES_LIBS@
+mysql_LIB = @MYSQL_LIBS@
+unixodbc_LIBS = @UNIXODBC_LIBS@
+db2_LIBS = @DB2_LIBS@
+openingres_LIBS = @OPENINGRES_LIBS@
+oracle_LIBS = @ORACLECFO_LIBS@
+
+LIBS=$($(BASE)_LIBS)
 
 # include options for each database
 mysql_ODBCINCLUDE=@MYSQL_INCS@
@@ -85,7 +87,7 @@ postgres_ODBCINCLUDE=@POSTGRES_INCS@
 openingres_ODBCINCLUDE=@OPENINGRES_INCS@ #/export/GNU/odbc/include
 db2_ODBCINCLUDE=@DB2_INCS@ #/usr/IBMdb2/V7.1/include
 unixodbc_ODBCINCLUDE=@UNIXODBC_INCS@ #/gnu/unixODBC/include
-oraclecfo_ODBCINCLUDE=@ORACLECFO_INCS@
+oracle_ODBCINCLUDE=@ORACLECFO_INCS@
 
 ODBCINCLUDE=$($(BASE)_ODBCINCLUDE)
 
@@ -95,7 +97,7 @@ postgres_ODBCLIB=@POSTGRES_LIBDIRS@
 openingres_ODBCLIB=@OPENINGRES_LIBDIRS@ #-L/export/GNU/odbc/lib
 db2_ODBCLIB=@DB2_LIBDIRS@ #-L/usr/IBMdb2/V7.1/lib
 unixodbc_ODBCLIB=@UNIXODBC_LIBDIRS@ #-L/gnu/unixODBC/lib
-oraclecfo_ODBCLIB=@ORACLECFO_LIBDIRS@ #-L/export/GNU/odbc/lib
+oracle_ODBCLIB=@ORACLECFO_LIBDIRS@ #-L/export/GNU/odbc/lib
 
 ODBCLIB=$($(BASE)_ODBCLIB)
 
@@ -105,23 +107,14 @@ postgres_OPTODBC= -D iODBC
 openingres_OPTODBC= -D INTERSOLV
 db2_OPTODBC= -D DB2 -D DEBUG2
 unixodbc_OPTODBC= -D unixODBC
-oraclecfo_OPTODBC= -D unixODBC
+oracle_OPTODBC= -D ORACLE
 
 OPTODBC=$($(BASE)_OPTODBC) #-D DEBUG2
-
-mysql_LINKFLAGS= -ccopt "$(ODBCLIB) $(MYSQL_LIB) -ldopt $(ODBCLIB) @MYSQL_LIBS@"
-postgres_LINKFLAGS= -ccopt "$(ODBCLIB) $(POSTGRES_LIBS) -ldopt $(ODBCLIB) @POSTGRES_LIBS@"
-openingres_LINKFLAGS= -ccopt "$(ODBCLIB) $(OPENINGRES_LIBS) -ldopt $(ODBCLIB) @OPENINGRES_LIBS@"
-db2_LINKFLAGS= -ccopt "$(ODBCLIB) $(DB2_LIBS) -ldopt $(ODBCLIB) @DB2_LIBS@"
-unixodbc_LINKFLAGS= -ccopt "$(ODBCLIB) $(UNIXODBC_LIBS) "
-oraclecfo_LINKFLAGS= -ccopt "$(ODBCLIB) $(ORACLECFO_LIBS) -ldopt $(ODBCLIB) @ORACLECFO_LIBS@"
-
-LINKFLAGS= $($(BASE)_LINKFLAGS)
 
 
 # Options for compilation and link
 CC     = @CC@
-CFLAGS = @CFLAGS@ -pthread $(OPTODBC) $(ODBCINCLUDE) -I $(OCAMLLIB)
+CFLAGS = -fPIC -pthread @CFLAGS@ $(OPTODBC) $(ODBCINCLUDE) -I $(OCAMLLIB)
 
 #MYSQL_C_LINKFLAGS= -L$(ODBCLIB) -L$(ODBCLIB)/mysql
 #POSTGRES_C_LINKFLAGS=-L$(ODBCLIB)

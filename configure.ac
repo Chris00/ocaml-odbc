@@ -330,21 +330,19 @@ AC_ARG_WITH(oraclecfo_libs, [  --with-oraclecfo-libs=DIRS (-L options to find Co
 OLD_CPPFLAGS="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $ORACLECFO_INCS $ORACLECFO_LIBDIRS"
 
-AC_CHECK_HEADERS(odbcinst.h,,[ORACLECFO=no])
-AC_CHECK_HEADERS(sql.h,,[ORACLECFO=no])
-AC_CHECK_HEADERS(sqlext.h,,[ORACLECFO=no])
-if test "ORACLECFO" = "no"; then
+AC_CHECK_HEADERS(sqlcli_.h,,[ORACLECFO=no])
+if test "$ORACLECFO" = "no"; then
   AC_MSG_RESULT(ORACLECFO headers not found)
 else
   AC_MSG_RESULT(ORACLECFO headers found)
   dnl Checking for ORACLECFO lib -lodbc
   AC_CHECK_LIB(odbc,SQLAllocEnv,ORACLECFO_LIBS=-lodbc)
 fi
-if test "ORACLECFO_LIBS" = "no"; then
+if test "$ORACLECFO_LIBS" = "no"; then
   AC_MSG_RESULT(No Oracle through DataDirect "Connect for ODBC" driver support)
 else
   AC_MSG_RESULT(Oracle through DataDirect "Connect for ODBC" driver support)
-  DATABASES_INSTALLED="$DATABASES_INSTALLED oraclecfo"
+  DATABASES_INSTALLED="$DATABASES_INSTALLED oracle"
 fi
 
 CPP_FLAGS="$OLD_CPPFLAGS"
