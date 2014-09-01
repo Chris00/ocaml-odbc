@@ -33,55 +33,29 @@ LIBOBJI   = ocamlodbc.cmi
 
 OBJFILES = ocaml_odbc_c.o
 
-####
-# For different target databases
-################################
-mysql: dummy
-	make clean
-	make BASE=MYSQL LIB_DIR=$@ all
-	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
+all:
+	for d in $(DATABASES_INSTALLED); do \
+	  $(MAKE) clean; \
+	  $(MAKE) BASE=$$d library; \
+	done
+
+# For all databases -- distinguished by $(BASE)
+###############################################
+library:
+	@if [ -z "$(BASE)" ]; then \
+	  echo "*** ERROR: The variable BASE must be set."; exit 1; \
+	else \
+	  echo "======== Compiling '$(BASE)' ========"; \
+	fi
+	$(MAKE) BASE=$(BASE) lib opt
+	mkdir -p $(BASE)
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $(BASE)
 	@echo Libs are in $@/
 
-postgres: dummy
-	make clean
-	make BASE=POSTGRES LIB_DIR=$@ all
-	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
-	@echo Libs are in $@/
-
-db2: dummy
-	make clean
-	make BASE=DB2 LIB_DIR=$@ all
-	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
-	@echo Libs are in $@/
-
-openingres: dummy
-	make clean
-	make BASE=OPENINGRES LIB_DIR=$@ all
-	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
-	@echo Libs are in $@/
-
-unixodbc: dummy
-	make clean
-	make BASE=unixODBC LIB_DIR=$@ all
-	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
-	@echo Libs are in $@/
-
-oraclecfo: dummy
-	make clean
-	make BASE=ORACLECFO LIB_DIR=$@ all
-	mkdir -p $@
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $@/
-	@echo Libs are in $@/
-
-# For all databases
-###################
-all: lib opt
 opt: lib_opt META
+
+lib: $(LIB_CMI) $(LIB)
+lib_opt: $(LIB_CMI) $(LIB_OPT)
 
 $(LIB_C): $(OBJFILES)
 	$(RM) $@
@@ -111,9 +85,6 @@ META :
 #	cp libocaml_odbc.cmx libocaml_odbc.cmx
 
 
-lib: $(LIB_CMI) $(LIB)
-lib_opt: $(LIB_CMI) $(LIB_OPT)
-
 clean:
 	$(RM) *~ #*# *-
 	$(RM) *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a *.so META
@@ -125,13 +96,13 @@ distclean: clean
 #################
 doc: dummy
 	$(MKDIR) doc
-	$(OCAMLDOC) $(OCAMLPP) $(COMPFLAGS) -d doc -html \
+	$(OCAMLDOC) $(OCAMLPP) -d doc -html \
 	-dump doc/ocamlodbc.odoc ocamlodbc.mli ocamlodbc.ml
 	@echo Documentation is in doc/index.html
 
 distribdoc:
 	$(MKDIR) $@
-	$(OCAMLDOC) $(OCAMLPP) $(COMPFLAGS) -d $@ -html \
+	$(OCAMLDOC) $(OCAMLPP) -d $@ -html \
 	-css-style "../style.css" ocamlodbc.mli ocamlodbc.ml
 	@echo Distrib documentation is in $@/
 
@@ -174,7 +145,7 @@ findlib_install: META dummy
 .SUFFIXES: .c .o
 
 ocaml_odbc_c.o :ocaml_odbc_c.c
-	$(CC) -c $(C_COMPFLAGS) $<
+	$(CC) -c $(CFLAGS) $<
 
 dummy:
 

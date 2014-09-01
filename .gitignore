@@ -1,5 +1,6 @@
 *.cm[ioax]
 *.cmxa
+*.a
 *.o
 .depend
 .chamo*

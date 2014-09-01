@@ -122,9 +122,12 @@ AC_CHECK_PROG(OCAMLDOC,ocamldoc,`which ocamldoc`,no)
 
 
 # Check for databases
+
+AC_PROG_CC()
+
 ############ POSTGRES ##################
 POSTGRES=yes
-POSTGRES_LIBS=
+POSTGRES_LIBS=no
 AC_MSG_RESULT(======== configure PostgreSQL ========)
 AC_ARG_WITH(pg_incs, [  --with-pg-incs=INCLUDES (-I options to find PostgreSQL ODBC headers)],
     if test "$withval" != "no" ; then  
@@ -155,6 +158,7 @@ if test "$POSTGRES_LIBS" = "no"; then
   AC_MSG_RESULT(No PostgreSQL ODBC support)
 else
   AC_MSG_RESULT(PostgreSQL ODBC support)
+  DATABASES_INSTALLED="$DATABASES_INSTALLED postgres"
 fi
 
 CPP_FLAGS="$OLD_CPPFLAGS"
@@ -192,6 +196,7 @@ if test "$MYSQL_LIBS" = "no"; then
   AC_MSG_RESULT(No MySQL ODBC support)
 else
   AC_MSG_RESULT(MySQL ODBC support)
+  DATABASES_INSTALLED="$DATABASES_INSTALLED mysql"
 fi
 
 CPP_FLAGS="$OLD_CPPFLAGS"
@@ -229,6 +234,7 @@ if test "$UNIXODBC_LIBS" = "no"; then
   AC_MSG_RESULT(No unixODBC support)
 else
   AC_MSG_RESULT(unixODBC support)
+  DATABASES_INSTALLED="$DATABASES_INSTALLED unixodbc"
 fi
 
 CPP_FLAGS="$OLD_CPPFLAGS"
@@ -264,6 +270,7 @@ if test "$DB2_LIBS" = "no"; then
   AC_MSG_RESULT(No DB2 support)
 else
   AC_MSG_RESULT(DB2 support)
+  DATABASES_INSTALLED="$DATABASES_INSTALLED db2"
 fi
 
 CPP_FLAGS="$OLD_CPPFLAGS"
@@ -299,6 +306,7 @@ if test "$OPENINGRES_LIBS" = "no"; then
   AC_MSG_RESULT(No OPENINGRES support)
 else
   AC_MSG_RESULT(OPENINGRES support)
+  DATABASES_INSTALLED="$DATABASES_INSTALLED openingres"
 fi
 
 CPP_FLAGS="$OLD_CPPFLAGS"
@@ -336,6 +344,7 @@ if test "ORACLECFO_LIBS" = "no"; then
   AC_MSG_RESULT(No Oracle through DataDirect "Connect for ODBC" driver support)
 else
   AC_MSG_RESULT(Oracle through DataDirect "Connect for ODBC" driver support)
+  DATABASES_INSTALLED="$DATABASES_INSTALLED oraclecfo"
 fi
 
 CPP_FLAGS="$OLD_CPPFLAGS"
@@ -343,6 +352,8 @@ CPP_FLAGS="$OLD_CPPFLAGS"
 
 
 # substitutions to perform
+AC_SUBST(PACKAGE_NAME)
+AC_SUBST(PACKAGE_VERSION)
 AC_SUBST(OCAMLC)
 AC_SUBST(OCAMLOPT)
 AC_SUBST(OCAMLDEP)
@@ -353,6 +364,9 @@ AC_SUBST(OCAMLVERSION)
 AC_SUBST(OCAMLLIB)
 AC_SUBST(OCAMLDOC)
 AC_SUBST(OCAMLBIN)
+
+AC_SUBST(DATABASES_INSTALLED)
+AC_SUBST(CC)
 
 AC_SUBST(POSTGRES_INCS)
 AC_SUBST(POSTGRES_LIBDIRS)
