@@ -49,10 +49,10 @@ library:
 	fi
 	$(MAKE) BASE=$(BASE) lib opt
 	mkdir -p $(BASE)
-	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) META $(BASE)
+	$(CP) $(LIB_C) $(LIB_A) $(LIB_CMI) $(LIB) $(LIB_OPT) $(DLL) $(BASE)
 	@echo Libs are in $@/
 
-opt: lib_opt META
+opt: lib_opt
 
 lib: $(LIB_CMI) $(LIB)
 lib_opt: $(LIB_CMI) $(LIB_OPT)
@@ -69,25 +69,10 @@ $(LIB_OPT): $(OBJOCAML_OPT) $(LIBOBJ_OPT) $(LIB_C)
 	$(OCAMLOPT) -a -linkall -o $(LIB_OPT) -cclib -locamlodbc \
 		$(LINKFLAGS) $(OBJOCAML_OPT) $(LIBOBJ_OPT)
 
-META : DESTDIR=$(shell ocamlfind printconf destdir)
-META :
-	@echo 'name="ocamlodbc_$(LIB_DIR)"' > $@
-	@echo 'version="'$(PACKAGE_VERSION)'"' >> $@
-	@echo 'requires=""' >> $@
-#	echo 'directory="+ocamlodbc/$(LIB_DIR)"' >> $@
-	@echo 'archive(byte)="$(LIB)"' >> $@
-	@echo 'archive(native)="$(LIB_OPT)"' >> $@
-	@echo 'linkopts="-ccopt -L$(DESTDIR)/ocamlodbc_$(LIB_DIR)"' >> $@
-
-#libocaml_odbc.cmo: $(OBJOCAML) $(LIBOBJ)
-#	cp libocaml_odbc.cmo libocaml_odbc.cmo
-#libocaml_odbc.cmx: $(OBJOCAML_OPT) $(LIBOBJ_OPT)
-#	cp libocaml_odbc.cmx libocaml_odbc.cmx
-
 
 clean:
 	$(RM) *~ #*# *-
-	$(RM) *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a *.so META
+	$(RM) *.o *.cmi *.cmo *.cma *.cmx *.cmxa *.a *.so
 
 distclean: clean
 	$(RM) Makefile.master config.*
@@ -125,7 +110,7 @@ direct_install: dummy
 	  $(CP) $$i/* $(INSTALL_LIBDIR)/$$i/) fi) ; \
 	done
 
-findlib_install: META dummy
+findlib_install: dummy
 	for i in mysql postgres db2 unixodbc openingres oraclecfo ; do \
 	  if [ -d $$i ]; then \
 	    if (ocamlfind list | grep ocamlodbc_$$i >/dev/null); then \

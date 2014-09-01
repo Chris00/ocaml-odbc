@@ -2,6 +2,7 @@
 *.cmxa
 *.a
 *.o
+META
 .depend
 .chamo*
 configure

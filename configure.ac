@@ -24,7 +24,7 @@
 
 AC_INIT(odbc, 2.15, Christophe.Troestler@umons.ac.be)
 
-AC_MSG_RESULT([configuring $PACKAGE_STRING])
+AC_MSG_RESULT([Configuring $PACKAGE_STRING])
 
 # check for one particular file of the sources 
 define([AC_CACHE_LOAD], )dnl
@@ -392,4 +392,6 @@ AC_SUBST(ORACLECFO_INCS)
 AC_SUBST(ORACLECFO_LIBDIRS)
 AC_SUBST(ORACLECFO_LIBS)
 
-AC_OUTPUT([Makefile.master],[chmod a-w Makefile.master])
+AC_CONFIG_FILES([META],[chmod a-w META])
+AC_CONFIG_FILES([Makefile.master],[chmod a-w Makefile.master])
+AC_OUTPUT
