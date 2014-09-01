@@ -67,7 +67,7 @@ distclean: clean
 
 # documentation :
 #################
-doc: dummy
+doc:
 	$(MKDIR) doc
 	$(OCAMLDOC) $(OCAMLPP) -d doc -html \
 	-dump doc/ocamlodbc.odoc ocamlodbc.mli ocamlodbc.ml
@@ -82,13 +82,13 @@ distribdoc:
 
 # installation :
 ################
-.PHONY : install
+.PHONY : install direct_install findlib_install
 install:
 	@echo "Installation instructions:"
 	@echo '  To install using findlib type: "make findlib_install"'
 	@echo '  To install directly type : "make direct_install"'
 
-direct_install: dummy
+direct_install:
 	if test -d $(INSTALL_BINDIR); then : ; \
 	  else $(MKDIR) $(INSTALL_BINDIR); fi
 	if test -d $(INSTALL_LIBDIR); then : ; \
@@ -98,16 +98,10 @@ direct_install: dummy
 	  $(CP) $$i/* $(INSTALL_LIBDIR)/$$i/) fi) ; \
 	done
 
-findlib_install: dummy
-	for i in mysql postgres db2 unixodbc openingres oraclecfo ; do \
-	  if [ -d $$i ]; then \
-	    if (ocamlfind list | grep ocamlodbc_$$i >/dev/null); then \
-	      ocamlfind remove ocamlodbc_$$i; \
-	    fi; \
-	    ocamlfind install ocamlodbc_$$i $$i/META \
-	      `find $$i -not -name META -type f`; \
-	  fi; \
-	done
+findlib_install:
+	ocamlfind install META \
+	  $(wildcard odbc_*.cmi odbc_*.cma odbc_*.cmxa odbc_*.cmx *_stubs.a)
+
 
 # common rules
 .depend depend:: $(wildcard *.ml) $(wildcard *.mli)
@@ -117,7 +111,6 @@ findlib_install: dummy
 
 .SUFFIXES: .c .o
 
-dummy:
 
 # web site :
 ############
