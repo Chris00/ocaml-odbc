@@ -134,6 +134,6 @@ let rec window context ?(query : string option) () =
     else
       Biniki_misc.message_box Biniki_messages.mErreur Biniki_messages.m0
   with
-    Ocamlodbc.SQL_Error s ->
+    Odbc.SQL_Error s ->
     Biniki_misc.message_box Biniki_messages.mErreur s
 

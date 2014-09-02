@@ -115,7 +115,7 @@ let message_box title message =
 (*[Fonc]This function takes a clist widget and set the width of each column
    to be large enough for the largest string in the column and its
    title.[Fonc] *)
-let autosize_clist wlist =
+let autosize_clist (wlist : _ GList.clist) =
   (* get the number of columns *)
   let nb_columns = wlist#columns in
   (* get the columns titles *)
@@ -128,12 +128,11 @@ let autosize_clist wlist =
   in
   let titles = iter [] 0 in
   (* insert a row with the titles *)
-  let _ = wlist#insert ~pos:0 titles in
+  let _ = wlist#insert ~row:0 titles in
   (* use to clist columns_autosize method *)
   let _ = wlist#columns_autosize () in
   (* remove the inserted row *)
-  let _ = wlist#remove 0 in
-  ()
+  ignore(wlist#remove 0)
 ;;
 
 (*[Fonc]This function removes the trailing spaces of a string.[Fonc]*)

@@ -1,43 +1,22 @@
 
-include ../master.Makefile
+include ../Makefile.master
 
-CMOFILES = biniki_messages.cmo\
-	biniki_misc.cmo\
-	biniki_context.cmo\
-	biniki_query_box.cmo\
-	biniki_window.cmo\
-	biniki.cmo
-CMIFILES =  $(CMOFILES:.cmo=.cmi)
-CMXFILES =  $(CMOFILES:.cmo=.cmx)
+SOURCES = biniki_messages.ml \
+	biniki_misc.ml \
+	biniki_context.ml \
+	biniki_query_box.ml \
+	biniki_window.ml \
+	biniki.ml
 
-# Overriden flags
+all:
+	for d in $(DATABASES_INSTALLED); do \
+	  echo "module ODBC = Odbc_$$d" > odbc_driver.ml; \
+	  $(MAKE) -B BASE=$$d program; \
+	done
 
-COMPFLAGS=-nolabels -I ../$(SUBDIR) $(INCLUDEGTK)
-LINKFLAGS=-ccopt -L../$(SUBDIR) -I ../$(SUBDIR) $(LINKGTK)
-
-####
-BINIKI=biniki
-BINIKI_OPT=biniki.opt
-
-# targets for each database
-mysql:
-	make BASE=MYSQL all
-postgres:
-	make BASE=POSTGRES all
-openingres:
-	make BASE=OPENINGRES all
-db2:
-	make BASE=DB2 all
-unixodbc:
-	make BASE=unixODBC all
-
-oraclecfo:
-	make BASE=ORACLECFO all
-
-all: exe opt
-exe: $(BINIKI)
-opt: $(BINIKI_OPT)
-
+program: exe opt
+exe: biniki_$(BASE).byte
+opt: biniki_$(BASE).native
 
 fr:
 	$(RM) biniki_messages.ml
@@ -47,22 +26,27 @@ en:
 	$(RM) biniki_messages.ml
 	ln -s biniki_messages_en.ml biniki_messages.ml
 
-$(BINIKI): $(CMOFILES) $(CMIFILES)
-	$(OCAMLC) -o $@ $(LINKFLAGS) $(LIB) unix.cma str.cma $(LIBSGTK) $(CMOFILES)
+# Overriden flags
+COMPFLAGS=-nolabels -I ../$(SUBDIR)
+LINKFLAGS=-ccopt -L../$(SUBDIR) -I ../$(SUBDIR) $(LINKGTK)
 
-$(BINIKI_OPT): $(CMXFILES) $(CMIFILES)
-	$(OCAMLOPT) -o $@ $(LINKFLAGS) $(LIB_OPT) unix.cmxa str.cmxa $(LIBSGTK_OPT) $(CMXFILES)
+biniki_%.byte: odbc_driver.ml $(SOURCES)
+	$(OCAMLC) -o $@ -custom $(LINKFLAGS) $(LIBSGTK) \
+	  odbc.cma odbc_$(BASE).cma unix.cma str.cma $^
+
+biniki_%.native: odbc_driver.ml $(SOURCES)
+	$(OCAMLOPT) -o $@ $(LINKFLAGS) $(LIBSGTK_OPT) \
+	  odbc.cmxa odbc_$(BASE).cmxa unix.cmxa str.cmxa $^
 
 clean_all: clean
-	$(RM) $(CMOFILES) $(CMXFILES) $(CMIFILES) *.o
-	$(RM) $(BINIKI) $(BINIKI_OPT)
+	$(RM) $(wildcard *.cmo *.cmx *.cmi *.o *.byte *.native)
 
 clean:
 	$(RM) *~ #*# *-
 
 # common rules
 .depend depend::
-	rm -f .depend
+	$(RM) .depend
 	$(OCAMLDEP) $(INCLUDES) *.ml *.mli > .depend
 
 include .depend

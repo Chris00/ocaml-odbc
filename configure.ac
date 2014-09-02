@@ -348,6 +348,58 @@ fi
 CPP_FLAGS="$OLD_CPPFLAGS"
 
 
+# Check for OCaml libraries
+
+AC_PATH_PROG(OCAMLFIND,ocamlfind,no)
+if test "$OCAMLFIND" = no ; then
+	AC_MSG_ERROR(Cannot find ocamlfind.)
+fi
+
+# OCAML_LIB(lib, action-if-found, action-if-not-found)
+# action-if-found can use the variable ocaml_lib_path
+AC_DEFUN([OCAML_LIB],[
+  AC_ARG_WITH([$1],
+    AC_HELP_STRING([--with-$1=PATH], [set the path of the OCaml library $1]),
+    [], [])
+
+  AC_MSG_CHECKING(for OCaml library $1)
+  # $1 substituted when the script configure is written
+  if test "$with_$1" != "" ; then
+    if test "$with_$1" = "yes" ; then
+      AC_MSG_ERROR(Option --with-$1=PATH with PATH not provided)
+    else
+      if test "$with_$1" = "no" ; then
+        AC_MSG_RESULT(disabled)
+	$3
+      else
+        ocaml_lib_path="$with_$1"
+	AC_MSG_RESULT($ocaml_lib_path)
+        $2
+      fi
+    fi
+  else
+    ocaml_lib_path=`$OCAMLFIND query $1 2> /dev/null || echo no`
+    if test "$ocaml_lib_path" != "no" ; then
+      AC_MSG_RESULT($ocaml_lib_path)
+      $2
+    else
+      # Look in the standard OCaml directory
+      ocaml_lib=`find $OCAMLLIBPATH -name $1.cma | head -n 1`
+      if test "$ocaml_lib" != "" ; then
+        ocaml_lib_path=`dirname $ocaml_lib`
+	AC_MSG_RESULT($ocaml_lib_path)
+        $2
+      else
+	AC_MSG_RESULT(not found; use --with-$1=PATH to indicate its location $3)
+      fi
+    fi
+  fi
+])
+
+OCAML_LIB(lablgtk2, [LABLGTK2_PATH=$ocaml_lib_path],
+		    [(Bikini will not be compiled.)])
+
+
 
 # substitutions to perform
 AC_SUBST(PACKAGE_NAME)
@@ -389,6 +441,8 @@ AC_SUBST(OPENINGRES_LIBS)
 AC_SUBST(ORACLECFO_INCS)
 AC_SUBST(ORACLECFO_LIBDIRS)
 AC_SUBST(ORACLECFO_LIBS)
+
+AC_SUBST(LABLGTK2_PATH)
 
 AC_CONFIG_FILES([META],[chmod a-w META])
 AC_CONFIG_FILES([Makefile.master],[chmod a-w Makefile.master])

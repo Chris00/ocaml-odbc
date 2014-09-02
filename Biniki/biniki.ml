@@ -23,6 +23,8 @@
 (*                                                                          *)
 (****************************************************************************)
 
+open Odbc_driver
+
 (*[Mo] This is the main module of Biniki. [Mo]*)
 
 let base = 
@@ -40,12 +42,12 @@ let passwd =
   with _ -> ""
 
 (* create a database object *)
-let db = new Ocamlodbc.data_base base user passwd
+let db = new ODBC.database base user passwd
 
 (* connect to data base *)
 let _ =
   try db#connect ()
-  with Ocamlodbc.SQL_Error s ->
+  with Odbc.SQL_Error s ->
     output_string stderr (s^"\n");
     exit 2
 
@@ -59,6 +61,6 @@ let _ = Biniki_window.window context ()
 (* disconnect from data base *)
 let _ =
   try db#disconnect ()
-  with Ocamlodbc.SQL_Error s ->
+  with Odbc.SQL_Error s ->
     output_string stderr (s^"\n");
     exit 3

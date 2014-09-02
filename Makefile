@@ -29,6 +29,10 @@ all:
 	  $(MAKE) BASE=$$d library; \
 	done
 
+Exemples Biniki:
+	$(MAKE) -C $@
+
+
 # For all databases -- distinguished by $(BASE)
 ###############################################
 library: $(addprefix odbc, .cma .cmxa)

@@ -26,11 +26,12 @@
 (*[Mo] This module contains the context class, used to
    load, write and manage the history of queries.[Mo]*)
 
+open Odbc_driver (* define the ODBC module *)
 
 (*[Cl] This class is used to manage the history of queries
    and provide access to the database
    through  all the application.[Cl]*)
-class context (base : string) (db : Ocamlodbc.data_base) =
+class context (base : string) (db : ODBC.database) =
   object (self)
     (*[At] The name of the history file. [At]*)
     val history_file = 

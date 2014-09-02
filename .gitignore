@@ -7,6 +7,8 @@ META
 odbc_*.c
 odbc_*.ml
 odbc_*.mli
+*.byte
+*.native
 .depend
 .chamo*
 configure
@@ -15,3 +17,4 @@ config.status
 Makefile.master
 autom4te.cache/
 Biniki/biniki_messages.ml
+Biniki/Odbc_driver.ml

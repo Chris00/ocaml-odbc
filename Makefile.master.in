@@ -44,11 +44,6 @@ OCAMLPP=-pp 'grep -v DEBUG'
 ##############
 MKDIR=mkdir -p
 CP=cp -f
-LIB=ocamlodbc.cma
-LIB_OPT=$(LIB:.cma=.cmxa)
-LIB_A=ocamlodbc.a
-LIB_C=libocamlodbc.a
-LIB_CMI=$(LIB:.cma=.cmi)
 INSTALL_LIBDIR=$(OCAMLLIB)/odbc
 INSTALL_STUBS=$(OCAMLLIB)/stublibs
 INSTALL_BINDIR=$(OCAMLBIN)
@@ -58,12 +53,11 @@ MV=@mv -f
 
 #################################
 # For Biniki
-LABLGTKDIR=$(OCAMLLIB)/lablgtk2
-LIBSGTK=$(LABLGTKDIR)/lablgtk.cma $(LABLGTKDIR)/gtkInit.cmo #$(OCAMLLIB)/lablgl.cma
-LIBSGTK_OPT=$(LABLGTKDIR)/lablgtk.cmxa $(LABLGTKDIR)/gtkInit.cmx #$(OCAMLLIB)/lablgl.cmxa
+LABLGTKDIR=@LABLGTK2_PATH@
+LIBSGTK=-I $(LABLGTKDIR) $(LABLGTKDIR)/lablgtk.cma $(LABLGTKDIR)/gtkInit.cmo
+LIBSGTK_OPT=-I $(LABLGTKDIR) $(LABLGTKDIR)/lablgtk.cmxa $(LABLGTKDIR)/gtkInit.cmx
 #LINKGTK=-ccopt "${GLIB_LIBS} $(shell gtk-config --libs) -L$(LABLGTKDIR) -llablgtk "
 LINKGTK=-ccopt "-L$(OCAMLLIB)/lablgtk2"
-INCLUDEGTK=  -I $(LABLGTKDIR)
 
 BINIKI=biniki
 BINIKI_OPT=biniki.opt

@@ -44,10 +44,10 @@ class box context ?(query : string option) column_list records =
       ()
   in
   let wlist = GList.clist
-    ~titles_show: true
-      ~titles: (List.map fst column_list)
-      ~packing: (wscroll#add)
-      ()
+                ~titles_show:true
+                ~titles:(List.map fst column_list)
+                ~packing:(wscroll#add)
+                ()
   in
 
   object(self)
@@ -57,31 +57,28 @@ class box context ?(query : string option) column_list records =
     initializer
       (* fill the wlist with the records *)
       let f l =
-        let _ = wlist#append (List.map (function None -> "<NULL>"
-                                               | Some s -> s) l) in
-        ()
-      in
+        ignore(wlist#append (List.map (function None -> "<NULL>"
+                                              | Some s -> s) l))  in
       List.iter f records;
       Biniki_misc.autosize_clist wlist;
       let rec iter n (name, typ) =
         wlist#set_column
           (*~title: (name^"\n"^(Ocamlodbc.SQL_column.string typ))*)
-          ~justification:
-          (match typ with
-             Ocamlodbc.SQL_numeric
-           | Ocamlodbc.SQL_decimal
-           | Ocamlodbc.SQL_integer
-           | Ocamlodbc.SQL_smallint
-           | Ocamlodbc.SQL_float
-           | Ocamlodbc.SQL_real
-           | Ocamlodbc.SQL_double
-           | Ocamlodbc.SQL_bigint
-           | Ocamlodbc.SQL_tinyint
-           | Ocamlodbc.SQL_bit ->
-               `RIGHT
-           | _ ->
-               `LEFT
-          )
+          ~justification:(match typ with
+                          | Odbc.Numeric
+                          | Odbc.Decimal
+                          | Odbc.Integer
+                          | Odbc.Smallint
+                          | Odbc.Float
+                          | Odbc.Real
+                          | Odbc.Double
+                          | Odbc.Bigint
+                          | Odbc.Tinyint
+                          | Odbc.Bit ->
+                             `RIGHT
+                          | _ ->
+                             `LEFT
+                         )
           n;
         n + 1
       in
