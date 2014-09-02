@@ -19,3 +19,4 @@ Makefile.master
 autom4te.cache/
 Biniki/biniki_messages.ml
 Biniki/Odbc_driver.ml
+*.tar.gz

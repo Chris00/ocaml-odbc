@@ -24,6 +24,8 @@
 
 include Makefile.master
 
+TARBALL=ocaml-$(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.gz
+
 all:
 	for d in $(DATABASES_INSTALLED); do \
 	  $(MAKE) BASE=$$d library; \
@@ -111,6 +113,10 @@ findlib_install: all
 	ocamlfind install odbc META odbc.cma odbc.cmx odbc.cmxa \
 	  $(wildcard odbc_*.cmi odbc_*.cma odbc_*.cmxa odbc_*.cmx *_stubs.so)
 
+
+dist:
+	git archive -o $(TARBALL) --prefix=$(PACKAGE_NAME)-$(PACKAGE_VERSION)/ \
+	  HEAD #$(PACKAGE_VERSION)
 
 # common rules
 .depend depend:: $(wildcard *.ml) $(wildcard *.mli)
