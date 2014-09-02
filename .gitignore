@@ -10,7 +10,7 @@ odbc_*.mli
 *.byte
 *.native
 .depend
-opam
+opam/opam
 .chamo*
 configure
 config.log

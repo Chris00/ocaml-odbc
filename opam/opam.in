@@ -13,3 +13,8 @@ build: [
 install: [make "findlib_install"]
 remove: ["ocamlfind" "remove" "odbc"]
 depends: "ocamlfind" {build}
+depexts: [
+  [ [ "ubuntu"  ] [ "unixodbc-dev" ] ]
+  [ [ "debian"  ] [ "unixodbc-dev" ] ]
+#  [ [ "osx" "homebrew" ] [ "fftw" ] ]
+]
