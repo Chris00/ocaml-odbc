@@ -92,7 +92,7 @@ val execute_gen :
     connection occurs when the object is created.
     @raise SQL_Error if an error occured during the connection to the
     database.  *)
-class data_base :
+class database :
   string ->
   string ->
   string ->

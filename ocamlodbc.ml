@@ -142,7 +142,7 @@ let execute_with_info conn req =
    @param user the user to use when connecting
    @param passwd the password to use when connecting, can be [""]
 *)
-class data_base base user passwd =
+class database base user passwd =
 object (self)
   (** The connection, initialized when the object is created. *)
   val connection = connect base user passwd
