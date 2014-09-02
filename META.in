@@ -1,11 +1,15 @@
 name="odbc"
 version="@PACKAGE_VERSION@"
+description = "ODBC interface, definitions used by all modules"
+archive(byte) = "odbc.cma"
+archive(native) = "odbc.cmxa"
 
 package "postgres" (
   version = "@PACKAGE_VERSION@"
   description = "PostgreSQL driver for ODBC."
   archive(byte) = "odbc_postgres.cma"
   archive(native) = "odbc_postgres.cmxa"
+  requires = "odbc"
   exists_if = "odbc_postgres.cma"
 )
 
@@ -14,6 +18,7 @@ package "mysql" (
   description = "MySQL driver for ODBC."
   archive(byte) = "odbc_mysql.cma"
   archive(native) = "odbc_mysql.cmxa"
+  requires = "odbc"
   exists_if = "odbc_mysql.cma"
 )
 
@@ -22,6 +27,7 @@ package "unixodbc" (
   description = "UnixODBC driver."
   archive(byte) = "odbc_unixodbc.cma"
   archive(native) = "odbc_unixodbc.cmxa"
+  requires = "odbc"
   exists_if = "odbc_unixodbc.cma"
 )
 
@@ -30,6 +36,7 @@ package "db2" (
   description = "DB2 driver for ODBC."
   archive(byte) = "odbc_db2.cma"
   archive(native) = "odbc_db2.cmxa"
+  requires = "odbc"
   exists_if = "odbc_db2.cma"
 )
 
@@ -38,6 +45,7 @@ package "openingres" (
   description = "Open Ingres driver for ODBC."
   archive(byte) = "odbc_openingres.cma"
   archive(native) = "odbc_openingres.cmxa"
+  requires = "odbc"
   exists_if = "odbc_openingres.cma"
 )
 
@@ -46,5 +54,6 @@ package "oracle" (
   description = " Oracle 'Connect for ODBC' driver for ODBC."
   archive(byte) = "odbc_oracle.cma"
   archive(native) = "odbc_oracle.cmxa"
+  requires = "odbc"
   exists_if = "odbc_oracle.cma"
 )

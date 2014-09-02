@@ -27,41 +27,6 @@
     See http://home.gna.org/ocamlodbc/configuring.html for
     configutation information. *)
 
-(** To report errors. *)
-exception SQL_Error of string
-
-
-(** The various SQL types for columns. *)
-type sql_column_type =
-  | SQL_unknown
-  | SQL_char
-  | SQL_numeric
-  | SQL_decimal
-  | SQL_integer
-  | SQL_smallint
-  | SQL_float
-  | SQL_real
-  | SQL_double
-  | SQL_varchar
-  | SQL_date
-  | SQL_time
-  | SQL_timestamp
-  | SQL_longvarchar
-  | SQL_binary
-  | SQL_varbinary
-  | SQL_longvarbinary
-  | SQL_bigint
-  | SQL_tinyint
-  | SQL_bit
-
-
-module SQL_column :
-sig
-  type t = sql_column_type
-  val string : sql_column_type -> string
-end
-
-
 (** {2 Classic interface} *)
 
 (** The type of connections to databases. *)
@@ -101,7 +66,7 @@ val execute : connection -> string -> int * string option list list
 
 val execute_with_info :
   connection -> string
-  -> int * (string * sql_column_type) list * string option list list
+  -> int * (string * Odbc.sql_t) list * string option list list
   (** [execute_with_info c q] executes query [q] through connection [c] and
       returns the result as a tuple [(error_code, type_list, record list)],
       where [type_list] indicates the SQL types of the returned columns,
@@ -110,7 +75,7 @@ val execute_with_info :
 
 val execute_gen :
   connection -> ?get_info:bool -> ?n_rec:int -> string ->
-  (string option list list -> unit) -> int * (string * sql_column_type) list
+  (string option list list -> unit) -> int * (string * Odbc.sql_t) list
   (** [execute_gen c get_info n_rec q callback] executes query [q] over
       the connection [c], and invokes [callback] on successful blocks of
       the results (of [n_rec] records each). Each record is a [string
@@ -147,8 +112,8 @@ object
       list]. The [error_code] is 0 if no error occured.*)
 
   method execute_with_info :
-    string -> int * ((string * sql_column_type) list)
-                  * (string option list list)
+           string -> int * ((string * Odbc.sql_t) list)
+                    * (string option list list)
   (** [#execute_with_info q] executes query [q] and returns the result
       as a tuple [(error_code, type_list, record list)], where
       [type_list] indicates the SQL types of the returned columns, and
@@ -158,7 +123,7 @@ object
 
   method execute_gen :
     ?get_info:bool -> ?n_rec:int -> string ->
-    (string option list list -> unit) -> int * (string * sql_column_type) list
+    (string option list list -> unit) -> int * (string * Odbc.sql_t) list
   (** [#execute_gen get_info n_rec q callback] executes query [q] and
       invokes [callback] on successful blocks of the results (of
       [n_rec] records each). Each record is a [string list] of fields.

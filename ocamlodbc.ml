@@ -22,59 +22,12 @@
 (* Contact: Maxence.Guesdon@inria.fr                                         *)
 (*****************************************************************************)
 
-exception SQL_Error of string
-
-(* BEWARE: Keep constructor in the right order w.r.t. OCAML_SQL_*
-   constants in ocaml_odbc_c.c *)
-type sql_column_type =
-  | SQL_unknown
-  | SQL_char
-  | SQL_numeric
-  | SQL_decimal
-  | SQL_integer
-  | SQL_smallint
-  | SQL_float
-  | SQL_real
-  | SQL_double
-  | SQL_varchar
-  | SQL_date
-  | SQL_time
-  | SQL_timestamp
-  | SQL_longvarchar
-  | SQL_binary
-  | SQL_varbinary
-  | SQL_longvarbinary
-  | SQL_bigint
-  | SQL_tinyint
-  | SQL_bit
-
 
 (** The module for the column type and its conversion into a string. *)
 module SQL_column =
 struct
-  type t = sql_column_type
-  let string col_type =
-    match col_type with
-    | SQL_unknown -> "SQL_unknown"
-    | SQL_char -> "SQL_char"
-    | SQL_numeric -> "SQL_numeric"
-    |	SQL_decimal -> "SQL_decimal"
-    | SQL_integer -> "SQL_integer"
-    | SQL_smallint -> "SQL_smallint"
-    | SQL_float -> "SQL_float"
-    | SQL_real -> "SQL_real"
-    | SQL_double -> "SQL_double"
-    | SQL_varchar -> "SQL_varchar"
-    | SQL_date -> "SQL_date"
-    | SQL_time -> "SQL_time"
-    | SQL_timestamp -> "SQL_timestamp"
-    | SQL_longvarchar -> "SQL_longvarchar"
-    | SQL_binary -> "SQL_binary"
-    | SQL_varbinary -> "SQL_varbinary"
-    | SQL_longvarbinary -> "SQL_longvarbinary"
-    | SQL_bigint -> "SQL_bigint"
-    | SQL_tinyint -> "SQL_tinyint"
-    | SQL_bit -> "SQL_bit"
+  type t = Odbc.sql_t
+  let string = Odbc.string_of_sql_t
 end
 
 module SQLInterface = Ocamlodbc_lowlevel.Interface(SQL_column)
@@ -110,7 +63,7 @@ let connect base user passwd =
       passwd = passwd ;
     }
   else
-    raise (SQL_Error (OCamlODBC_messages.connection base user passwd iRC1))
+    raise (Odbc.SQL_Error (OCamlODBC_messages.connection base user passwd iRC1))
 
 let connect_driver ?(prompt=false) connect_string =
   let (iRC1,hEnv,pHDbc) = SQLInterface.initDB_driver connect_string prompt in
@@ -123,11 +76,12 @@ let connect_driver ?(prompt=false) connect_string =
       passwd = "" ;
     }
   else
-    raise (SQL_Error (OCamlODBC_messages.connection_driver connect_string iRC1))
+    raise (Odbc.SQL_Error (OCamlODBC_messages.connection_driver
+                             connect_string iRC1))
 
 let disconnect connection =
   let iRC = SQLInterface.exitDB connection.phEnv connection.phDbc in
-  if iRC <> 0 then raise(SQL_Error OCamlODBC_messages.disconnect)
+  if iRC <> 0 then raise(Odbc.SQL_Error OCamlODBC_messages.disconnect)
 
 (** Cette fonction exécute une requête interrompue par des appels
     réguliers au GC. Elle retourne un triplet : code d'erreur (0 si
@@ -137,7 +91,7 @@ let disconnect connection =
 *)
 let execute_gen conn ?(get_info=false) ?(n_rec=40) req callback =
   if req = "" then
-    (-1, ([] : (string * sql_column_type) list))
+    (-1, ([] : (string * Odbc.sql_t) list))
   else (
     let (ret, env) = SQLInterface.execDB conn.phEnv conn.phDbc req in
     match ret with

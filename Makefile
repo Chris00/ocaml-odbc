@@ -31,7 +31,7 @@ all:
 
 # For all databases -- distinguished by $(BASE)
 ###############################################
-library:
+library: $(addprefix odbc, .cma .cmxa)
 	@if [ -z "$(BASE)" ]; then \
 	  echo "*** ERROR: The variable BASE must be set."; exit 1; \
 	else \
@@ -39,6 +39,11 @@ library:
 	fi
 	$(MAKE) BASE=$(BASE) ocamlmklib
 
+odbc.cma: odbc.cmo odbc.cmi
+	$(OCAMLC) -a -o $@ $<
+
+odbc.cmxa: odbc.cmx odbc.cmi
+	$(OCAMLOPT) -a -o $@ $<
 
 odbc_$(BASE)_c.c: ocaml_odbc_c.c
 	sed -e 's/ocamlodbc_/ocamlodbc_$(BASE)_/' $< > $@
