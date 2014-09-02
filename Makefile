@@ -94,18 +94,18 @@ install:
 	@echo '  To install directly type : "make direct_install"'
 
 direct_install:
-	if test -d $(INSTALL_BINDIR); then : ; \
-	  else $(MKDIR) $(INSTALL_BINDIR); fi
-	if test -d $(INSTALL_LIBDIR); then : ; \
-	  else $(MKDIR) $(INSTALL_LIBDIR); fi
-	for i in mysql postgres db2 unixodbc openingres oraclecfo ; \
-	do (if test -d $$i ; then ($(MKDIR) $(INSTALL_LIBDIR)/$$i ; \
-	  $(CP) $$i/* $(INSTALL_LIBDIR)/$$i/) fi) ; \
+	test -d $(INSTALL_LIBDIR) || $(MKDIR) $(INSTALL_LIBDIR)
+	$(CP) META odbc.cma odbc.cmx odbc.cmxa \
+	  $(wildcard odbc_*.cmi odbc_*.cma odbc_*.cmxa odbc_*.cmx)
+	  $(INSTALL_LIBDIR)
+	for f in $(wildcard *_stubs.so); do \
+	  $(CP) $$f $(INSTALL_STUBS); \
+	  echo "odbc" > $(INSTALL_STUBS)/$$f.owner; \
 	done
 
-findlib_install:
-	ocamlfind install META \
-	  $(wildcard odbc_*.cmi odbc_*.cma odbc_*.cmxa odbc_*.cmx *_stubs.a)
+findlib_install: all
+	ocamlfind install odbc META odbc.cma odbc.cmx odbc.cmxa \
+	  $(wildcard odbc_*.cmi odbc_*.cma odbc_*.cmxa odbc_*.cmx *_stubs.so)
 
 
 # common rules
