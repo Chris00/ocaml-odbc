@@ -446,4 +446,5 @@ AC_SUBST(LABLGTK2_PATH)
 
 AC_CONFIG_FILES([META],[chmod a-w META])
 AC_CONFIG_FILES([Makefile.master],[chmod a-w Makefile.master])
+AC_CONFIG_FILES([opam],[chmod a-w opam])
 AC_OUTPUT
