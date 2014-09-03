@@ -114,9 +114,16 @@ findlib_install: all
 	  $(wildcard odbc_*.cmi odbc_*.cma odbc_*.cmxa odbc_*.cmx *_stubs.so)
 
 
-dist:
-	git archive -o $(TARBALL) --prefix=$(PACKAGE_NAME)-$(PACKAGE_VERSION)/ \
-	  HEAD #$(PACKAGE_VERSION)
+PKG_DIR = $(PACKAGE_NAME)-$(PACKAGE_VERSION)/
+
+dist tar: configure
+	$(MKDIR) -p $(PKG_DIR)
+	$(CP) --parents $^ `git ls-files` $(PKG_DIR)
+	tar -acf $(TARBALL) $(PKG_DIR)
+	$(RM) -rf $(PKG_DIR)
+
+configure: configure.ac
+	aclocal && autoconf
 
 # common rules
 .depend depend:: $(wildcard *.ml) $(wildcard *.mli)
