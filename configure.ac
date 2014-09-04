@@ -26,100 +26,16 @@ AC_INIT(odbc, 3.0, Christophe.Troestler@umons.ac.be)
 
 AC_MSG_RESULT([Configuring $PACKAGE_STRING])
 
-# check for one particular file of the sources 
-define([AC_CACHE_LOAD], )dnl
-define([AC_CACHE_SAVE], )dnl
+AC_CONFIG_MACRO_DIR([m4])
 
 # Check for Ocaml compilers
-
-# we first look for ocamlc in the path; if not present, we fail
-AC_CHECK_PROG(OCAMLC,ocamlc,`which ocamlc`,no)
-if test "$OCAMLC" = no ; then
-	AC_MSG_ERROR(Cannot find ocamlc.)
+AC_PROG_OCAML
+if test "$OCAMLC" = "no"; then
+  AC_MSG_ERROR([You must install the OCaml compiler])
 fi
-
-# we look for the directory of ocamlc in $OCAMLC
-OCAMLBIN=`dirname $OCAMLC`
-
-# we extract Ocaml version number and library path
-OCAMLVERSION=`$OCAMLC -v | sed -n -e 's|.*version* *\(.*\)$|\1|p' `
-echo "ocaml version is $OCAMLVERSION"
-OCAMLLIB=`$OCAMLC -v | tail -1 | cut -f 4 -d " "`
-echo "ocaml library path is $OCAMLLIB"
-
-# then we look for ocamlopt; if not present, we issue a warning
-# if the version is not the same, we also discard it
-# we set OCAMLBEST to "opt" or "byte", whether ocamlopt is available or not
-AC_CHECK_PROG(OCAMLOPT,ocamlopt,`which ocamlopt`,no)
-OCAMLBEST=byte
-if test "$OCAMLOPT" = no ; then
-	AC_MSG_WARN(Cannot find ocamlopt; bytecode compilation only.)
-else
-	AC_MSG_CHECKING(ocamlopt version)
-	TMPVERSION=`$OCAMLOPT -v | sed -n -e 's|.*version* *\(.*\)$|\1|p' `
-	if test "$TMPVERSION" != "$OCAMLVERSION" ; then
-	    AC_MSG_RESULT(differs from ocamlc; ocamlopt discarded.)
-	    OCAMLOPT=no
-	else
-	    AC_MSG_RESULT(ok)
-	    OCAMLBEST=opt
-	fi
+if test "$OCAMLMKLIB" = "no" ; then
+  AC_MSG_ERROR(Cannot find ocamlmklib)
 fi
-
-# Now we need ocamlmklib
-# if the version is not the same, we also discard it
-# we set OCAMLBEST to "opt" or "byte", whether ocamlopt is available or not
-AC_CHECK_PROG(OCAMLMKLIB,ocamlmklib,`which ocamlmklib`,no)
-if test "$OCAMLMKLIB" = no ; then
-	AC_MSG_ERROR(Cannot find ocamlmklib)
-fi
-
-# checking for ocamlc.opt
-AC_CHECK_PROG(OCAMLCDOTOPT,ocamlc.opt,`which ocamlc.opt`,no)
-if test "$OCAMLCDOTOPT" != no ; then
-	AC_MSG_CHECKING(ocamlc.opt version)
-	TMPVERSION=`$OCAMLCDOTOPT -v | sed -n -e 's|.*version* *\(.*\)$|\1|p' `
-	if test "$TMPVERSION" != "$OCAMLVERSION" ; then
-	    AC_MSG_RESULT(differs from ocamlc; ocamlc.opt discarded.)
-	else
-	    AC_MSG_RESULT(ok)
-	    OCAMLC=$OCAMLCDOTOPT
-	fi
-fi
-
-# checking for ocamlopt.opt
-if test "$OCAMLOPT" != no ; then
-    AC_CHECK_PROG(OCAMLOPTDOTOPT,ocamlopt.opt,`which ocamlopt.opt`,no)
-    if test "$OCAMLOPTDOTOPT" != no ; then
-	AC_MSG_CHECKING(ocamlc.opt version)
-	TMPVER=`$OCAMLOPTDOTOPT -v | sed -n -e 's|.*version* *\(.*\)$|\1|p' `
-	if test "$TMPVER" != "$OCAMLVERSION" ; then
-	    AC_MSG_RESULT(differs from ocamlc; ocamlopt.opt discarded.)
-	else
-	    AC_MSG_RESULT(ok)
-	    OCAMLOPT=$OCAMLOPTDOTOPT
-	fi
-    fi
-fi
-
-# ocamldep, ocamllex and ocamlyacc should also be present in the path
-AC_CHECK_PROG(OCAMLDEP,ocamldep,`which ocamldep`,no)
-if test "$OCAMLDEP" = no ; then
-	AC_MSG_ERROR(Cannot find ocamldep.)
-fi
-
-AC_CHECK_PROG(OCAMLLEX,ocamllex,`which ocamllex`,no)
-if test "$OCAMLLEX" = no ; then
-	AC_MSG_ERROR(Cannot find ocamllex.)
-fi
-
-AC_CHECK_PROG(OCAMLYACC,ocamlyacc,`which ocamlyacc`,no)
-if test "$OCAMLYACC" = no ; then
-	AC_MSG_ERROR(Cannot find ocamlyacc.)
-fi
-
-AC_CHECK_PROG(OCAMLDOC,ocamldoc,`which ocamldoc`,no)
-
 
 # Check for databases
 
@@ -350,56 +266,10 @@ CPP_FLAGS="$OLD_CPPFLAGS"
 
 # Check for OCaml libraries
 
-AC_PATH_PROG(OCAMLFIND,ocamlfind,no)
-if test "$OCAMLFIND" = no ; then
-	AC_MSG_ERROR(Cannot find ocamlfind.)
+AC_CHECK_OCAML_PKG([lablgtk2])
+if test "$OCAML_PKG_lablgtk2" = "no"; then
+  AC_MSG_WARN([Biniki will not be compiled.])
 fi
-
-# OCAML_LIB(lib, action-if-found, action-if-not-found)
-# action-if-found can use the variable ocaml_lib_path
-AC_DEFUN([OCAML_LIB],[
-  AC_ARG_WITH([$1],
-    AC_HELP_STRING([--with-$1=PATH], [set the path of the OCaml library $1]),
-    [], [])
-
-  AC_MSG_CHECKING(for OCaml library $1)
-  # $1 substituted when the script configure is written
-  if test "$with_$1" != "" ; then
-    if test "$with_$1" = "yes" ; then
-      AC_MSG_ERROR(Option --with-$1=PATH with PATH not provided)
-    else
-      if test "$with_$1" = "no" ; then
-        AC_MSG_RESULT(disabled)
-	$3
-      else
-        ocaml_lib_path="$with_$1"
-	AC_MSG_RESULT($ocaml_lib_path)
-        $2
-      fi
-    fi
-  else
-    ocaml_lib_path=`$OCAMLFIND query $1 2> /dev/null || echo no`
-    if test "$ocaml_lib_path" != "no" ; then
-      AC_MSG_RESULT($ocaml_lib_path)
-      $2
-    else
-      # Look in the standard OCaml directory
-      ocaml_lib=`find $OCAMLLIBPATH -name $1.cma | head -n 1`
-      if test "$ocaml_lib" != "" ; then
-        ocaml_lib_path=`dirname $ocaml_lib`
-	AC_MSG_RESULT($ocaml_lib_path)
-        $2
-      else
-	AC_MSG_RESULT(not found; use --with-$1=PATH to indicate its location $3)
-      fi
-    fi
-  fi
-])
-
-OCAML_LIB(lablgtk2, [LABLGTK2_PATH=$ocaml_lib_path],
-		    [(Bikini will not be compiled.)])
-
-
 
 # substitutions to perform
 AC_SUBST(PACKAGE_NAME)
@@ -441,8 +311,6 @@ AC_SUBST(OPENINGRES_LIBS)
 AC_SUBST(ORACLECFO_INCS)
 AC_SUBST(ORACLECFO_LIBDIRS)
 AC_SUBST(ORACLECFO_LIBS)
-
-AC_SUBST(LABLGTK2_PATH)
 
 AC_CONFIG_FILES([META],[chmod a-w META])
 AC_CONFIG_FILES([Makefile.master],[chmod a-w Makefile.master])

@@ -34,7 +34,7 @@ OCAMLDEP = @OCAMLDEP@
 OCAMLLEX = @OCAMLLEX@
 OCAMLYACC= @OCAMLYACC@
 OCAMLLIB = @OCAMLLIB@
-OCAMLBEST= @OCAMLBEST@
+OCAMLBEST= @OCAMLBEST@ # byte or opt
 OCAMLVERSION = @OCAMLVERSION@
 EXTRAC_CRC = $(OCAMLLIB)/extract_crc
 OCAMLDOC= @OCAMLDOC@
@@ -53,11 +53,8 @@ MV=@mv -f
 
 #################################
 # For Biniki
-LABLGTKDIR=@LABLGTK2_PATH@
-LIBSGTK=-I $(LABLGTKDIR) $(LABLGTKDIR)/lablgtk.cma $(LABLGTKDIR)/gtkInit.cmo
-LIBSGTK_OPT=-I $(LABLGTKDIR) $(LABLGTKDIR)/lablgtk.cmxa $(LABLGTKDIR)/gtkInit.cmx
-#LINKGTK=-ccopt "${GLIB_LIBS} $(shell gtk-config --libs) -L$(LABLGTKDIR) -llablgtk "
-LINKGTK=-ccopt "-L$(OCAMLLIB)/lablgtk2"
+OCAMLFIND = @OCAMLFIND@
+OCAML_PKG_LABLGTK2 = @OCAML_PKG_lablgtk2@
 
 BINIKI=biniki
 BINIKI_OPT=biniki.opt
