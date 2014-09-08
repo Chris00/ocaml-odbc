@@ -19,12 +19,13 @@
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA                   #
 #  02111-1307  USA                                                            #
 #                                                                             #
-#  Contact: Maxence.Guesdon@inria.fr                                          #
 ###############################################################################
 
 include Makefile.master
 
 TARBALL=ocaml-$(PACKAGE_NAME)-$(PACKAGE_VERSION).tar.gz
+
+SED = LC_ALL=C sed
 
 all:
 	for d in $(DATABASES_INSTALLED); do \
@@ -52,15 +53,15 @@ odbc.cmxa: odbc.cmx odbc.cmi
 	$(OCAMLOPT) -a -o $@ $<
 
 odbc_$(BASE)_c.c: ocaml_odbc_c.c
-	sed -e 's/ocamlodbc_/ocamlodbc_$(BASE)_/' $< > $@
+	$(SED) -e 's/ocamlodbc_/ocamlodbc_$(BASE)_/' $< > $@
 
 odbc_$(BASE)_c.o: odbc_$(BASE)_c.c
 	$(CC) -c $(CFLAGS) $(OPTODBC) $(ODBCINCLUDE) $<
 
 odbc_$(BASE)_lowlevel.ml: ocamlodbc_lowlevel.ml
-	sed -e 's/ocamlodbc_/ocamlodbc_$(BASE)_/' $< > $@
+	$(SED) -e 's/ocamlodbc_/ocamlodbc_$(BASE)_/' $< > $@
 odbc_$(BASE).ml: ocamlodbc.ml
-	sed -e 's/Ocamlodbc_lowlevel/Odbc_$(BASE)_lowlevel/' $< > $@
+	$(SED) -e 's/Ocamlodbc_lowlevel/Odbc_$(BASE)_lowlevel/' $< > $@
 odbc_$(BASE).mli: ocamlodbc.mli
 	$(CP) $< $@
 
