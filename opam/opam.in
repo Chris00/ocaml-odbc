@@ -16,5 +16,5 @@ depends: "ocamlfind" {build}
 depexts: [
   [ [ "ubuntu"  ] [ "unixodbc-dev" ] ]
   [ [ "debian"  ] [ "unixodbc-dev" ] ]
-#  [ [ "osx" "homebrew" ] [ "fftw" ] ]
+  [ [ "osx" "homebrew" ] [ "unixodbc" ] ]
 ]
